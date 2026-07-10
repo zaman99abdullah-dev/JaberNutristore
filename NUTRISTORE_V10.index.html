@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>NutriStore — Jaber Al Ahmad Hospital</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0f1e; --bg2:#0f172a;
+  --surface:#1a2236; --surface2:#1e2a40;
+  --border:#253047; --border2:#2e3f5c;
+  --text:#e2e8f0; --text2:#7a90aa; --text3:#3d5070;
+  --accent:#3b82f6;
+  --grad:linear-gradient(135deg,#3b82f6,#6366f1);
+  --green:#22c55e; --green-bg:rgba(34,197,94,.1);  --green-t:#4ade80;
+  --amber:#f59e0b; --amber-bg:rgba(245,158,11,.1); --amber-t:#fbbf24;
+  --red:#ef4444;   --red-bg:rgba(239,68,68,.1);    --red-t:#f87171;
+  --blue:#3b82f6;  --blue-bg:rgba(59,130,246,.1);  --blue-t:#60a5fa;
+  --grey:#475569;  --grey-bg:rgba(71,85,105,.15);  --grey-t:#94a3b8;
+  --purple:#8b5cf6; --purple-bg:rgba(139,92,246,.1); --purple-t:#a78bfa;
+  --r:12px; --rs:8px;
+}
+html{font-size:16px}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-tap-highlight-color:transparent}
+button{cursor:pointer;font-family:inherit;border:none;outline:none;transition:opacity .15s,transform .1s}
+input,textarea,select{font-family:inherit;border:1.5px solid var(--border2);border-radius:var(--rs);padding:11px 14px;font-size:.9375rem;color:var(--text);width:100%;background:var(--surface2);transition:border-color .2s;-webkit-appearance:none}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.hidden{display:none!important}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:100px}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);padding:11px 22px;border-radius:100px;font-size:.875rem;font-weight:600;white-space:nowrap;z-index:9999;pointer-events:none;transition:transform .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.ok  {background:linear-gradient(135deg,#16a34a,#15803d);color:#fff}
+#toast.err {background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff}
+#toast.warn{background:linear-gradient(135deg,#d97706,#b45309);color:#fff}
+
+/* Loading */
+#screen-loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:500}
+.load-logo{width:68px;height:68px;background:var(--grad);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 8px 32px rgba(59,130,246,.25)}
+.load-title{font-size:1.375rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.load-sub{font-size:.875rem;color:var(--text2)}
+.spinner{width:28px;height:28px;border:2.5px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+.spinner-sm{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* PIN */
+#pin-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:400;padding:24px;backdrop-filter:blur(10px)}
+.pin-card{background:var(--surface);border:1px solid var(--border2);border-radius:22px;padding:40px 32px;max-width:300px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.5)}
+.pin-icon{font-size:2.25rem;margin-bottom:14px}
+.pin-card h2{font-size:1.1875rem;font-weight:800;margin-bottom:8px}
+.pin-card p{color:var(--text2);font-size:.875rem;margin-bottom:24px;line-height:1.5}
+#pin-input{text-align:center;font-size:2rem;letter-spacing:.5rem;font-weight:800;color:var(--blue-t);background:rgba(59,130,246,.06);border-color:rgba(59,130,246,.3);max-width:160px;display:block;margin:0 auto}
+.pin-err{color:var(--red-t);font-size:.8125rem;margin-top:10px;min-height:18px;font-weight:500}
+.btn-pin-cancel{background:none;color:var(--text2);padding:10px 20px;font-size:.875rem;margin-top:10px;border-radius:var(--rs)}
+
+/* App */
+#app{display:none;flex-direction:column;min-height:100vh}
+
+/* Header */
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:200}
+.hdr-left{display:flex;align-items:center;gap:10px}
+.hdr-logo{width:34px;height:34px;background:var(--grad);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.hdr-title{font-size:1rem;font-weight:800}
+.mode-pill{display:inline-flex;align-items:center;gap:4px;font-size:.6875rem;font-weight:700;padding:3px 9px;border-radius:100px;margin-left:6px;text-transform:uppercase;letter-spacing:.05em}
+.mode-d{background:rgba(34,197,94,.12);color:var(--green-t)}
+.mode-s{background:rgba(245,158,11,.12);color:var(--amber-t)}
+.btn-mode{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:100px;font-size:.8125rem;font-weight:700;background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}
+.btn-mode.on{background:rgba(245,158,11,.12);color:var(--amber-t);border-color:rgba(245,158,11,.25)}
+.accent-bar{height:2px;background:var(--grad)}
+
+/* Nav */
+.nav{background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;white-space:nowrap;padding:0 12px}
+.nav::-webkit-scrollbar{display:none}
+.ntab{display:inline-flex;align-items:center;gap:5px;padding:13px 14px;font-size:.8125rem;font-weight:600;color:var(--text3);border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s}
+.ntab:hover{color:var(--text2)}
+.ntab.on{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* Main */
+.main{flex:1;padding:16px;max-width:820px;margin:0 auto;width:100%}
+
+/* Card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.card-title{font-size:.9375rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+/* Stats bar */
+.stats-bar{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px}
+.stats-bar::-webkit-scrollbar{display:none}
+.sbar{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:100px;font-size:.8rem;font-weight:700;border:1px solid}
+.sbar-g{background:var(--green-bg);color:var(--green-t);border-color:rgba(34,197,94,.2)}
+.sbar-a{background:var(--amber-bg);color:var(--amber-t);border-color:rgba(245,158,11,.2)}
+.sbar-b{background:var(--blue-bg); color:var(--blue-t); border-color:rgba(59,130,246,.2)}
+.sbar-r{background:var(--red-bg);  color:var(--red-t);  border-color:rgba(239,68,68,.2)}
+.sbar-x{background:var(--grey-bg); color:var(--grey-t); border-color:rgba(71,85,105,.2)}
+.sdot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* Search */
+.search-wrap{position:relative;margin-bottom:12px}
+.search-wrap input{padding-left:38px}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+
+/* Category pills */
+.cats{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px;padding-bottom:2px}
+.cats::-webkit-scrollbar{display:none}
+.cpill{flex-shrink:0;padding:6px 14px;border-radius:100px;font-size:.8rem;font-weight:600;border:1.5px solid var(--border2);background:none;color:var(--text2);cursor:pointer;transition:all .15s}
+.cpill.on{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 2px 12px rgba(59,130,246,.25)}
+
+/* Product list item */
+.pitem{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.pitem:last-child{border-bottom:none}
+.pi-info{flex:1;min-width:0}
+.pi-name{font-size:.9375rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pi-sub{display:flex;align-items:center;gap:7px;margin-top:4px;flex-wrap:wrap}
+.pi-cat{font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:100px;background:rgba(99,102,241,.1);color:#818cf8;border:1px solid rgba(99,102,241,.15)}
+.pi-note{font-size:.75rem;color:var(--text2);font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px}
+.pi-date{font-size:.75rem;color:var(--blue-t)}
+.pi-batch{font-size:.75rem;color:var(--text3);display:flex;align-items:center;gap:4px}
+
+/* Status badge */
+.sbadge{display:inline-flex;align-items:center;gap:4px;font-size:.6875rem;font-weight:700;padding:4px 10px;border-radius:100px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;flex-shrink:0}
+.sbadge::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.s-available  {background:var(--green-bg);color:var(--green-t)}
+.s-low        {background:var(--amber-bg);color:var(--amber-t)}
+.s-coming     {background:var(--blue-bg); color:var(--blue-t)}
+.s-unavailable{background:var(--red-bg);  color:var(--red-t)}
+.s-empty      {background:var(--grey-bg); color:var(--grey-t)}
+
+/* Urgency badges */
+.urg-badge{display:inline-flex;align-items:center;font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:100px;white-space:nowrap}
+.urg-critical{background:var(--red-bg);color:var(--red-t);border:1px solid rgba(239,68,68,.25)}
+.urg-high    {background:var(--amber-bg);color:var(--amber-t);border:1px solid rgba(245,158,11,.25)}
+.urg-medium  {background:var(--blue-bg);color:var(--blue-t);border:1px solid rgba(59,130,246,.25)}
+.urg-expired {background:rgba(100,116,139,.1);color:#64748b;border:1px solid rgba(100,116,139,.2)}
+
+/* Expiry card */
+.exp-card{border:1px solid var(--border2);border-radius:var(--rs);padding:14px;margin-bottom:10px;background:var(--surface2)}
+.exp-card:last-child{margin-bottom:0}
+.exp-name{font-size:.9375rem;font-weight:700;margin-bottom:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exp-batch-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-top:1px solid var(--border);flex-wrap:wrap;gap:6px}
+.exp-batch-info{font-size:.8125rem;color:var(--text2);display:flex;align-items:center;gap:8px}
+
+/* Batch management */
+.batch-item{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:14px;margin-bottom:8px}
+.batch-item.expired-batch{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.04)}
+.batch-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+.batch-exp{font-size:.875rem;font-weight:600}
+.batch-qty-row{display:flex;align-items:center;gap:8px}
+.batch-qty-input{width:80px;padding:7px 10px;font-size:.875rem;text-align:center}
+.btn-save-qty{padding:7px 14px;border-radius:var(--rs);font-size:.8rem;font-weight:700;background:var(--grad);color:#fff;flex-shrink:0}
+.btn-remove{padding:7px 12px;border-radius:var(--rs);font-size:.8rem;font-weight:700;background:var(--red-bg);color:var(--red-t);border:1px solid rgba(239,68,68,.25);flex-shrink:0}
+.btn-remove:hover{background:rgba(239,68,68,.15)}
+.add-batch-form{background:rgba(59,130,246,.05);border:1px dashed rgba(59,130,246,.25);border-radius:var(--rs);padding:14px;margin-top:12px}
+.add-batch-form .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+
+/* Status buttons */
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.sbtn{padding:13px 8px;border-radius:var(--rs);font-size:.8125rem;font-weight:700;border:1.5px solid;text-align:center;background:none;transition:all .15s;line-height:1.3}
+.sbtn:active{transform:scale(.97)}
+.sbtn.picked{box-shadow:0 0 0 2px currentColor,0 0 0 4px rgba(0,0,0,.3)}
+.sb-available  {border-color:rgba(34,197,94,.35);  color:var(--green-t);background:var(--green-bg)}
+.sb-low        {border-color:rgba(245,158,11,.35); color:var(--amber-t);background:var(--amber-bg)}
+.sb-coming     {border-color:rgba(59,130,246,.35); color:var(--blue-t); background:var(--blue-bg)}
+.sb-unavailable{border-color:rgba(239,68,68,.35);  color:var(--red-t);  background:var(--red-bg)}
+.sb-clear      {border-color:var(--border2);        color:var(--grey-t); background:var(--grey-bg);grid-column:1/-1}
+
+/* Dropdown */
+.dropdown{background:var(--surface);border:1px solid var(--border2);border-radius:var(--rs);max-height:210px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.4);margin-top:4px}
+.ddopt{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--border);font-size:.875rem}
+.ddopt:last-child{border-bottom:none}
+.ddopt:hover{background:rgba(59,130,246,.06)}
+.ddn{font-weight:500;color:var(--text)}
+.ddc{font-size:.75rem;color:var(--text2)}
+
+/* Selected chip */
+.sel-chip{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);border-radius:var(--rs);margin-top:4px}
+.sel-name{font-size:.875rem;font-weight:600;color:var(--blue-t)}
+.sel-clear{background:none;color:var(--text2);font-size:.75rem;font-weight:700;padding:3px 8px;border-radius:6px}
+
+/* Bulk */
+.bulk-cb{width:18px;height:18px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+.bulk-bar{display:flex;align-items:center;gap:10px;padding:11px 14px;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.15);border-radius:var(--rs);margin-bottom:12px}
+.bulk-count{flex:1;font-size:.875rem;font-weight:600;color:var(--blue-t)}
+.bulk-pitem{display:flex;align-items:center;gap:10px;padding:10px 8px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:var(--rs);transition:background .12s}
+.bulk-pitem:last-child{border-bottom:none}
+.bulk-pitem:active{background:rgba(59,130,246,.08)}
+.bulk-pitem.sel-item{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.2)}
+
+/* Fields */
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* Submit / buttons */
+.btn-submit{width:100%;padding:14px;background:var(--grad);color:#fff;font-size:.9375rem;font-weight:700;border-radius:var(--rs);margin-top:8px;box-shadow:0 4px 20px rgba(59,130,246,.2);letter-spacing:.01em}
+.btn-submit:hover{opacity:.9}
+.btn-submit:active{transform:scale(.98)}
+.btn-submit:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-toggle{padding:8px 18px;border-radius:100px;font-size:.8125rem;font-weight:700;background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}
+.btn-add{padding:9px 16px;border-radius:var(--rs);font-size:.8125rem;font-weight:700;background:rgba(59,130,246,.1);color:var(--blue-t);border:1px solid rgba(59,130,246,.2)}
+.btn-add:hover{background:rgba(59,130,246,.15)}
+
+/* Log */
+.log-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.log-item:last-child{border-bottom:none}
+.log-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.log-body{flex:1;min-width:0}
+.log-name{font-size:.875rem;font-weight:600}
+.log-meta{font-size:.75rem;color:var(--text2);margin-top:3px}
+.log-change{font-size:.75rem;margin-top:3px;display:flex;align-items:center;gap:5px}
+
+/* Settings */
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border)}
+.settings-row:last-child{border-bottom:none}
+.settings-lbl{font-size:.875rem;font-weight:600}
+.settings-desc{font-size:.75rem;color:var(--text2);margin-top:3px}
+.settings-input{width:90px;text-align:center;padding:8px 10px}
+
+/* Empty */
+.empty{text-align:center;padding:36px 20px;color:var(--text2)}
+.empty-icon{font-size:2rem;margin-bottom:10px;opacity:.3}
+
+/* Section divider */
+.sec-divider{display:flex;align-items:center;gap:10px;margin:16px 0 12px}
+.sec-divider span{font-size:.75rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.sec-divider::before,.sec-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ══ Supervisor Dashboard ══ */
+.sv-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.sv-stat{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:14px 16px;position:relative;overflow:hidden}
+.sv-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.sv-stat-g::before{background:linear-gradient(90deg,#22c55e,#16a34a)}
+.sv-stat-a::before{background:linear-gradient(90deg,#f59e0b,#d97706)}
+.sv-stat-r::before{background:linear-gradient(90deg,#ef4444,#dc2626)}
+.sv-stat-p::before{background:linear-gradient(90deg,#8b5cf6,#6d28d9)}
+.sv-stat-num{font-size:1.75rem;font-weight:800;line-height:1;margin-bottom:4px}
+.sv-stat-g .sv-stat-num{color:var(--green-t)}
+.sv-stat-a .sv-stat-num{color:var(--amber-t)}
+.sv-stat-r .sv-stat-num{color:var(--red-t)}
+.sv-stat-p .sv-stat-num{color:var(--purple-t)}
+.sv-stat-lbl{font-size:.75rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em}
+.sv-stat-sub{font-size:.6875rem;color:var(--text3);margin-top:2px}
+
+/* Bar chart */
+.bar-chart{margin-top:4px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.bar-row:last-child{margin-bottom:0}
+.bar-label{font-size:.8rem;font-weight:500;color:var(--text);width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;text-align:right}
+.bar-track{flex:1;height:8px;background:var(--surface2);border-radius:100px;overflow:hidden}
+.bar-fill{height:100%;border-radius:100px;background:var(--grad);min-width:4px;transition:width .5s ease}
+.bar-val{font-size:.75rem;font-weight:700;color:var(--blue-t);min-width:30px;text-align:left;flex-shrink:0}
+
+/* Alert rows */
+.alert-section{margin-bottom:14px}
+.alert-section-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.alert-section-hdr span{font-size:.8125rem;font-weight:700}
+.alert-item{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--surface2);border-radius:var(--rs);margin-bottom:6px;gap:8px;flex-wrap:wrap}
+.alert-item:last-child{margin-bottom:0}
+.alert-name{font-size:.875rem;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.alert-meta{font-size:.75rem;color:var(--text2);flex-shrink:0}
+
+/* Staff activity */
+.staff-person{margin-bottom:14px}
+.staff-person:last-child{margin-bottom:0}
+.staff-name-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.staff-avatar{width:30px;height:30px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:.8125rem;font-weight:800;color:#fff;flex-shrink:0}
+.staff-fullname{font-size:.875rem;font-weight:700}
+.staff-count{font-size:.75rem;color:var(--text2)}
+.staff-change{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
+.staff-change:last-child{border-bottom:none}
+.staff-change-dot{width:6px;height:6px;border-radius:50%;background:var(--blue-t);flex-shrink:0;margin-top:5px}
+.staff-change-body{flex:1;min-width:0}
+.staff-change-prod{font-size:.8125rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.staff-change-meta{font-size:.75rem;color:var(--text2);margin-top:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+
+/* Low stock tags */
+.tag-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+.ls-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:100px;font-size:.75rem;font-weight:600;background:var(--amber-bg);color:var(--amber-t);border:1px solid rgba(245,158,11,.2)}
+
+/* Send report btn */
+.btn-send-report{width:100%;padding:14px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-size:.9375rem;font-weight:700;border-radius:var(--rs);box-shadow:0 4px 20px rgba(139,92,246,.25);letter-spacing:.01em;margin-bottom:0}
+.btn-send-report:hover{opacity:.9}
+.btn-send-report:active{transform:scale(.98)}
+.btn-send-report:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+/* Week range pill */
+.week-pill{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600;color:var(--text2);background:var(--surface2);border:1px solid var(--border2);border-radius:100px;padding:4px 12px}
+
+@media(max-width:480px){.row2{grid-template-columns:1fr}.add-batch-form .row2{grid-template-columns:1fr}.sv-stat-grid{grid-template-columns:1fr 1fr}.bar-label{width:100px}}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="screen-loading">
+  <div class="load-logo">🏥</div>
+  <div class="load-title">NutriStore</div>
+  <div class="load-sub">Jaber Al Ahmad Hospital</div>
+  <div class="spinner" style="margin-top:8px"></div>
+</div>
+
+<!-- PIN -->
+<div id="pin-overlay" class="hidden">
+  <div class="pin-card">
+    <div class="pin-icon">🔐</div>
+    <h2>Storage Access</h2>
+    <p>Enter your 4-digit PIN to unlock storage management</p>
+    <input type="password" id="pin-input" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="••••" oninput="onPinInput()">
+    <div class="pin-err" id="pin-err"></div>
+    <button class="btn-pin-cancel" onclick="closePin()">Cancel</button>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <header class="hdr">
+    <div class="hdr-left">
+      <div class="hdr-logo">🏥</div>
+      <span class="hdr-title">NutriStore</span>
+      <span class="mode-pill mode-d" id="mode-pill">Dietitian</span>
+    </div>
+    <button class="btn-mode" id="mode-btn" onclick="toggleMode()">🔒 Storage</button>
+  </header>
+  <div class="accent-bar"></div>
+
+  <nav class="nav">
+    <button class="ntab on" onclick="goTab('products')"    id="tab-products">📦 Products</button>
+    <button class="ntab"    onclick="goTab('dispense')"    id="tab-dispense">⚠️ Dispense Soon</button>
+    <button class="ntab s-only hidden" onclick="goTab('update')"      id="tab-update">✏️ Update &amp; Batches</button>
+    <button class="ntab s-only hidden" onclick="goTab('supervisor')"  id="tab-supervisor">📊 Supervisor</button>
+    <button class="ntab s-only hidden" onclick="goTab('settings')"    id="tab-settings">⚙️ Settings</button>
+    <button class="ntab"    onclick="goTab('changes')"    id="tab-changes">🕓 Changes</button>
+  </nav>
+
+  <div class="main">
+
+    <!-- ═══ PRODUCTS ═══ -->
+    <div id="pane-products">
+      <div class="card">
+        <div class="stats-bar" id="stats-bar"></div>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="prod-search" placeholder="Search products…" oninput="renderProducts()">
+        </div>
+        <div class="cats" id="prod-cats"></div>
+        <div id="prod-list"></div>
+      </div>
+    </div>
+
+    <!-- ═══ DISPENSE SOON ═══ -->
+    <div id="pane-dispense" class="hidden">
+      <div class="card" style="padding:14px 18px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-weight:700;font-size:.9375rem">⚠️ Dispense Soon</div>
+            <div style="font-size:.75rem;color:var(--text2);margin-top:3px" id="dispense-subtitle">Products with batches expiring within <span id="dispense-days">30</span> days</div>
+          </div>
+          <button onclick="refreshExpiring()" style="font-size:.8125rem;font-weight:700;color:var(--accent);background:none">↻</button>
+        </div>
+      </div>
+      <div id="expiring-list"></div>
+    </div>
+
+    <!-- ═══ UPDATE & BATCHES (storage) ═══ -->
+    <div id="pane-update" class="hidden">
+
+      <div class="card" style="padding:14px 18px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-weight:700;font-size:.9375rem">Update & Batches</span>
+          <button class="btn-toggle" onclick="toggleBulk()" id="bulk-toggle-btn">☑️ Bulk Mode</button>
+        </div>
+      </div>
+
+      <!-- Single mode -->
+      <div id="single-mode">
+        <div class="card">
+          <div class="card-title">Select Product</div>
+          <div class="field">
+            <input type="text" id="su-search" placeholder="Type product name…" oninput="onSuSearch()" autocomplete="off">
+            <div id="su-dropdown" class="dropdown hidden"></div>
+            <div id="su-chip" class="sel-chip hidden">
+              <span class="sel-name" id="su-chip-name"></span>
+              <button class="sel-clear" onclick="clearSu()">✕ Change</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="su-status-card" class="card hidden">
+          <div class="card-title">Set Status</div>
+          <div class="status-grid">
+            <button class="sbtn sb-available"   id="su-s-available"   onclick="pickSuStatus('available')">🟢 Available</button>
+            <button class="sbtn sb-low"         id="su-s-low"         onclick="pickSuStatus('low')">🟡 Low Stock</button>
+            <button class="sbtn sb-coming"      id="su-s-coming"      onclick="pickSuStatus('coming')">🔵 Coming Soon</button>
+            <button class="sbtn sb-unavailable" id="su-s-unavailable" onclick="pickSuStatus('unavailable')">🔴 Not Available</button>
+            <button class="sbtn sb-clear"                             onclick="pickSuStatus('')">🗑️ Clear / Not Set</button>
+          </div>
+          <div id="su-date-wrap" class="field hidden">
+            <label>Expected Arrival Date</label>
+            <input type="date" id="su-date">
+          </div>
+          <div class="field">
+            <label>Note <span style="font-weight:400;opacity:.6">(optional)</span></label>
+            <textarea id="su-note" rows="2" placeholder="Add a note…"></textarea>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>Updated By <span style="color:var(--red-t)">*</span></label>
+              <input type="text" id="su-by" placeholder="Your name">
+            </div>
+            <div class="field">
+              <label>Min Units for Low Stock</label>
+              <input type="number" id="su-min" min="1" placeholder="5">
+            </div>
+          </div>
+          <button class="btn-submit" id="su-btn" onclick="submitSingle()">
+            <span id="su-btn-lbl">Save Status</span>
+          </button>
+        </div>
+
+        <div id="su-batch-card" class="card hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div class="card-title" style="margin-bottom:0">📦 Batches</div>
+            <button class="btn-add" onclick="toggleAddBatchForm()">+ Add Batch</button>
+          </div>
+
+          <div id="add-batch-form" class="add-batch-form hidden">
+            <div class="add-batch-form row2">
+              <div class="field" style="margin-bottom:0">
+                <label>Expiry Date <span style="color:var(--red-t)">*</span></label>
+                <input type="date" id="ab-date">
+              </div>
+              <div class="field" style="margin-bottom:0">
+                <label>Quantity <span style="color:var(--red-t)">*</span></label>
+                <input type="number" id="ab-qty" min="1" placeholder="0">
+              </div>
+            </div>
+            <div class="field" style="margin-top:10px">
+              <label>Added By <span style="color:var(--red-t)">*</span></label>
+              <input type="text" id="ab-by" placeholder="Your name">
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button class="btn-submit" style="margin-top:0;flex:1" id="ab-btn" onclick="submitAddBatch()">
+                <span id="ab-btn-lbl">Add Batch</span>
+              </button>
+              <button onclick="toggleAddBatchForm()" style="padding:12px 16px;border-radius:var(--rs);background:var(--surface2);color:var(--text2);font-size:.875rem;font-weight:600">Cancel</button>
+            </div>
+          </div>
+
+          <div id="batch-list"></div>
+        </div>
+      </div>
+
+      <!-- Bulk mode -->
+      <div id="bulk-mode" class="hidden">
+        <div class="card">
+          <div class="bulk-bar" style="cursor:pointer" onclick="bulkToggleAll()">
+            <span id="bulk-all-lbl" style="font-size:.8125rem;font-weight:700;color:var(--blue-t)">Select All</span>
+            <span class="bulk-count" id="bulk-count">0 selected</span>
+          </div>
+          <div class="search-wrap" style="margin-bottom:10px">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="bulk-search" placeholder="Filter…" oninput="renderBulkList()">
+          </div>
+          <div class="cats" id="bulk-cats"></div>
+          <div id="bulk-list" style="max-height:300px;overflow-y:auto"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Set Status for Selected</div>
+          <div class="status-grid">
+            <button class="sbtn sb-available"   id="bs-available"   onclick="pickBulkStatus('available')">🟢 Available</button>
+            <button class="sbtn sb-low"         id="bs-low"         onclick="pickBulkStatus('low')">🟡 Low Stock</button>
+            <button class="sbtn sb-coming"      id="bs-coming"      onclick="pickBulkStatus('coming')">🔵 Coming Soon</button>
+            <button class="sbtn sb-unavailable" id="bs-unavailable" onclick="pickBulkStatus('unavailable')">🔴 Not Available</button>
+            <button class="sbtn sb-clear"                           onclick="pickBulkStatus('')">🗑️ Clear / Not Set</button>
+          </div>
+          <div id="bs-date-wrap" class="field hidden">
+            <label>Expected Arrival Date</label>
+            <input type="date" id="bs-date">
+          </div>
+          <div class="field">
+            <label>Note <span style="font-weight:400;opacity:.6">(optional)</span></label>
+            <textarea id="bs-note" rows="2" placeholder="Optional note…"></textarea>
+          </div>
+          <div class="field">
+            <label>Updated By <span style="color:var(--red-t)">*</span></label>
+            <input type="text" id="bs-by" placeholder="Your name">
+          </div>
+          <button class="btn-submit" id="bs-btn" onclick="submitBulk()">
+            <span id="bs-btn-lbl">Save Changes</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SUPERVISOR DASHBOARD (storage) ═══ -->
+    <div id="pane-supervisor" class="hidden">
+
+      <!-- Header card -->
+      <div class="card" style="padding:14px 18px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <div>
+            <div style="font-weight:700;font-size:.9375rem">📊 Supervisor Dashboard</div>
+            <div style="font-size:.75rem;color:var(--text2);margin-top:3px" id="sv-week-range">Loading week data…</div>
+          </div>
+          <button onclick="loadSupervisorData()" style="font-size:.8125rem;font-weight:700;color:var(--accent);background:none;padding:4px 8px">↻ Refresh</button>
+        </div>
+      </div>
+
+      <!-- Loading / content -->
+      <div id="sv-loading" class="card">
+        <div class="empty"><div class="spinner"></div><p style="margin-top:12px;font-size:.875rem">Loading dashboard…</p></div>
+      </div>
+
+      <div id="sv-content" class="hidden">
+
+        <!-- Status summary -->
+        <div class="card">
+          <div class="card-title">📈 Inventory Status</div>
+          <div class="sv-stat-grid" id="sv-stat-grid"></div>
+        </div>
+
+        <!-- Top dispensed -->
+        <div class="card" id="sv-dispensed-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+            <div class="card-title" style="margin-bottom:0">🔝 Top Dispensed This Week</div>
+            <span id="sv-total-dispensed" style="font-size:.8rem;font-weight:600;color:var(--text2)"></span>
+          </div>
+          <div class="bar-chart" id="sv-bar-chart"></div>
+        </div>
+
+        <!-- Expiry alerts -->
+        <div class="card" id="sv-expiry-card">
+          <div class="card-title">🚨 Expiry Alerts</div>
+          <div id="sv-expiry-alerts"></div>
+        </div>
+
+        <!-- Staff activity -->
+        <div class="card" id="sv-staff-card">
+          <div class="card-title">👥 Staff Activity This Week</div>
+          <div id="sv-staff-activity"></div>
+        </div>
+
+        <!-- Low stock -->
+        <div class="card" id="sv-lowstock-card">
+          <div class="card-title">⚠️ Low Stock Products</div>
+          <div id="sv-lowstock-list"></div>
+        </div>
+
+        <!-- Send report -->
+        <div class="card" style="padding:16px 18px">
+          <div style="font-size:.8125rem;color:var(--text2);margin-bottom:12px;line-height:1.5">
+            Weekly report is automatically emailed every <strong style="color:var(--text)">Saturday at 6:00 PM</strong>. You can also send it now.
+          </div>
+          <button class="btn-send-report" id="sv-send-btn" onclick="sendReportNow()">
+            <span id="sv-send-lbl">📧 Send Report Now</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ SETTINGS (storage) ═══ -->
+    <div id="pane-settings" class="hidden">
+      <div class="card">
+        <div class="card-title">⚙️ App Settings</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-lbl">Dispense Soon Window</div>
+            <div class="settings-desc">Days before expiry to flag products for faster dispensing</div>
+          </div>
+          <input type="number" class="settings-input" id="set-days" min="1" max="365" value="30">
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-lbl">Default Low Stock Threshold</div>
+            <div class="settings-desc">Units below which a product auto-sets to Low Stock</div>
+          </div>
+          <input type="number" class="settings-input" id="set-min" min="1" value="5">
+        </div>
+        <button class="btn-submit" id="set-btn" onclick="saveSettings()">
+          <span id="set-btn-lbl">Save Settings</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ CHANGES ═══ -->
+    <div id="pane-changes" class="hidden">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <span class="card-title" style="margin-bottom:0">Recent Changes</span>
+          <button onclick="loadLogs()" style="font-size:.8125rem;font-weight:700;color:var(--accent);background:none">↻ Refresh</button>
+        </div>
+        <div id="log-list"><div class="empty"><div class="empty-icon">📋</div><p>Loading…</p></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══ Config ════════════════════════════════════════════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUCjYLFNwhPt8x1b7upWg7E0P0KQ8oWIwSuvRRTlSOTJ72F_sUdLR2bDQnS9ZnWmah/exec';
+const PIN = '1234';
+
+const STATUS_CFG = {
+  available:   { label:'Available',     cls:'s-available',   dot:'#22c55e' },
+  low:         { label:'Low Stock',     cls:'s-low',         dot:'#f59e0b' },
+  coming:      { label:'Coming Soon',   cls:'s-coming',      dot:'#3b82f6' },
+  unavailable: { label:'Not Available', cls:'s-unavailable', dot:'#ef4444' },
+  '':          { label:'Not Set',       cls:'s-empty',       dot:'#475569' },
+};
+
+const CATS = ['All','Adult','Pediatric','Infant','Metabolic','Renal','Supplements','Gluten Free'];
+
+const PRODUCTS = [
+  {id:'P001',name:'Ensure Liquid',cat:'Adult'},{id:'P002',name:'Ensure Plus Liq 250ml',cat:'Adult'},
+  {id:'P003',name:'Ensure Plus Advance 500ml',cat:'Adult'},{id:'P004',name:'Osmolite 250ml',cat:'Adult'},
+  {id:'P005',name:'Pulmocare Liq 250ml',cat:'Adult'},{id:'P006',name:'Nepro HP 220ml',cat:'Adult'},
+  {id:'P007',name:'Glucerna 1.2 Cal 1000ml',cat:'Adult'},{id:'P008',name:'Forticare 125ml Cappuccino',cat:'Adult'},
+  {id:'P009',name:'Jevity 237ml',cat:'Adult'},{id:'P010',name:'Oxepa Liq 237ml',cat:'Adult'},
+  {id:'P011',name:'Vital 1.5 Kcal 200ml',cat:'Adult'},{id:'P012',name:'Fortisip Compact Protein',cat:'Adult'},
+  {id:'P013',name:'Peptamen AF',cat:'Adult'},{id:'P014',name:'Fontactive Complete Protein',cat:'Adult'},
+  {id:'P015',name:'Fontactive 1.0 Vanilla',cat:'Adult'},{id:'P016',name:'Fontactive Diabest Shake',cat:'Adult'},
+  {id:'P017',name:'Fontactive Complete Protein Powder 400gm',cat:'Adult'},{id:'P018',name:'Fontactive Peptide 400gm',cat:'Adult'},
+  {id:'P019',name:'Nutrison Protein Plus MF6 1000ml',cat:'Adult'},{id:'P020',name:'Fresubin Fiber 2Kcal 200ml',cat:'Adult'},
+  {id:'P021',name:'Peptamine Adult 430gm',cat:'Adult'},{id:'P022',name:'Modulen IBD Powder 400gm',cat:'Adult'},
+  {id:'P023',name:'Elemental Orange Flavoured',cat:'Adult'},{id:'P024',name:'Fortisip MF',cat:'Adult'},
+  {id:'P025',name:'Nutrison AD',cat:'Adult'},{id:'P026',name:'Fortimel Com',cat:'Adult'},
+  {id:'P027',name:'Fresubin Fiber 1.0',cat:'Adult'},{id:'P028',name:'Jevity 1.5',cat:'Adult'},
+  {id:'P029',name:'Diben',cat:'Adult'},
+  {id:'P030',name:'Peptamine Junior Powder 400gm',cat:'Pediatric'},{id:'P031',name:'Kindergen Prod',cat:'Pediatric'},
+  {id:'P032',name:'Heparon Junior 400gm',cat:'Pediatric'},{id:'P033',name:'Pediasure Complete Liq 200ml',cat:'Pediatric'},
+  {id:'P034',name:'Pediasure Plus 1.5 Kcal',cat:'Pediatric'},{id:'P035',name:'Pediasure Peptide 1 Cal 237ml',cat:'Pediatric'},
+  {id:'P036',name:'Pediasure Peptide 1.5 Cal 237ml',cat:'Pediatric'},{id:'P037',name:'Infatrini 125ml',cat:'Pediatric'},
+  {id:'P038',name:'Infatrini 200ml',cat:'Pediatric'},{id:'P039',name:'Nutrini Drink 200ml',cat:'Pediatric'},
+  {id:'P040',name:'Nutrini Multifiber 200ml',cat:'Pediatric'},{id:'P041',name:'Fortini MF 1.0 Vanilla 200ml',cat:'Pediatric'},
+  {id:'P042',name:'Peptamin Jr Liq',cat:'Pediatric'},
+  {id:'P043',name:'Similac HE 200ml',cat:'Infant'},{id:'P044',name:'Peptamen Infant 200ml 1Kcal/ml',cat:'Infant'},
+  {id:'P045',name:'Pre-Aptamil LBW RTF',cat:'Infant'},{id:'P046',name:'Similac SC Special Care 59ml LBW RTF',cat:'Infant'},
+  {id:'P047',name:'Neosure 22Cal 59ml LBW RTF',cat:'Infant'},{id:'P048',name:'Pre-NAN RTF Premature LBW',cat:'Infant'},
+  {id:'P049',name:'S-26 LBW Premature RTF',cat:'Infant'},{id:'P050',name:'Primalac Ultima Pre',cat:'Infant'},
+  {id:'P051',name:'Aptamil Advance 1 RTF',cat:'Infant'},{id:'P052',name:'Novalac 90ml RTF',cat:'Infant'},
+  {id:'P053',name:'Similac Advance Gold RTF',cat:'Infant'},{id:'P054',name:'Similac Total Comfort RTF 0-6',cat:'Infant'},
+  {id:'P055',name:'NAN Optipro RTF',cat:'Infant'},{id:'P056',name:'S-26 Pro Gold RTF',cat:'Infant'},
+  {id:'P057',name:'Bebelac 70ml RTF',cat:'Infant'},{id:'P058',name:'Primalac Ultima Full 90ml RTF',cat:'Infant'},
+  {id:'P059',name:'NAN Supreme Pro RTF',cat:'Infant'},{id:'P060',name:'Human Milk Fortifier Similac 50 sch',cat:'Infant'},
+  {id:'P061',name:'PreNAN Human Milk Fortifier Powder',cat:'Infant'},{id:'P062',name:'Baby Milk Teats',cat:'Infant'},
+  {id:'P063',name:'Novalac AR 1 (0-6M) 400gm',cat:'Infant'},{id:'P064',name:'Novalac AR 2 (6-12M) 400gm',cat:'Infant'},
+  {id:'P065',name:'NAN AR 380gm',cat:'Infant'},{id:'P066',name:'S-26 AR 400gm',cat:'Infant'},
+  {id:'P067',name:'Bebelac AR 400gm Powder',cat:'Infant'},{id:'P068',name:'Primalac AR 400gm 0-12',cat:'Infant'},
+  {id:'P069',name:'Monogen 400gm',cat:'Metabolic'},{id:'P070',name:'Seravit 200gm',cat:'Metabolic'},
+  {id:'P071',name:'Maxijul PDR 200gm',cat:'Metabolic'},{id:'P072',name:'NKH Anamix Infant',cat:'Metabolic'},
+  {id:'P073',name:'Vitajoule 500gm',cat:'Metabolic'},{id:'P074',name:'Duocal 400gm',cat:'Metabolic'},
+  {id:'P075',name:'Ketocal 4:1 300gm',cat:'Metabolic'},{id:'P076',name:'Comida OAC A Formula',cat:'Metabolic'},
+  {id:'P077',name:'Comida Tyro',cat:'Metabolic'},{id:'P078',name:'XMTVI Analog Milk Anamix',cat:'Metabolic'},
+  {id:'P079',name:'IVA Anamix Infant',cat:'Metabolic'},{id:'P080',name:'TYR Anamix Infant',cat:'Metabolic'},
+  {id:'P081',name:'Neocate LCP 400gm 0-12',cat:'Metabolic'},{id:'P082',name:'Neocate Syneo',cat:'Metabolic'},
+  {id:'P083',name:'Neocate Junior 400gm',cat:'Metabolic'},{id:'P084',name:'Neocate Spoon 400gm',cat:'Metabolic'},
+  {id:'P085',name:'Novalac Allernova',cat:'Metabolic'},{id:'P086',name:'Novalac Aminova Infant',cat:'Metabolic'},
+  {id:'P087',name:'Primalac Premium CMA',cat:'Metabolic'},{id:'P088',name:'Aptamil Pepti Junior',cat:'Metabolic'},
+  {id:'P089',name:'Fontactive Elemental',cat:'Metabolic'},{id:'P090',name:'Similac Arize',cat:'Metabolic'},
+  {id:'P091',name:'Elecare Junior',cat:'Metabolic'},
+  {id:'P092',name:'Fresubin Renal 200ml',cat:'Renal'},{id:'P093',name:'Renilon 7.5 125ml',cat:'Renal'},
+  {id:'P094',name:'Rena Start',cat:'Renal'},{id:'P095',name:'Renament Powder 60 sch',cat:'Renal'},
+  {id:'P096',name:'Low Protein Crunches',cat:'Renal'},{id:'P097',name:'Rena Step',cat:'Renal'},
+  {id:'P098',name:'Low Protein Rice',cat:'Renal'},
+  {id:'P099',name:'Food Thickener Powder Fontactive',cat:'Supplements'},{id:'P100',name:'Nestle Resource Thicken',cat:'Supplements'},
+  {id:'P101',name:'Fresubin Protein Powder 300gm',cat:'Supplements'},{id:'P102',name:'Protifar Powder',cat:'Supplements'},
+  {id:'P103',name:'Beneprotein 227gm',cat:'Supplements'},{id:'P104',name:'Argiment AT Powder Sachet 60 sch',cat:'Supplements'},
+  {id:'P105',name:'Prosource Protein Powder 100 sch',cat:'Supplements'},{id:'P106',name:'Prosource TF Liquid 100 sch',cat:'Supplements'},
+  {id:'P107',name:'Banatrol Plus Powder Sachet 75 sch',cat:'Supplements'},{id:'P108',name:'Hyfiber Liquid 100 sch',cat:'Supplements'},
+  {id:'P109',name:'MCT Oil 946ml',cat:'Supplements'},{id:'P110',name:'Essential Amino Acid',cat:'Supplements'},
+  {id:'P111',name:'Arginine 2000mg',cat:'Supplements'},{id:'P112',name:'Arginine 500mg',cat:'Supplements'},
+  {id:'P113',name:'L-Citrulline Powder',cat:'Supplements'},{id:'P114',name:'Isoleucine Powder',cat:'Supplements'},
+  {id:'P115',name:'Valine',cat:'Supplements'},
+  {id:'P116',name:'Dr. Schar Flour Gluten Free',cat:'Gluten Free'},{id:'P117',name:'Dr. Schar Spaghetti Gluten Free',cat:'Gluten Free'},
+  {id:'P118',name:'Dr. Schar Vermicelli Gluten Free',cat:'Gluten Free'},{id:'P119',name:'Schar Penne Gluten Free',cat:'Gluten Free'},
+  {id:'P120',name:'Schar Fette Croccanti Gluten Free',cat:'Gluten Free'},
+];
+
+// ══ State ═════════════════════════════════════════════════════
+const S = {
+  isStorage: false,
+  products:  [],
+  expiring:  [],
+  settings:  { expiryWarningDays: 30, defaultMinUnits: 5 },
+  activeTab: 'products',
+  prodCat:   'All',
+  bulkCat:   'All',
+  isBulk:    false,
+  suProduct: null,
+  suStatus:  null,
+  suBatches: [],
+  bulkIds:   new Set(),
+  bulkStatus:null,
+  svLoaded:  false,
+};
+
+// ══ Boot ══════════════════════════════════════════════════════
+window.onload = async () => {
+  buildCats('prod-cats','prodCat',renderProducts);
+  buildCats('bulk-cats','bulkCat',renderBulkList);
+  try {
+    const [pd, sd, ed] = await Promise.all([
+      api({action:'getAll'}),
+      api({action:'getSettings'}),
+      api({action:'getExpiring'}),
+    ]);
+    S.products = pd.products || [];
+    S.settings = { expiryWarningDays: sd.expiryWarningDays||30, defaultMinUnits: sd.defaultMinUnits||5 };
+    S.expiring  = ed.expiring || [];
+    el('dispense-days').textContent = S.settings.expiryWarningDays;
+    el('set-days').value = S.settings.expiryWarningDays;
+    el('set-min').value  = S.settings.defaultMinUnits;
+    renderProducts();
+    renderBulkList();
+    renderExpiring();
+    hide('screen-loading');
+    el('app').style.display = 'flex';
+  } catch(e) {
+    el('screen-loading').innerHTML = `
+      <div class="load-logo">🏥</div>
+      <div class="load-title" style="-webkit-text-fill-color:#f87171;color:#f87171">Connection Failed</div>
+      <div class="load-sub" style="color:#f87171;max-width:280px;text-align:center">${e.message}</div>
+      <button onclick="location.reload()" style="margin-top:16px;padding:10px 24px;border-radius:100px;background:var(--grad);color:#fff;font-weight:700;font-size:.875rem">Retry</button>`;
+  }
+};
+
+// ══ API ═══════════════════════════════════════════════════════
+async function api(params) {
+  const url = new URL(SCRIPT_URL);
+  Object.entries(params).forEach(([k,v]) => {
+    if (v!==undefined&&v!==null&&v!=='') url.searchParams.set(k,String(v));
+  });
+  const target = url.toString();
+  const tries = [
+    () => fetch(target,{redirect:'follow'}),
+    () => fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(target)),
+    () => fetch('https://corsproxy.io/?'+encodeURIComponent(target)),
+  ];
+  for (const t of tries) {
+    try {
+      const res  = await t();
+      const text = await res.text();
+      const data = JSON.parse(text);
+      if (data.error) throw new Error(data.error);
+      return data;
+    } catch(e) {
+      if (e.message && !e.message.includes('fetch') && !e.message.includes('Failed')) throw e;
+    }
+  }
+  throw new Error('Cannot connect. Check your internet connection.');
+}
+
+// ══ Products ══════════════════════════════════════════════════
+function renderProducts() {
+  const q = (el('prod-search')?.value||'').toLowerCase();
+  let list = S.products;
+  if (S.prodCat!=='All') list=list.filter(p=>p.category===S.prodCat);
+  if (q) list=list.filter(p=>p.name.toLowerCase().includes(q));
+
+  const c={available:0,low:0,coming:0,unavailable:0,'':0};
+  S.products.forEach(p=>{c[p.status||'']=(c[p.status||'']||0)+1;});
+  el('stats-bar').innerHTML=
+    `<div class="sbar sbar-g"><div class="sdot"></div>${c.available} Available</div>`+
+    `<div class="sbar sbar-a"><div class="sdot"></div>${c.low} Low</div>`+
+    `<div class="sbar sbar-b"><div class="sdot"></div>${c.coming} Coming</div>`+
+    `<div class="sbar sbar-r"><div class="sdot"></div>${c.unavailable} Unavail.</div>`+
+    `<div class="sbar sbar-x"><div class="sdot"></div>${c['']} Not Set</div>`;
+
+  if (!list.length) {
+    el('prod-list').innerHTML='<div class="empty"><div class="empty-icon">🔍</div><p>No products found</p></div>';
+    return;
+  }
+  el('prod-list').innerHTML=list.map(p=>{
+    const cfg=STATUS_CFG[p.status||''];
+    const bs=p.batchSummary;
+    let sub=`<span class="pi-cat">${p.category}</span>`;
+    if (p.note) sub+=`<span class="pi-note">${p.note}</span>`;
+    if (p.status==='coming'&&p.expectedDate) sub+=`<span class="pi-date">📅 ${p.expectedDate}</span>`;
+    if (bs) {
+      const validTxt = bs.hasValid ? `${bs.totalValid} units` : '';
+      const expTxt   = bs.hasExpired && !bs.hasValid ? '⚠️ All expired' : bs.hasExpired ? '⚠️ Some expired' : '';
+      if (validTxt||expTxt) sub+=`<span class="pi-batch">📦 ${[validTxt,expTxt].filter(Boolean).join(' · ')}</span>`;
+    }
+    return `<div class="pitem">
+      <div class="pi-info"><div class="pi-name">${p.name}</div><div class="pi-sub">${sub}</div></div>
+      <span class="sbadge ${cfg.cls}">${cfg.label}</span>
+    </div>`;
+  }).join('');
+}
+
+// ══ Expiring ══════════════════════════════════════════════════
+function renderExpiring() {
+  const list = el('expiring-list');
+  if (!S.expiring.length) {
+    list.innerHTML='<div class="card"><div class="empty"><div class="empty-icon">✅</div><p>No products expiring within '+S.settings.expiryWarningDays+' days</p></div></div>';
+    return;
+  }
+  const groups={};
+  S.expiring.forEach(b=>{
+    if(!groups[b.productId]) groups[b.productId]={name:b.productName,batches:[]};
+    groups[b.productId].batches.push(b);
+  });
+
+  list.innerHTML=Object.values(groups).map(g=>{
+    const batchRows = g.batches.map(b=>{
+      const urg = b.expired ? 'urg-expired' : b.daysLeft<=7 ? 'urg-critical' : b.daysLeft<=14 ? 'urg-high' : 'urg-medium';
+      const daysLbl = b.expired ? `Expired ${Math.abs(b.daysLeft)}d ago` : `${b.daysLeft} day${b.daysLeft!==1?'s':''} left`;
+      return `<div class="exp-batch-row">
+        <div class="exp-batch-info">
+          <span>📅 ${b.expiryDate}</span>
+          <span>· ${b.quantity} units</span>
+        </div>
+        <span class="urg-badge ${urg}">${daysLbl}</span>
+      </div>`;
+    }).join('');
+    return `<div class="card exp-card" style="padding:14px">
+      <div class="exp-name">${g.name}</div>
+      ${batchRows}
+    </div>`;
+  }).join('');
+}
+
+async function refreshExpiring() {
+  el('expiring-list').innerHTML='<div class="card"><div class="empty"><div class="spinner"></div></div></div>';
+  try {
+    const d=await api({action:'getExpiring'});
+    S.expiring=d.expiring||[];
+    renderExpiring();
+  } catch(e) { toast('Failed to refresh: '+e.message,'err'); }
+}
+
+// ══ Mode ══════════════════════════════════════════════════════
+function toggleMode() {
+  if (S.isStorage) { S.isStorage=false; applyMode(); }
+  else { el('pin-input').value=''; el('pin-err').textContent=''; show('pin-overlay'); setTimeout(()=>el('pin-input').focus(),80); }
+}
+function closePin() { hide('pin-overlay'); }
+function onPinInput() {
+  if (el('pin-input').value.length===4) {
+    if (el('pin-input').value===PIN) { hide('pin-overlay'); S.isStorage=true; applyMode(); }
+    else { el('pin-err').textContent='❌ Wrong PIN. Try again.'; el('pin-input').value=''; }
+  }
+}
+function applyMode() {
+  const pill=el('mode-pill'),btn=el('mode-btn');
+  if (S.isStorage) {
+    pill.textContent='Storage'; pill.className='mode-pill mode-s';
+    btn.textContent='🔓 Exit Storage'; btn.classList.add('on');
+    qsa('.s-only').forEach(t=>t.classList.remove('hidden'));
+  } else {
+    pill.textContent='Dietitian'; pill.className='mode-pill mode-d';
+    btn.textContent='🔒 Storage'; btn.classList.remove('on');
+    qsa('.s-only').forEach(t=>t.classList.add('hidden'));
+    if (['update','settings','supervisor'].includes(S.activeTab)) goTab('products');
+  }
+}
+
+// ══ Tabs ══════════════════════════════════════════════════════
+function goTab(name) {
+  qsa('.ntab').forEach(t=>t.classList.remove('on'));
+  el('tab-'+name)?.classList.add('on');
+  qsa('[id^="pane-"]').forEach(p=>p.classList.add('hidden'));
+  show('pane-'+name);
+  S.activeTab=name;
+  if (name==='changes') loadLogs();
+  if (name==='supervisor') loadSupervisorData();
+}
+
+// ══ Category pills ════════════════════════════════════════════
+function buildCats(cid,key,fn) {
+  el(cid).innerHTML=CATS.map((c,i)=>
+    `<button class="cpill ${i===0?'on':''}" data-cat="${c}"
+     onclick="setCat(this,'${cid}','${key}')">${c}</button>`
+  ).join('');
+  el(cid)._fn=fn;
+}
+function setCat(btn,cid,key) {
+  qsa(`#${cid} .cpill`).forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); S[key]=btn.dataset.cat; el(cid)._fn();
+}
+
+// ══ Single update ══════════════════════════════════════════════
+function onSuSearch() {
+  buildDropdown('su-dropdown',el('su-search').value,id=>{
+    S.suProduct=PRODUCTS.find(p=>p.id===id);
+    el('su-chip-name').textContent=S.suProduct.name;
+    show('su-chip'); hide('su-dropdown'); el('su-search').value='';
+    const existing=S.products.find(p=>p.id===id);
+    S.suStatus=existing?(existing.status||''):null;
+    el('su-min').value=existing?.minUnits||S.settings.defaultMinUnits||5;
+    highlightSuStatus(S.suStatus);
+    show('su-status-card');
+    loadBatches(id);
+  });
+}
+function clearSu() {
+  S.suProduct=null;S.suStatus=null;S.suBatches=[];
+  hide('su-chip');hide('su-status-card');hide('su-batch-card');
+  el('su-search').value='';clearSuHighlight();
+  hide('add-batch-form');
+}
+function pickSuStatus(s) {
+  S.suStatus=s; clearSuHighlight(); highlightSuStatus(s);
+  el('su-date-wrap').classList.toggle('hidden',s!=='coming');
+}
+function highlightSuStatus(s) {
+  const m={available:'su-s-available',low:'su-s-low',coming:'su-s-coming',unavailable:'su-s-unavailable'};
+  if(m[s]) el(m[s])?.classList.add('picked');
+}
+function clearSuHighlight() {
+  ['su-s-available','su-s-low','su-s-coming','su-s-unavailable'].forEach(id=>el(id)?.classList.remove('picked'));
+}
+async function submitSingle() {
+  if (!S.suProduct)        {toast('Select a product','err');return;}
+  if (S.suStatus===null)   {toast('Select a status','err');return;}
+  const by=el('su-by').value.trim();
+  if (!by)                 {toast('Enter your name','err');return;}
+  const note=el('su-note').value.trim();
+  const date=S.suStatus==='coming'?el('su-date').value:'';
+  const minU=parseInt(el('su-min').value)||S.settings.defaultMinUnits||5;
+  const btn=el('su-btn'),lbl=el('su-btn-lbl');
+  btn.disabled=true;lbl.innerHTML='<span class="spinner-sm"></span>Saving…';
+  try {
+    await api({action:'update',id:S.suProduct.id,status:S.suStatus,note:encodeURIComponent(note),expectedDate:date,updatedBy:encodeURIComponent(by),minUnits:minU});
+    const p=S.products.find(x=>x.id===S.suProduct.id);
+    if(p){p.status=S.suStatus;p.note=note;p.expectedDate=date;p.minUnits=minU;}
+    toast('✅ Status saved','ok');
+    clearSu();el('su-by').value='';el('su-note').value='';
+    renderProducts();
+  } catch(e){toast('Failed: '+e.message,'err');}
+  finally{btn.disabled=false;lbl.textContent='Save Status';}
+}
+
+// ══ Batch management ══════════════════════════════════════════
+async function loadBatches(productId) {
+  show('su-batch-card');
+  el('batch-list').innerHTML='<div class="empty"><div class="spinner"></div></div>';
+  hide('add-batch-form');
+  try {
+    const d=await api({action:'getBatches',productId});
+    S.suBatches=d.batches||[];
+    renderBatches();
+  } catch(e) {
+    el('batch-list').innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><p>'+e.message+'</p></div>';
+  }
+}
+
+function renderBatches() {
+  if (!S.suBatches.length) {
+    el('batch-list').innerHTML='<div class="empty" style="padding:20px"><div class="empty-icon">📦</div><p style="font-size:.875rem">No batches yet — add one above</p></div>';
+    return;
+  }
+  el('batch-list').innerHTML=S.suBatches.map(b=>{
+    const urg = b.expired ? 'urg-expired' : b.daysLeft<=7 ? 'urg-critical' : b.daysLeft<=14 ? 'urg-high' : 'urg-medium';
+    const daysLbl = b.expired ? `Expired ${Math.abs(b.daysLeft)}d ago` : `${b.daysLeft}d left`;
+    const expClass = b.expired ? 'expired-batch' : '';
+    return `<div class="batch-item ${expClass}">
+      <div class="batch-header">
+        <div class="batch-exp">📅 Expires: ${b.expiryDate||'—'}</div>
+        <span class="urg-badge ${urg}">${daysLbl}</span>
+      </div>
+      <div class="batch-qty-row">
+        <input type="number" class="batch-qty-input" id="bq-${b.batchId}" value="${b.quantity}" min="0">
+        <span style="font-size:.8125rem;color:var(--text2)">units</span>
+        <button class="btn-save-qty" onclick="submitUpdateBatch('${b.batchId}')">Save Qty</button>
+        <button class="btn-remove" onclick="submitRemoveBatch('${b.batchId}','${b.expiryDate}')">Remove</button>
+      </div>
+      ${b.lastUpdatedBy?`<div style="font-size:.75rem;color:var(--text3);margin-top:6px">Last updated by ${b.lastUpdatedBy}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function toggleAddBatchForm() {
+  el('add-batch-form').classList.toggle('hidden');
+}
+
+async function submitAddBatch() {
+  if (!S.suProduct) return;
+  const date=el('ab-date').value;
+  const qty=parseInt(el('ab-qty').value)||0;
+  const by=el('ab-by').value.trim();
+  if (!date)  {toast('Enter expiry date','err');return;}
+  if (qty<1)  {toast('Enter quantity','err');return;}
+  if (!by)    {toast('Enter your name','err');return;}
+  const btn=el('ab-btn'),lbl=el('ab-btn-lbl');
+  btn.disabled=true;lbl.innerHTML='<span class="spinner-sm"></span>Adding…';
+  try {
+    await api({action:'addBatch',productId:S.suProduct.id,expiryDate:date,quantity:qty,addedBy:encodeURIComponent(by)});
+    toast('✅ Batch added','ok');
+    el('ab-date').value='';el('ab-qty').value='';
+    hide('add-batch-form');
+    await loadBatches(S.suProduct.id);
+    const pd=await api({action:'getAll'});
+    S.products=pd.products||[];
+    renderProducts();
+  } catch(e){toast('Failed: '+e.message,'err');}
+  finally{btn.disabled=false;lbl.textContent='Add Batch';}
+}
+
+async function submitUpdateBatch(batchId) {
+  const by=el('su-by').value.trim();
+  if (!by) {toast('Enter your name in the Update By field above','warn');return;}
+  const newQty=parseInt(el('bq-'+batchId).value)||0;
+  try {
+    const d=await api({action:'updateBatch',batchId,quantity:newQty,updatedBy:encodeURIComponent(by)});
+    toast(`✅ Qty saved${d.dispensed>0?' · '+d.dispensed+' units dispensed':''}`,d.dispensed>0?'ok':'ok');
+    await loadBatches(S.suProduct.id);
+    const pd=await api({action:'getAll'});S.products=pd.products||[];renderProducts();
+  } catch(e){toast('Failed: '+e.message,'err');}
+}
+
+async function submitRemoveBatch(batchId,expDate) {
+  if (!confirm(`Remove batch expiring ${expDate}? This cannot be undone.`)) return;
+  try {
+    await api({action:'removeBatch',batchId});
+    toast('Batch removed','ok');
+    await loadBatches(S.suProduct.id);
+    const pd=await api({action:'getAll'});S.products=pd.products||[];renderProducts();
+  } catch(e){toast('Failed: '+e.message,'err');}
+}
+
+// ══ Bulk ═════════════════════════════════════════════════════
+function toggleBulk() {
+  S.isBulk=!S.isBulk;
+  el('single-mode').classList.toggle('hidden',S.isBulk);
+  el('bulk-mode').classList.toggle('hidden',!S.isBulk);
+  el('bulk-toggle-btn').textContent=S.isBulk?'✏️ Single Mode':'☑️ Bulk Mode';
+}
+function renderBulkList() {
+  const q=(el('bulk-search')?.value||'').toLowerCase();
+  let list=PRODUCTS;
+  if(S.bulkCat!=='All') list=list.filter(p=>p.cat===S.bulkCat);
+  if(q) list=list.filter(p=>p.name.toLowerCase().includes(q));
+  el('bulk-count').textContent=S.bulkIds.size+' selected';
+  syncBulkAll();
+  const pm={};S.products.forEach(p=>{pm[p.id]=p;});
+  el('bulk-list').innerHTML=list.map(p=>{
+    const cfg=STATUS_CFG[(pm[p.id]?.status)||''];
+    const sel=S.bulkIds.has(p.id);
+    return `<div class="bulk-pitem${sel?' sel-item':''}" onclick="toggleBulkItem('${p.id}',!S.bulkIds.has('${p.id}'))">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:.875rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${sel?'var(--blue-t)':'var(--text)'}">${p.name}</div>
+        <div style="display:flex;gap:6px;margin-top:3px;align-items:center">
+          <span class="pi-cat">${p.cat}</span>
+          <span class="sbadge ${cfg.cls}" style="font-size:.6rem">${cfg.label}</span>
+        </div>
+      </div>
+      <span style="width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.875rem;font-weight:700;background:${sel?'var(--accent)':'var(--surface2)'};color:${sel?'#fff':'var(--text3)'};border:2px solid ${sel?'var(--accent)':'var(--border2)'};transition:all .15s">${sel?'✓':''}</span>
+    </div>`;
+  }).join('');
+}
+function toggleBulkItem(id,checked) {
+  checked?S.bulkIds.add(id):S.bulkIds.delete(id);
+  el('bulk-count').textContent=S.bulkIds.size+' selected';
+  syncBulkAll();
+  renderBulkList();
+}
+function bulkToggleAll() {
+  const q=(el('bulk-search')?.value||'').toLowerCase();
+  let list=PRODUCTS;
+  if(S.bulkCat!=='All') list=list.filter(p=>p.cat===S.bulkCat);
+  if(q) list=list.filter(p=>p.name.toLowerCase().includes(q));
+  const allSel=list.length>0&&list.every(p=>S.bulkIds.has(p.id));
+  list.forEach(p=>allSel?S.bulkIds.delete(p.id):S.bulkIds.add(p.id));
+  renderBulkList();
+}
+function syncBulkAll() {
+  const q=(el('bulk-search')?.value||'').toLowerCase();
+  let list=PRODUCTS;
+  if(S.bulkCat!=='All') list=list.filter(p=>p.cat===S.bulkCat);
+  if(q) list=list.filter(p=>p.name.toLowerCase().includes(q));
+  const allSel=list.length>0&&list.every(p=>S.bulkIds.has(p.id));
+  const lbl=el('bulk-all-lbl');
+  if(lbl) lbl.textContent=allSel?'✓ Deselect All':'Select All';
+}
+function pickBulkStatus(s) {
+  S.bulkStatus=s;
+  ['bs-available','bs-low','bs-coming','bs-unavailable'].forEach(id=>el(id)?.classList.remove('picked'));
+  const m={available:'bs-available',low:'bs-low',coming:'bs-coming',unavailable:'bs-unavailable'};
+  if(m[s]) el(m[s])?.classList.add('picked');
+  el('bs-date-wrap').classList.toggle('hidden',s!=='coming');
+}
+async function submitBulk() {
+  if(S.bulkIds.size===0){toast('Select at least one product','err');return;}
+  if(S.bulkStatus===null){toast('Select a status','err');return;}
+  const by=el('bs-by').value.trim();
+  if(!by){toast('Enter your name','err');return;}
+  const note=el('bs-note').value.trim();
+  const date=S.bulkStatus==='coming'?el('bs-date').value:'';
+  const btn=el('bs-btn'),lbl=el('bs-btn-lbl');
+  btn.disabled=true;
+  const ids=[...S.bulkIds];let ok=0,fail=0;
+  const BATCH=5;
+  for(let i=0;i<ids.length;i+=BATCH){
+    const chunk=ids.slice(i,i+BATCH);
+    lbl.innerHTML=`<span class="spinner-sm"></span>${Math.min(i+BATCH,ids.length)}/${ids.length}…`;
+    const res=await Promise.allSettled(chunk.map(id=>
+      api({action:'update',id,status:S.bulkStatus,note:encodeURIComponent(note),expectedDate:date,updatedBy:encodeURIComponent(by)})
+    ));
+    res.forEach((r,j)=>{
+      if(r.status==='fulfilled'){
+        const p=S.products.find(x=>x.id===chunk[j]);
+        if(p){p.status=S.bulkStatus;p.note=note;p.expectedDate=date;}
+        ok++;
+      } else fail++;
+    });
+  }
+  btn.disabled=false;lbl.textContent='Save Changes';
+  if(fail===0) toast(`✅ ${ok} product${ok>1?'s':''} updated`,'ok');
+  else toast(`⚠️ ${ok} saved, ${fail} failed`,'warn');
+  S.bulkIds.clear();S.bulkStatus=null;
+  ['bs-available','bs-low','bs-coming','bs-unavailable'].forEach(id=>el(id)?.classList.remove('picked'));
+  renderProducts();renderBulkList();
+}
+
+// ══ Settings ══════════════════════════════════════════════════
+async function saveSettings() {
+  const days=parseInt(el('set-days').value)||30;
+  const minU=parseInt(el('set-min').value)||5;
+  const btn=el('set-btn'),lbl=el('set-btn-lbl');
+  btn.disabled=true;lbl.innerHTML='<span class="spinner-sm"></span>Saving…';
+  try {
+    await api({action:'saveSettings',expiryWarningDays:days,defaultMinUnits:minU});
+    S.settings.expiryWarningDays=days;S.settings.defaultMinUnits=minU;
+    el('dispense-days').textContent=days;
+    toast('✅ Settings saved','ok');
+  } catch(e){toast('Failed: '+e.message,'err');}
+  finally{btn.disabled=false;lbl.textContent='Save Settings';}
+}
+
+// ══ Logs ══════════════════════════════════════════════════════
+async function loadLogs() {
+  el('log-list').innerHTML='<div class="empty"><div class="spinner"></div></div>';
+  try {
+    const d=await api({action:'getLogs'});
+    renderLogs(d.logs||[]);
+  } catch(e){
+    el('log-list').innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><p>'+e.message+'</p></div>';
+  }
+}
+function renderLogs(logs) {
+  if(!logs.length){el('log-list').innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>No changes yet</p></div>';return;}
+  el('log-list').innerHTML=logs.map(l=>{
+    const oldC=STATUS_CFG[l.oldStatus||''],newC=STATUS_CFG[l.newStatus||''];
+    const d=l.timestamp?new Date(l.timestamp):null;
+    const ds=d?d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'';
+    return `<div class="log-item">
+      <div class="log-dot" style="background:${newC.dot}"></div>
+      <div class="log-body">
+        <div class="log-name">${l.productName||'—'}</div>
+        <div class="log-change">
+          <span class="sbadge ${oldC.cls}" style="font-size:.6rem">${oldC.label}</span>
+          <span style="color:var(--text3)">→</span>
+          <span class="sbadge ${newC.cls}" style="font-size:.6rem">${newC.label}</span>
+        </div>
+        <div class="log-meta">${ds}${l.updatedBy?' · '+l.updatedBy:''}${l.note?' · '+l.note:''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══ Supervisor Dashboard ══════════════════════════════════════
+async function loadSupervisorData() {
+  show('sv-loading');
+  hide('sv-content');
+  S.svLoaded = false;
+  try {
+    const d = await api({action:'getSupervisorData'});
+    renderSupervisorDashboard(d);
+    hide('sv-loading');
+    show('sv-content');
+    S.svLoaded = true;
+  } catch(e) {
+    el('sv-loading').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><p style="font-size:.875rem">${e.message}</p><button onclick="loadSupervisorData()" style="margin-top:12px;padding:8px 20px;border-radius:100px;background:var(--grad);color:#fff;font-weight:700;font-size:.8125rem">Retry</button></div>`;
+  }
+}
+
+function renderSupervisorDashboard(d) {
+  // Week range
+  if (d.weekRange) {
+    el('sv-week-range').textContent = `Week: ${d.weekRange.start} — ${d.weekRange.end}`;
+  }
+
+  // Status stat cards
+  const sc = d.statusCount || {};
+  const total = sc.total || 0;
+  el('sv-stat-grid').innerHTML = `
+    <div class="sv-stat sv-stat-g">
+      <div class="sv-stat-num">${sc.available||0}</div>
+      <div class="sv-stat-lbl">Available</div>
+      <div class="sv-stat-sub">${total ? Math.round((sc.available||0)/total*100) : 0}% of stock</div>
+    </div>
+    <div class="sv-stat sv-stat-a">
+      <div class="sv-stat-num">${sc.low||0}</div>
+      <div class="sv-stat-lbl">Low Stock</div>
+      <div class="sv-stat-sub">Needs attention</div>
+    </div>
+    <div class="sv-stat sv-stat-r">
+      <div class="sv-stat-num">${sc.unavailable||0}</div>
+      <div class="sv-stat-lbl">Unavailable</div>
+      <div class="sv-stat-sub">Out of stock</div>
+    </div>
+    <div class="sv-stat sv-stat-p">
+      <div class="sv-stat-num">${d.totalUnitsDispensed||0}</div>
+      <div class="sv-stat-lbl">Units Dispensed</div>
+      <div class="sv-stat-sub">This week</div>
+    </div>`;
+
+  // Top dispensed bar chart
+  // Apps Script returns: {name, total}
+  const td = d.topDispensed || [];
+  if (td.length) {
+    const max = td[0].total || 1;
+    el('sv-bar-chart').innerHTML = td.map(p => {
+      const pct = Math.max(4, Math.round((p.total / max) * 100));
+      return `<div class="bar-row">
+        <div class="bar-label" title="${p.name}">${p.name}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+        <div class="bar-val">${p.total}</div>
+      </div>`;
+    }).join('');
+    el('sv-total-dispensed').textContent = `${d.totalUnitsDispensed||0} total units`;
+    show('sv-dispensed-card');
+  } else {
+    el('sv-bar-chart').innerHTML = '<div class="empty" style="padding:16px"><div class="empty-icon">📊</div><p style="font-size:.875rem">No dispensing data this week</p></div>';
+  }
+
+  // Expiry alerts
+  // Apps Script returns items as: {name, qty, date, days}
+  const ea = d.expiryAlerts || {};
+  const critical = ea.critical || [];
+  const high = ea.high || [];
+  const upcoming = ea.upcoming || [];
+  let alertHtml = '';
+  if (!critical.length && !high.length && !upcoming.length) {
+    alertHtml = '<div class="empty" style="padding:16px"><div class="empty-icon">✅</div><p style="font-size:.875rem">No expiry alerts</p></div>';
+  }
+  if (critical.length) {
+    alertHtml += `<div class="alert-section">
+      <div class="alert-section-hdr"><span class="urg-badge urg-critical">🔴 Critical — ≤7 days</span><span style="font-size:.75rem;color:var(--text2)">${critical.length} batch${critical.length!==1?'es':''}</span></div>
+      ${critical.map(b=>`<div class="alert-item">
+        <div class="alert-name">${b.name}</div>
+        <div class="alert-meta">📅 ${b.date} · ${b.qty} units · ${b.days}d left</div>
+      </div>`).join('')}
+    </div>`;
+  }
+  if (high.length) {
+    alertHtml += `<div class="alert-section">
+      <div class="alert-section-hdr"><span class="urg-badge urg-high">🟡 High — 8–14 days</span><span style="font-size:.75rem;color:var(--text2)">${high.length} batch${high.length!==1?'es':''}</span></div>
+      ${high.map(b=>`<div class="alert-item">
+        <div class="alert-name">${b.name}</div>
+        <div class="alert-meta">📅 ${b.date} · ${b.qty} units · ${b.days}d left</div>
+      </div>`).join('')}
+    </div>`;
+  }
+  if (upcoming.length) {
+    alertHtml += `<div class="alert-section">
+      <div class="alert-section-hdr"><span class="urg-badge urg-medium">🔵 Upcoming — 15–30 days</span><span style="font-size:.75rem;color:var(--text2)">${upcoming.length} batch${upcoming.length!==1?'es':''}</span></div>
+      ${upcoming.map(b=>`<div class="alert-item">
+        <div class="alert-name">${b.name}</div>
+        <div class="alert-meta">📅 ${b.date} · ${b.qty} units · ${b.days}d left</div>
+      </div>`).join('')}
+    </div>`;
+  }
+  el('sv-expiry-alerts').innerHTML = alertHtml;
+
+  // Staff activity
+  // Apps Script returns: array of {name, count, changes:[{product, from, to, note, time}]}
+  const staffArr = Array.isArray(d.staffActivity) ? d.staffActivity : Object.values(d.staffActivity||{});
+  if (staffArr.length) {
+    el('sv-staff-activity').innerHTML = staffArr.map(s => {
+      const name = s.name || '—';
+      const changes = Array.isArray(s.changes) ? s.changes : [];
+      const initials = name.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+      const rows = changes.map(c => {
+        const oldCfg = STATUS_CFG[c.from==='Not Set'?'':c.from?.toLowerCase()||''] || STATUS_CFG[''];
+        const newCfg = STATUS_CFG[c.to==='Not Set'?'':c.to?.toLowerCase()||'']   || STATUS_CFG[''];
+        const d2 = c.time ? new Date(c.time) : null;
+        const ds = d2 ? d2.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+d2.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '';
+        return `<div class="staff-change">
+          <div class="staff-change-dot"></div>
+          <div class="staff-change-body">
+            <div class="staff-change-prod">${c.product||'—'}</div>
+            <div class="staff-change-meta">
+              <span class="sbadge ${oldCfg.cls}" style="font-size:.6rem">${c.from||'Not Set'}</span>
+              <span style="color:var(--text3)">→</span>
+              <span class="sbadge ${newCfg.cls}" style="font-size:.6rem">${c.to||'Not Set'}</span>
+              ${ds?`<span>· ${ds}</span>`:''}
+              ${c.note?`<span>· ${c.note}</span>`:''}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+      return `<div class="staff-person">
+        <div class="staff-name-row">
+          <div class="staff-avatar">${initials}</div>
+          <div>
+            <div class="staff-fullname">${name}</div>
+            <div class="staff-count">${s.count||changes.length} change${(s.count||changes.length)!==1?'s':''} this week</div>
+          </div>
+        </div>
+        ${rows}
+      </div>`;
+    }).join('<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">');
+  } else {
+    el('sv-staff-activity').innerHTML = '<div class="empty" style="padding:16px"><div class="empty-icon">👥</div><p style="font-size:.875rem">No staff activity this week</p></div>';
+  }
+
+  // Low stock — Apps Script returns: [{name}]
+  const ls = d.lowStockProducts || [];
+  if (ls.length) {
+    el('sv-lowstock-list').innerHTML = '<div class="tag-list">'+ls.map(p =>
+      `<span class="ls-tag">⚠️ ${p.name}</span>`
+    ).join('')+'</div>';
+  } else {
+    el('sv-lowstock-list').innerHTML = '<div class="empty" style="padding:16px"><div class="empty-icon">✅</div><p style="font-size:.875rem">No low stock products</p></div>';
+  }
+}
+
+async function sendReportNow() {
+  const btn = el('sv-send-btn'), lbl = el('sv-send-lbl');
+  btn.disabled = true;
+  lbl.innerHTML = '<span class="spinner-sm"></span>Sending…';
+  try {
+    await api({action:'sendReport'});
+    toast('✅ Report sent to supervisor email','ok');
+  } catch(e) {
+    toast('Failed to send: '+e.message,'err');
+  } finally {
+    btn.disabled = false;
+    lbl.textContent = '📧 Send Report Now';
+  }
+}
+
+// ══ Dropdown ══════════════════════════════════════════════════
+function buildDropdown(cid,query,onSelect) {
+  const dropEl=el(cid);
+  if(!query||query.length<1){hide(cid);return;}
+  const q=query.toLowerCase();
+  const hits=PRODUCTS.filter(p=>p.name.toLowerCase().includes(q)||p.id.toLowerCase().includes(q)).slice(0,10);
+  if(!hits.length){hide(cid);return;}
+  const pm={};S.products.forEach(p=>{pm[p.id]=p;});
+  dropEl.innerHTML=hits.map(p=>{
+    const cfg=STATUS_CFG[(pm[p.id]?.status)||''];
+    return `<div class="ddopt" onclick="(${onSelect.toString()})('${p.id}')">
+      <span class="ddn">${p.name}</span>
+      <span class="ddc">${p.cat} · <span style="color:${cfg.dot}">${cfg.label}</span></span>
+    </div>`;
+  }).join('');
+  show(cid);
+}
+
+// ══ Helpers ═══════════════════════════════════════════════════
+function el(id){return document.getElementById(id);}
+function show(id){el(id)?.classList.remove('hidden');}
+function hide(id){el(id)?.classList.add('hidden');}
+function qsa(sel){return Array.from(document.querySelectorAll(sel));}
+let _tt;
+function toast(msg,type=''){
+  const t=el('toast');t.textContent=msg;t.className='show '+type;
+  clearTimeout(_tt);_tt=setTimeout(()=>t.className='',3500);
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#su-search')&&!e.target.closest('#su-dropdown')) hide('su-dropdown');
+});
+</script>
+</body>
+</html>
