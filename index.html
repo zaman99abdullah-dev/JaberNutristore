@@ -22,6 +22,7 @@
   --grey:#475569;  --grey-bg:rgba(71,85,105,.15);  --grey-t:#94a3b8;
   --purple:#8b5cf6; --purple-bg:rgba(139,92,246,.1); --purple-t:#a78bfa;
   --teal:#14b8a6; --teal-bg:rgba(20,184,166,.12); --teal-t:#2dd4bf;
+  --indigo:#6366f1; --indigo-bg:rgba(99,102,241,.12); --indigo-t:#818cf8;
   --r:12px; --rs:8px;
 }
 html{font-size:16px}
@@ -103,7 +104,15 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 .sbar-b{background:var(--blue-bg); color:var(--blue-t); border-color:rgba(59,130,246,.2)}
 .sbar-r{background:var(--red-bg);  color:var(--red-t);  border-color:rgba(239,68,68,.2)}
 .sbar-x{background:var(--grey-bg); color:var(--grey-t); border-color:rgba(71,85,105,.2)}
+.sbar-i{background:var(--indigo-bg);color:var(--indigo-t);border-color:rgba(99,102,241,.2)}
 .sdot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+.sbar.on{color:#fff;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.sbar-g.on{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.sbar-a.on{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.sbar-b.on{background:linear-gradient(135deg,#3b82f6,#2563eb)}
+.sbar-r.on{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.sbar-x.on{background:linear-gradient(135deg,#64748b,#475569)}
+.sbar-i.on{background:linear-gradient(135deg,#6366f1,#4f46e5)}
 
 /* Search */
 .search-wrap{position:relative;margin-bottom:12px}
@@ -335,6 +344,16 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 .df-switch.on{background:var(--teal);border-color:var(--teal)}
 .df-switch.on::after{left:20px;background:#fff}
 
+/* In-Patient Only badge/toggle (indigo) */
+.io-badge{display:inline-flex;align-items:center;gap:4px;font-size:.6875rem;font-weight:700;padding:3px 9px;border-radius:100px;background:var(--indigo-bg);color:var(--indigo-t);white-space:nowrap;flex-shrink:0}
+.io-badge.sm{font-size:.625rem;padding:2px 7px}
+.io-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--indigo-bg);border:1px solid rgba(99,102,241,.25);border-radius:var(--rs);margin-bottom:14px}
+.io-toggle-lbl{font-size:.8125rem;font-weight:700;color:var(--indigo-t)}
+.io-switch{position:relative;width:42px;height:24px;border-radius:100px;background:var(--surface2);border:1px solid var(--border2);flex-shrink:0}
+.io-switch::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--text2);transition:all .15s}
+.io-switch.on{background:var(--indigo);border-color:var(--indigo)}
+.io-switch.on::after{left:20px;background:#fff}
+
 /* V12 P1.1: dietitian-first product row */
 .d-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer}
 .d-row:last-child{border-bottom:none}
@@ -356,11 +375,13 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 .dchip-a{border-color:rgba(245,158,11,.3);color:var(--amber-t)}
 .dchip-r{border-color:rgba(239,68,68,.3);color:var(--red-t)}
 .dchip-t{border-color:rgba(20,184,166,.3);color:var(--teal-t)}
+.dchip-i{border-color:rgba(99,102,241,.3);color:var(--indigo-t)}
 .dchip.on{color:#fff;box-shadow:0 2px 12px rgba(0,0,0,.25)}
 .dchip-g.on{background:linear-gradient(135deg,#22c55e,#16a34a)}
 .dchip-a.on{background:linear-gradient(135deg,#f59e0b,#d97706)}
 .dchip-r.on{background:linear-gradient(135deg,#ef4444,#dc2626)}
 .dchip-t.on{background:linear-gradient(135deg,#14b8a6,#0d9488)}
+.dchip-i.on{background:linear-gradient(135deg,#6366f1,#4f46e5)}
 .last-synced{font-size:.75rem;color:var(--text3);text-align:center;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px}
 .pull-indicator{text-align:center;font-size:.75rem;color:var(--text2);height:0;overflow:hidden;transition:height .15s;display:flex;align-items:center;justify-content:center;gap:6px}
 .pull-indicator.active{height:36px}
@@ -481,6 +502,10 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
           <div class="df-toggle-row" onclick="toggleSuDispenseFirst()">
             <span class="df-toggle-lbl">🔄 Mark as Dispense First</span>
             <span class="df-switch" id="su-df-switch"></span>
+          </div>
+          <div class="io-toggle-row" onclick="toggleSuInpatientOnly()">
+            <span class="io-toggle-lbl">🏥 Mark as In-Patient Only</span>
+            <span class="io-switch" id="su-io-switch"></span>
           </div>
           <div class="status-grid">
             <button class="sbtn sb-available"   id="su-s-available"   onclick="pickSuStatus('available')">🟢 Available</button>
@@ -813,8 +838,10 @@ const S = {
   logFilter: '',
   pinnedIds: new Set(JSON.parse(localStorage.getItem('ns_pinned')||'[]')),
   dietitianFilter: null,
+  storageFilter: null,
   lastSynced: null,
   suDispenseFirst: false,
+  suInpatientOnly: false,
 };
 
 // ══ Boot ══════════════════════════════════════════════════════
@@ -894,21 +921,28 @@ function renderProducts() {
   renderLastSynced();
 
   if (S.isStorage) {
-    const c={available:0,low:0,coming:0,unavailable:0,'':0};
-    S.products.forEach(p=>{c[p.status||'']=(c[p.status||'']||0)+1;});
+    const c={available:0,low:0,coming:0,unavailable:0,'':0,inpatient:0};
+    S.products.forEach(p=>{
+      c[p.status||'']=(c[p.status||'']||0)+1;
+      if(p.inpatientOnly) c.inpatient++;
+    });
+    const schip=(key,cls,label,count)=>
+      `<button class="sbar ${cls} ${S.storageFilter===key?'on':''}" onclick="setStorageFilter('${key}')"><div class="sdot"></div>${count} ${label}</button>`;
     el('stats-bar').innerHTML=
-      `<div class="sbar sbar-g"><div class="sdot"></div>${c.available} Available</div>`+
-      `<div class="sbar sbar-a"><div class="sdot"></div>${c.low} Low</div>`+
-      `<div class="sbar sbar-b"><div class="sdot"></div>${c.coming} Coming</div>`+
-      `<div class="sbar sbar-r"><div class="sdot"></div>${c.unavailable} Unavail.</div>`+
-      `<div class="sbar sbar-x"><div class="sdot"></div>${c['']} Not Set</div>`;
+      schip('available','sbar-g','Available',c.available)+
+      schip('low','sbar-a','Low',c.low)+
+      schip('coming','sbar-b','Coming',c.coming)+
+      schip('unavailable','sbar-r','Unavail.',c.unavailable)+
+      schip('notset','sbar-x','Not Set',c[''])+
+      schip('inpatientOnly','sbar-i','🏥 In-Patient',c.inpatient);
   } else {
-    const c={available:0,low:0,unavailable:0,df:0};
+    const c={available:0,low:0,unavailable:0,df:0,io:0};
     S.products.forEach(p=>{
       if(p.status==='available') c.available++;
       if(p.status==='low') c.low++;
       if(p.status==='unavailable') c.unavailable++;
       if(p.dispenseFirst) c.df++;
+      if(p.inpatientOnly) c.io++;
     });
     const chip=(key,cls,icon,label,count)=>
       `<button class="dchip ${cls} ${S.dietitianFilter===key?'on':''}" onclick="setDietitianFilter('${key}')">${icon} ${count} ${label}</button>`;
@@ -916,11 +950,18 @@ function renderProducts() {
       chip('available','dchip-g','✅',"Available",c.available)+
       chip('low','dchip-a','⚠️',"Low",c.low)+
       chip('unavailable','dchip-r','❌',"Out",c.unavailable)+
-      chip('dispenseFirst','dchip-t','🔄',"Dispense First",c.df);
+      chip('dispenseFirst','dchip-t','🔄',"Dispense First",c.df)+
+      chip('inpatientOnly','dchip-i','🏥',"In-Patient Only",c.io);
   }
 
+  if (S.isStorage && S.storageFilter) {
+    if (S.storageFilter==='inpatientOnly') list = list.filter(p=>p.inpatientOnly);
+    else if (S.storageFilter==='notset') list = list.filter(p=>!p.status);
+    else list = list.filter(p=>p.status===S.storageFilter);
+  }
   if (!S.isStorage && S.dietitianFilter) {
     if (S.dietitianFilter==='dispenseFirst') list = list.filter(p=>p.dispenseFirst);
+    else if (S.dietitianFilter==='inpatientOnly') list = list.filter(p=>p.inpatientOnly);
     else list = list.filter(p=>p.status===S.dietitianFilter);
   }
 
@@ -938,6 +979,7 @@ function renderStorageRows(list) {
     const bs=p.batchSummary;
     let sub=`<span class="pi-cat">${p.category}</span>`;
     if (p.dispenseFirst) sub+=`<span class="df-badge sm">🔄 Dispense First</span>`;
+    if (p.inpatientOnly) sub+=`<span class="io-badge sm">🏥 In-Patient Only</span>`;
     if (p.note) sub+=`<span class="pi-note">${p.note}</span>`;
     if (p.status==='coming'&&p.expectedDate) sub+=`<span class="pi-date">📅 ${p.expectedDate}</span>`;
     if (bs) {
@@ -978,6 +1020,7 @@ function dietitianRowHTML(p) {
       <div class="d-sub">
         <span class="pi-cat">${p.category}</span>
         ${p.dispenseFirst?'<span class="df-badge">🔄 Dispense First</span>':''}
+        ${p.inpatientOnly?'<span class="io-badge">🏥 In-Patient Only</span>':''}
       </div>
     </div>
     <button class="pin-star ${pinned?'pinned':''}" onclick="event.stopPropagation();togglePin('${p.id}')">${pinned?'⭐':'☆'}</button>
@@ -986,6 +1029,11 @@ function dietitianRowHTML(p) {
 
 function setDietitianFilter(key) {
   S.dietitianFilter = S.dietitianFilter===key ? null : key;
+  renderProducts();
+}
+
+function setStorageFilter(key) {
+  S.storageFilter = S.storageFilter===key ? null : key;
   renderProducts();
 }
 
@@ -1188,7 +1236,9 @@ function onSuSearch() {
     S.suStatus=existing?(existing.status||''):null;
     el('su-min').value=existing?.minUnits||S.settings.defaultMinUnits||5;
     S.suDispenseFirst = !!existing?.dispenseFirst;
+    S.suInpatientOnly = !!existing?.inpatientOnly;
     el('su-df-switch').classList.toggle('on', S.suDispenseFirst);
+    el('su-io-switch').classList.toggle('on', S.suInpatientOnly);
     highlightSuStatus(S.suStatus);
     show('su-status-card');
     loadBatches(id);
@@ -1198,11 +1248,16 @@ function toggleSuDispenseFirst() {
   S.suDispenseFirst = !S.suDispenseFirst;
   el('su-df-switch').classList.toggle('on', S.suDispenseFirst);
 }
+function toggleSuInpatientOnly() {
+  S.suInpatientOnly = !S.suInpatientOnly;
+  el('su-io-switch').classList.toggle('on', S.suInpatientOnly);
+}
 function clearSu() {
-  S.suProduct=null;S.suStatus=null;S.suBatches=[];S.suDispenseFirst=false;
+  S.suProduct=null;S.suStatus=null;S.suBatches=[];S.suDispenseFirst=false;S.suInpatientOnly=false;
   hide('su-chip');hide('su-status-card');hide('su-batch-card');
   el('su-search').value='';clearSuHighlight();
   el('su-df-switch')?.classList.remove('on');
+  el('su-io-switch')?.classList.remove('on');
   hide('add-batch-form');
 }
 function pickSuStatus(s) {
@@ -1227,9 +1282,9 @@ async function submitSingle() {
   const btn=el('su-btn'),lbl=el('su-btn-lbl');
   btn.disabled=true;lbl.innerHTML='<span class="spinner-sm"></span>Saving…';
   try {
-    await api({action:'update',id:S.suProduct.id,status:S.suStatus,note:encodeURIComponent(note),expectedDate:date,updatedBy:encodeURIComponent(by),minUnits:minU,dispenseFirst:S.suDispenseFirst});
+    await api({action:'update',id:S.suProduct.id,status:S.suStatus,note:encodeURIComponent(note),expectedDate:date,updatedBy:encodeURIComponent(by),minUnits:minU,dispenseFirst:S.suDispenseFirst,inpatientOnly:S.suInpatientOnly});
     const p=S.products.find(x=>x.id===S.suProduct.id);
-    if(p){p.status=S.suStatus;p.note=note;p.expectedDate=date;p.minUnits=minU;p.dispenseFirst=S.suDispenseFirst;}
+    if(p){p.status=S.suStatus;p.note=note;p.expectedDate=date;p.minUnits=minU;p.dispenseFirst=S.suDispenseFirst;p.inpatientOnly=S.suInpatientOnly;}
     toast('✅ Status saved','ok');
     clearSu();el('su-by').value='';el('su-note').value='';
     renderProducts();
