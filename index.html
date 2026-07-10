@@ -21,6 +21,7 @@
   --blue:#3b82f6;  --blue-bg:rgba(59,130,246,.1);  --blue-t:#60a5fa;
   --grey:#475569;  --grey-bg:rgba(71,85,105,.15);  --grey-t:#94a3b8;
   --purple:#8b5cf6; --purple-bg:rgba(139,92,246,.1); --purple-t:#a78bfa;
+  --teal:#14b8a6; --teal-bg:rgba(20,184,166,.12); --teal-t:#2dd4bf;
   --r:12px; --rs:8px;
 }
 html{font-size:16px}
@@ -71,16 +72,20 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 .mode-pill{display:inline-flex;align-items:center;gap:4px;font-size:.6875rem;font-weight:700;padding:3px 9px;border-radius:100px;margin-left:6px;text-transform:uppercase;letter-spacing:.05em}
 .mode-d{background:rgba(34,197,94,.12);color:var(--green-t)}
 .mode-s{background:rgba(245,158,11,.12);color:var(--amber-t)}
+.mode-sv{background:rgba(139,92,246,.12);color:var(--purple-t)}
 .btn-mode{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:100px;font-size:.8125rem;font-weight:700;background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}
 .btn-mode.on{background:rgba(245,158,11,.12);color:var(--amber-t);border-color:rgba(245,158,11,.25)}
+.btn-mode.on-sv{background:rgba(139,92,246,.12);color:var(--purple-t);border-color:rgba(139,92,246,.25)}
 .accent-bar{height:2px;background:var(--grad)}
 
 /* Nav */
 .nav{background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;white-space:nowrap;padding:0 12px}
 .nav::-webkit-scrollbar{display:none}
-.ntab{display:inline-flex;align-items:center;gap:5px;padding:13px 14px;font-size:.8125rem;font-weight:600;color:var(--text3);border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s}
+.ntab{display:inline-flex;align-items:center;gap:5px;padding:13px 14px;font-size:.8125rem;font-weight:600;color:var(--text3);border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s;position:relative}
 .ntab:hover{color:var(--text2)}
 .ntab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.ntab-dot{position:absolute;top:8px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--red);animation:ntab-pulse 1.4s infinite}
+@keyframes ntab-pulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,.6)}70%{box-shadow:0 0 0 6px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
 
 /* Main */
 .main{flex:1;padding:16px;max-width:820px;margin:0 auto;width:100%}
@@ -291,7 +296,86 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 /* Week range pill */
 .week-pill{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600;color:var(--text2);background:var(--surface2);border:1px solid var(--border2);border-radius:100px;padding:4px 12px}
 
-@media(max-width:480px){.row2{grid-template-columns:1fr}.add-batch-form .row2{grid-template-columns:1fr}.sv-stat-grid{grid-template-columns:1fr 1fr}.bar-label{width:100px}}
+/* V11: units pill / expired text on product list */
+.units-pill{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:100px;background:var(--blue-bg);color:var(--blue-t)}
+.expired-all-text{font-size:.75rem;font-weight:700;color:var(--red-t)}
+
+/* V11: search clear button */
+.search-clear-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:var(--surface2);color:var(--text2);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+
+/* V11: monthly comparison card */
+.mc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.mc-box{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:14px;text-align:center}
+.mc-box .mc-num{font-size:1.5rem;font-weight:800}
+.mc-box .mc-lbl{font-size:.6875rem;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.mc-compare{display:flex;align-items:center;justify-content:center;gap:8px;font-size:.875rem;font-weight:700}
+.mc-arrow-up{color:var(--green-t)}
+.mc-arrow-down{color:var(--red-t)}
+.mc-arrow-same{color:var(--text2)}
+
+/* V11: bulk success flash */
+.bulk-count.flash-ok{animation:flashGreen 1s ease}
+@keyframes flashGreen{0%{background:transparent}30%{background:rgba(34,197,94,.35);border-radius:100px}100%{background:transparent}}
+
+/* V11: supervisor email tags */
+.email-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:100px;font-size:.75rem;font-weight:600;background:var(--blue-bg);color:var(--blue-t);border:1px solid rgba(59,130,246,.2);margin:0 6px 6px 0}
+
+/* V11: staff name filter */
+.filter-clear-wrap{position:relative;margin-bottom:12px}
+
+/* V12 P1: Dispense First badge */
+.df-badge{display:inline-flex;align-items:center;gap:4px;font-size:.6875rem;font-weight:700;padding:3px 9px;border-radius:100px;background:var(--teal-bg);color:var(--teal-t);white-space:nowrap;flex-shrink:0}
+.df-badge.sm{font-size:.625rem;padding:2px 7px}
+.sbtn.sb-df{border-color:rgba(20,184,166,.35);color:var(--teal-t);background:var(--teal-bg)}
+.sbtn.sb-df.picked{box-shadow:0 0 0 2px currentColor,0 0 0 4px rgba(0,0,0,.3)}
+.df-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--teal-bg);border:1px solid rgba(20,184,166,.25);border-radius:var(--rs);margin-bottom:14px}
+.df-toggle-lbl{font-size:.8125rem;font-weight:700;color:var(--teal-t)}
+.df-switch{position:relative;width:42px;height:24px;border-radius:100px;background:var(--surface2);border:1px solid var(--border2);flex-shrink:0}
+.df-switch::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--text2);transition:all .15s}
+.df-switch.on{background:var(--teal);border-color:var(--teal)}
+.df-switch.on::after{left:20px;background:#fff}
+
+/* V12 P1.1: dietitian-first product row */
+.d-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.d-row:last-child{border-bottom:none}
+.d-row:active{background:rgba(59,130,246,.04)}
+.d-row .sbadge{font-size:.75rem;padding:6px 12px;order:1}
+.d-row .d-info{flex:1;min-width:0;order:2}
+.d-row .d-name{font-size:.9375rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.d-row .d-sub{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap}
+.d-row .pin-star{order:3;font-size:1.25rem;line-height:1;flex-shrink:0;background:none;color:var(--text3);padding:4px}
+.d-row .pin-star.pinned{color:var(--amber-t)}
+.d-section-lbl{font-size:.75rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.d-section-lbl:first-child{margin-top:0}
+
+/* V12 P1.4: tappable summary chips + last synced + pull to refresh */
+.chip-bar{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;margin-bottom:10px}
+.chip-bar::-webkit-scrollbar{display:none}
+.dchip{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:100px;font-size:.8125rem;font-weight:700;border:1.5px solid;background:none;transition:all .15s}
+.dchip-g{border-color:rgba(34,197,94,.3);color:var(--green-t)}
+.dchip-a{border-color:rgba(245,158,11,.3);color:var(--amber-t)}
+.dchip-r{border-color:rgba(239,68,68,.3);color:var(--red-t)}
+.dchip-t{border-color:rgba(20,184,166,.3);color:var(--teal-t)}
+.dchip.on{color:#fff;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.dchip-g.on{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.dchip-a.on{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.dchip-r.on{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.dchip-t.on{background:linear-gradient(135deg,#14b8a6,#0d9488)}
+.last-synced{font-size:.75rem;color:var(--text3);text-align:center;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px}
+.pull-indicator{text-align:center;font-size:.75rem;color:var(--text2);height:0;overflow:hidden;transition:height .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.pull-indicator.active{height:36px}
+
+/* V12 P1.2: alternatives bottom sheet */
+.sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:450;display:flex;align-items:flex-end;justify-content:center}
+.sheet-panel{background:var(--surface);border:1px solid var(--border2);border-top-left-radius:20px;border-top-right-radius:20px;width:100%;max-width:480px;max-height:78vh;overflow-y:auto;padding:20px 18px 28px;box-shadow:0 -12px 40px rgba(0,0,0,.5)}
+.sheet-handle{width:36px;height:4px;border-radius:100px;background:var(--border2);margin:0 auto 16px}
+.sheet-title{font-size:.9375rem;font-weight:700;margin-bottom:4px}
+.sheet-sub{font-size:.8125rem;color:var(--text2);margin-bottom:16px}
+.alt-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.alt-row:last-child{border-bottom:none}
+.alt-name{flex:1;min-width:0;font-size:.875rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+@media(max-width:480px){.row2{grid-template-columns:1fr}.add-batch-form .row2{grid-template-columns:1fr}.sv-stat-grid{grid-template-columns:1fr 1fr}.bar-label{width:100px}.mc-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -308,8 +392,8 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 <div id="pin-overlay" class="hidden">
   <div class="pin-card">
     <div class="pin-icon">🔐</div>
-    <h2>Storage Access</h2>
-    <p>Enter your 4-digit PIN to unlock storage management</p>
+    <h2>Enter PIN</h2>
+    <p>Storage PIN: for storage team<br>Supervisor PIN: for supervisor dashboard only</p>
     <input type="password" id="pin-input" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="••••" oninput="onPinInput()">
     <div class="pin-err" id="pin-err"></div>
     <button class="btn-pin-cancel" onclick="closePin()">Cancel</button>
@@ -329,19 +413,21 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
   <div class="accent-bar"></div>
 
   <nav class="nav">
-    <button class="ntab on" onclick="goTab('products')"    id="tab-products">📦 Products</button>
-    <button class="ntab"    onclick="goTab('dispense')"    id="tab-dispense">⚠️ Dispense Soon</button>
+    <button class="ntab on not-sv" onclick="goTab('products')"    id="tab-products">📦 Products</button>
+    <button class="ntab s-only hidden" onclick="goTab('dispense')"    id="tab-dispense">⚠️ Dispense Soon<span class="ntab-dot hidden" id="dispense-dot"></span></button>
     <button class="ntab s-only hidden" onclick="goTab('update')"      id="tab-update">✏️ Update &amp; Batches</button>
-    <button class="ntab s-only hidden" onclick="goTab('supervisor')"  id="tab-supervisor">📊 Supervisor</button>
+    <button class="ntab sv-only hidden" onclick="goTab('supervisor')"  id="tab-supervisor">📊 Supervisor</button>
     <button class="ntab s-only hidden" onclick="goTab('settings')"    id="tab-settings">⚙️ Settings</button>
-    <button class="ntab"    onclick="goTab('changes')"    id="tab-changes">🕓 Changes</button>
+    <button class="ntab not-sv"    onclick="goTab('changes')"    id="tab-changes">🕓 Changes</button>
   </nav>
 
   <div class="main">
 
     <!-- ═══ PRODUCTS ═══ -->
     <div id="pane-products">
+      <div class="pull-indicator" id="pull-indicator">↓ Pull to refresh</div>
       <div class="card">
+        <div class="last-synced" id="last-synced"></div>
         <div class="stats-bar" id="stats-bar"></div>
         <div class="search-wrap">
           <span class="search-icon">🔍</span>
@@ -358,7 +444,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div>
             <div style="font-weight:700;font-size:.9375rem">⚠️ Dispense Soon</div>
-            <div style="font-size:.75rem;color:var(--text2);margin-top:3px" id="dispense-subtitle">Products with batches expiring within <span id="dispense-days">30</span> days</div>
+            <div style="font-size:.75rem;color:var(--text2);margin-top:3px" id="dispense-subtitle">Showing batches expiring within <span id="dispense-days">30</span> days — expired batches are excluded</div>
           </div>
           <button onclick="refreshExpiring()" style="font-size:.8125rem;font-weight:700;color:var(--accent);background:none">↻</button>
         </div>
@@ -392,6 +478,10 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 
         <div id="su-status-card" class="card hidden">
           <div class="card-title">Set Status</div>
+          <div class="df-toggle-row" onclick="toggleSuDispenseFirst()">
+            <span class="df-toggle-lbl">🔄 Mark as Dispense First</span>
+            <span class="df-switch" id="su-df-switch"></span>
+          </div>
           <div class="status-grid">
             <button class="sbtn sb-available"   id="su-s-available"   onclick="pickSuStatus('available')">🟢 Available</button>
             <button class="sbtn sb-low"         id="su-s-low"         onclick="pickSuStatus('low')">🟡 Low Stock</button>
@@ -533,6 +623,12 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
           <div class="bar-chart" id="sv-bar-chart"></div>
         </div>
 
+        <!-- This Month vs Last Month -->
+        <div class="card" id="sv-monthly-card">
+          <div class="card-title">📅 This Month vs Last Month</div>
+          <div id="sv-monthly-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
+        </div>
+
         <!-- Expiry alerts -->
         <div class="card" id="sv-expiry-card">
           <div class="card-title">🚨 Expiry Alerts</div>
@@ -586,6 +682,11 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
           <span id="set-btn-lbl">Save Settings</span>
         </button>
       </div>
+      <div class="card">
+        <div class="card-title">📧 Supervisor Emails</div>
+        <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px;line-height:1.5">Read-only — managed directly in the Settings sheet / Apps Script, not editable from this app.</div>
+        <div id="settings-emails"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
+      </div>
     </div>
 
     <!-- ═══ CHANGES ═══ -->
@@ -595,6 +696,11 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
           <span class="card-title" style="margin-bottom:0">Recent Changes</span>
           <button onclick="loadLogs()" style="font-size:.8125rem;font-weight:700;color:var(--accent);background:none">↻ Refresh</button>
         </div>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="log-filter" placeholder="Filter by staff name…" oninput="onLogFilterInput()" style="padding-right:34px">
+          <button class="search-clear-btn hidden" id="log-filter-clear" onclick="clearLogFilter()">✕</button>
+        </div>
         <div id="log-list"><div class="empty"><div class="empty-icon">📋</div><p>Loading…</p></div></div>
       </div>
     </div>
@@ -603,11 +709,12 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 </div>
 
 <div id="toast"></div>
+<div id="alt-sheet"></div>
 
 <script>
 // ══ Config ════════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyK7JB0BfpxelDQjDZ59zvvfQZLrSn5Vf1GN7ZMXrkKDLUoAr82TBAjgk9amIu4cwDw/exec';
-const PIN = '1234';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUCjYLFNwhPt8x1b7upWg7E0P0KQ8oWIwSuvRRTlSOTJ72F_sUdLR2bDQnS9ZnWmah/exec'; // UPDATE THIS URL
+const PINS = { storage: '1234', supervisor: '5678' };
 
 const STATUS_CFG = {
   available:   { label:'Available',     cls:'s-available',   dot:'#22c55e' },
@@ -688,6 +795,7 @@ const PRODUCTS = [
 // ══ State ═════════════════════════════════════════════════════
 const S = {
   isStorage: false,
+  isSupervisor: false,
   products:  [],
   expiring:  [],
   settings:  { expiryWarningDays: 30, defaultMinUnits: 5 },
@@ -701,6 +809,12 @@ const S = {
   bulkIds:   new Set(),
   bulkStatus:null,
   svLoaded:  false,
+  logs:      [],
+  logFilter: '',
+  pinnedIds: new Set(JSON.parse(localStorage.getItem('ns_pinned')||'[]')),
+  dietitianFilter: null,
+  lastSynced: null,
+  suDispenseFirst: false,
 };
 
 // ══ Boot ══════════════════════════════════════════════════════
@@ -716,6 +830,7 @@ window.onload = async () => {
     S.products = pd.products || [];
     S.settings = { expiryWarningDays: sd.expiryWarningDays||30, defaultMinUnits: sd.defaultMinUnits||5 };
     S.expiring  = ed.expiring || [];
+    S.lastSynced = Date.now();
     el('dispense-days').textContent = S.settings.expiryWarningDays;
     el('set-days').value = S.settings.expiryWarningDays;
     el('set-min').value  = S.settings.defaultMinUnits;
@@ -724,6 +839,9 @@ window.onload = async () => {
     renderExpiring();
     hide('screen-loading');
     el('app').style.display = 'flex';
+    setInterval(renderLastSynced, 30000);
+    setupPullToRefresh();
+    setTimeout(()=>el('prod-search')?.focus(), 200);
   } catch(e) {
     el('screen-loading').innerHTML = `
       <div class="load-logo">🏥</div>
@@ -760,35 +878,75 @@ async function api(params) {
 }
 
 // ══ Products ══════════════════════════════════════════════════
+function renderLastSynced() {
+  const el2 = el('last-synced');
+  if (!el2 || !S.lastSynced) return;
+  const mins = Math.floor((Date.now()-S.lastSynced)/60000);
+  el2.textContent = mins < 1 ? '● Updated just now' : `● Updated ${mins} min${mins!==1?'s':''} ago`;
+}
+
 function renderProducts() {
   const q = (el('prod-search')?.value||'').toLowerCase();
   let list = S.products;
   if (S.prodCat!=='All') list=list.filter(p=>p.category===S.prodCat);
   if (q) list=list.filter(p=>p.name.toLowerCase().includes(q));
 
-  const c={available:0,low:0,coming:0,unavailable:0,'':0};
-  S.products.forEach(p=>{c[p.status||'']=(c[p.status||'']||0)+1;});
-  el('stats-bar').innerHTML=
-    `<div class="sbar sbar-g"><div class="sdot"></div>${c.available} Available</div>`+
-    `<div class="sbar sbar-a"><div class="sdot"></div>${c.low} Low</div>`+
-    `<div class="sbar sbar-b"><div class="sdot"></div>${c.coming} Coming</div>`+
-    `<div class="sbar sbar-r"><div class="sdot"></div>${c.unavailable} Unavail.</div>`+
-    `<div class="sbar sbar-x"><div class="sdot"></div>${c['']} Not Set</div>`;
+  renderLastSynced();
+
+  if (S.isStorage) {
+    const c={available:0,low:0,coming:0,unavailable:0,'':0};
+    S.products.forEach(p=>{c[p.status||'']=(c[p.status||'']||0)+1;});
+    el('stats-bar').innerHTML=
+      `<div class="sbar sbar-g"><div class="sdot"></div>${c.available} Available</div>`+
+      `<div class="sbar sbar-a"><div class="sdot"></div>${c.low} Low</div>`+
+      `<div class="sbar sbar-b"><div class="sdot"></div>${c.coming} Coming</div>`+
+      `<div class="sbar sbar-r"><div class="sdot"></div>${c.unavailable} Unavail.</div>`+
+      `<div class="sbar sbar-x"><div class="sdot"></div>${c['']} Not Set</div>`;
+  } else {
+    const c={available:0,low:0,unavailable:0,df:0};
+    S.products.forEach(p=>{
+      if(p.status==='available') c.available++;
+      if(p.status==='low') c.low++;
+      if(p.status==='unavailable') c.unavailable++;
+      if(p.dispenseFirst) c.df++;
+    });
+    const chip=(key,cls,icon,label,count)=>
+      `<button class="dchip ${cls} ${S.dietitianFilter===key?'on':''}" onclick="setDietitianFilter('${key}')">${icon} ${count} ${label}</button>`;
+    el('stats-bar').innerHTML=
+      chip('available','dchip-g','✅',"Available",c.available)+
+      chip('low','dchip-a','⚠️',"Low",c.low)+
+      chip('unavailable','dchip-r','❌',"Out",c.unavailable)+
+      chip('dispenseFirst','dchip-t','🔄',"Dispense First",c.df);
+  }
+
+  if (!S.isStorage && S.dietitianFilter) {
+    if (S.dietitianFilter==='dispenseFirst') list = list.filter(p=>p.dispenseFirst);
+    else list = list.filter(p=>p.status===S.dietitianFilter);
+  }
 
   if (!list.length) {
     el('prod-list').innerHTML='<div class="empty"><div class="empty-icon">🔍</div><p>No products found</p></div>';
     return;
   }
-  el('prod-list').innerHTML=list.map(p=>{
+
+  el('prod-list').innerHTML = S.isStorage ? renderStorageRows(list) : renderDietitianRows(list);
+}
+
+function renderStorageRows(list) {
+  return list.map(p=>{
     const cfg=STATUS_CFG[p.status||''];
     const bs=p.batchSummary;
     let sub=`<span class="pi-cat">${p.category}</span>`;
+    if (p.dispenseFirst) sub+=`<span class="df-badge sm">🔄 Dispense First</span>`;
     if (p.note) sub+=`<span class="pi-note">${p.note}</span>`;
     if (p.status==='coming'&&p.expectedDate) sub+=`<span class="pi-date">📅 ${p.expectedDate}</span>`;
     if (bs) {
-      const validTxt = bs.hasValid ? `${bs.totalValid} units` : '';
-      const expTxt   = bs.hasExpired && !bs.hasValid ? '⚠️ All expired' : bs.hasExpired ? '⚠️ Some expired' : '';
-      if (validTxt||expTxt) sub+=`<span class="pi-batch">📦 ${[validTxt,expTxt].filter(Boolean).join(' · ')}</span>`;
+      if (!bs.hasValid) {
+        sub+=`<span class="expired-all-text">⚠️ All batches expired</span>`;
+      } else {
+        sub+=`<span class="units-pill">📦 ${bs.totalValid} units</span>`;
+        if (bs.hasExpired) sub+=`<span class="pi-batch">⚠️ Some expired</span>`;
+      }
     }
     return `<div class="pitem">
       <div class="pi-info"><div class="pi-name">${p.name}</div><div class="pi-sub">${sub}</div></div>
@@ -797,23 +955,134 @@ function renderProducts() {
   }).join('');
 }
 
+function renderDietitianRows(list) {
+  const pinned = list.filter(p=>S.pinnedIds.has(p.id));
+  const rest = list.filter(p=>!S.pinnedIds.has(p.id));
+  let html='';
+  if (pinned.length) {
+    html += `<div class="d-section-lbl">⭐ Pinned</div>` + pinned.map(dietitianRowHTML).join('');
+    html += `<div class="d-section-lbl">All Products</div>`;
+  }
+  html += rest.map(dietitianRowHTML).join('');
+  return html;
+}
+
+function dietitianRowHTML(p) {
+  const cfg=STATUS_CFG[p.status||''];
+  const canShowAlts = p.status==='low' || p.status==='unavailable';
+  const pinned = S.pinnedIds.has(p.id);
+  return `<div class="d-row" ${canShowAlts?`onclick="openAlternatives('${p.id}')"`:''}>
+    <span class="sbadge ${cfg.cls}">${cfg.label}</span>
+    <div class="d-info">
+      <div class="d-name">${p.name}</div>
+      <div class="d-sub">
+        <span class="pi-cat">${p.category}</span>
+        ${p.dispenseFirst?'<span class="df-badge">🔄 Dispense First</span>':''}
+      </div>
+    </div>
+    <button class="pin-star ${pinned?'pinned':''}" onclick="event.stopPropagation();togglePin('${p.id}')">${pinned?'⭐':'☆'}</button>
+  </div>`;
+}
+
+function setDietitianFilter(key) {
+  S.dietitianFilter = S.dietitianFilter===key ? null : key;
+  renderProducts();
+}
+
+function togglePin(id) {
+  if (S.pinnedIds.has(id)) S.pinnedIds.delete(id);
+  else S.pinnedIds.add(id);
+  localStorage.setItem('ns_pinned', JSON.stringify([...S.pinnedIds]));
+  renderProducts();
+}
+
+// ══ Alternatives bottom sheet ═══════════════════════════════════
+function openAlternatives(productId) {
+  const p = S.products.find(x=>x.id===productId);
+  if (!p) return;
+  const alts = S.products.filter(x=>x.id!==productId && x.category===p.category && x.status==='available')
+    .sort((a,b)=> (b.dispenseFirst?1:0)-(a.dispenseFirst?1:0) || a.name.localeCompare(b.name));
+  const rows = alts.length ? alts.map(a=>`<div class="alt-row">
+      ${a.dispenseFirst?'<span class="df-badge sm">🔄</span>':''}
+      <span class="alt-name">${a.name}</span>
+      <span class="sbadge s-available" style="font-size:.625rem">Available</span>
+    </div>`).join('') : `<div class="empty" style="padding:24px 0"><div class="empty-icon">🔍</div><p style="font-size:.875rem">No alternatives currently available in this category</p></div>`;
+  el('alt-sheet').innerHTML = `
+    <div class="sheet-backdrop" onclick="if(event.target===this) closeAltSheet()">
+      <div class="sheet-panel">
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">${p.name} — Not available</div>
+        <div class="sheet-sub">Alternatives in stock (${p.category}):</div>
+        ${rows}
+        <button class="btn-submit" style="margin-top:16px" onclick="closeAltSheet()">Close</button>
+      </div>
+    </div>`;
+}
+function closeAltSheet() { el('alt-sheet').innerHTML=''; }
+
+// ══ Pull to refresh ══════════════════════════════════════════════
+function setupPullToRefresh() {
+  const pane = el('pane-products');
+  const indicator = el('pull-indicator');
+  let startY = null, pulling = false, refreshing = false;
+  pane.addEventListener('touchstart', e=>{
+    if (window.scrollY > 0 || S.activeTab!=='products') { startY=null; return; }
+    startY = e.touches[0].clientY;
+  }, {passive:true});
+  pane.addEventListener('touchmove', e=>{
+    if (startY===null || refreshing) return;
+    const dy = e.touches[0].clientY - startY;
+    if (dy > 60) {
+      pulling = true;
+      indicator.classList.add('active');
+      indicator.textContent = '↓ Release to refresh';
+    } else if (dy > 0) {
+      pulling = false;
+      indicator.classList.remove('active');
+    }
+  }, {passive:true});
+  pane.addEventListener('touchend', async ()=>{
+    if (pulling && !refreshing) {
+      refreshing = true;
+      indicator.textContent = '↻ Refreshing…';
+      try {
+        const pd = await api({action:'getAll'});
+        S.products = pd.products || [];
+        S.lastSynced = Date.now();
+        renderProducts();
+        toast('✅ Refreshed','ok');
+      } catch(e) { toast('Failed to refresh: '+e.message,'err'); }
+      refreshing = false;
+    }
+    pulling = false;
+    startY = null;
+    indicator.classList.remove('active');
+  }, {passive:true});
+}
+
 // ══ Expiring ══════════════════════════════════════════════════
 function renderExpiring() {
   const list = el('expiring-list');
-  if (!S.expiring.length) {
+  updateDispenseDot();
+  const valid = S.expiring.filter(b=>!b.expired);
+  if (!valid.length) {
     list.innerHTML='<div class="card"><div class="empty"><div class="empty-icon">✅</div><p>No products expiring within '+S.settings.expiryWarningDays+' days</p></div></div>';
     return;
   }
   const groups={};
-  S.expiring.forEach(b=>{
+  valid.forEach(b=>{
     if(!groups[b.productId]) groups[b.productId]={name:b.productName,batches:[]};
     groups[b.productId].batches.push(b);
   });
+  // sort each product's batches, then sort products by most urgent (lowest daysLeft) batch first
+  const groupArr = Object.values(groups);
+  groupArr.forEach(g=>{ g.batches.sort((a,b)=>a.daysLeft-b.daysLeft); g.minDays=g.batches[0].daysLeft; });
+  groupArr.sort((a,b)=>a.minDays-b.minDays);
 
-  list.innerHTML=Object.values(groups).map(g=>{
+  list.innerHTML=groupArr.map(g=>{
     const batchRows = g.batches.map(b=>{
-      const urg = b.expired ? 'urg-expired' : b.daysLeft<=7 ? 'urg-critical' : b.daysLeft<=14 ? 'urg-high' : 'urg-medium';
-      const daysLbl = b.expired ? `Expired ${Math.abs(b.daysLeft)}d ago` : `${b.daysLeft} day${b.daysLeft!==1?'s':''} left`;
+      const urg = b.daysLeft<=7 ? 'urg-critical' : b.daysLeft<=14 ? 'urg-high' : 'urg-medium';
+      const daysLbl = `${b.daysLeft} day${b.daysLeft!==1?'s':''} left`;
       return `<div class="exp-batch-row">
         <div class="exp-batch-info">
           <span>📅 ${b.expiryDate}</span>
@@ -829,6 +1098,11 @@ function renderExpiring() {
   }).join('');
 }
 
+function updateDispenseDot() {
+  const hasCritical = S.expiring.some(b=>!b.expired && b.daysLeft<=7);
+  el('dispense-dot')?.classList.toggle('hidden', !hasCritical);
+}
+
 async function refreshExpiring() {
   el('expiring-list').innerHTML='<div class="card"><div class="empty"><div class="spinner"></div></div></div>';
   try {
@@ -840,28 +1114,42 @@ async function refreshExpiring() {
 
 // ══ Mode ══════════════════════════════════════════════════════
 function toggleMode() {
-  if (S.isStorage) { S.isStorage=false; applyMode(); }
+  if (S.isStorage || S.isSupervisor) { S.isStorage=false; S.isSupervisor=false; applyMode(); }
   else { el('pin-input').value=''; el('pin-err').textContent=''; show('pin-overlay'); setTimeout(()=>el('pin-input').focus(),80); }
 }
 function closePin() { hide('pin-overlay'); }
 function onPinInput() {
   if (el('pin-input').value.length===4) {
-    if (el('pin-input').value===PIN) { hide('pin-overlay'); S.isStorage=true; applyMode(); }
+    const val = el('pin-input').value;
+    if (val===PINS.storage) { hide('pin-overlay'); S.isStorage=true; S.isSupervisor=false; applyMode(); }
+    else if (val===PINS.supervisor) { hide('pin-overlay'); S.isSupervisor=true; S.isStorage=false; applyMode(); }
     else { el('pin-err').textContent='❌ Wrong PIN. Try again.'; el('pin-input').value=''; }
   }
 }
 function applyMode() {
   const pill=el('mode-pill'),btn=el('mode-btn');
-  if (S.isStorage) {
+  if (S.isSupervisor) {
+    pill.textContent='Supervisor'; pill.className='mode-pill mode-sv';
+    btn.textContent='🔓 Exit'; btn.classList.remove('on'); btn.classList.add('on-sv');
+    qsa('.s-only').forEach(t=>t.classList.add('hidden'));
+    qsa('.not-sv').forEach(t=>t.classList.add('hidden'));
+    qsa('.sv-only').forEach(t=>t.classList.remove('hidden'));
+    goTab('supervisor');
+  } else if (S.isStorage) {
     pill.textContent='Storage'; pill.className='mode-pill mode-s';
-    btn.textContent='🔓 Exit Storage'; btn.classList.add('on');
+    btn.textContent='🔓 Exit Storage'; btn.classList.add('on'); btn.classList.remove('on-sv');
     qsa('.s-only').forEach(t=>t.classList.remove('hidden'));
+    qsa('.not-sv').forEach(t=>t.classList.remove('hidden'));
+    qsa('.sv-only').forEach(t=>t.classList.add('hidden'));
   } else {
     pill.textContent='Dietitian'; pill.className='mode-pill mode-d';
-    btn.textContent='🔒 Storage'; btn.classList.remove('on');
+    btn.textContent='🔒 Storage'; btn.classList.remove('on'); btn.classList.remove('on-sv');
     qsa('.s-only').forEach(t=>t.classList.add('hidden'));
+    qsa('.not-sv').forEach(t=>t.classList.remove('hidden'));
+    qsa('.sv-only').forEach(t=>t.classList.add('hidden'));
     if (['update','settings','supervisor'].includes(S.activeTab)) goTab('products');
   }
+  if (S.products.length) renderProducts();
 }
 
 // ══ Tabs ══════════════════════════════════════════════════════
@@ -873,6 +1161,8 @@ function goTab(name) {
   S.activeTab=name;
   if (name==='changes') loadLogs();
   if (name==='supervisor') loadSupervisorData();
+  if (name==='settings') loadSettingsEmails();
+  if (name==='products') setTimeout(()=>el('prod-search')?.focus(), 150);
 }
 
 // ══ Category pills ════════════════════════════════════════════
@@ -897,15 +1187,22 @@ function onSuSearch() {
     const existing=S.products.find(p=>p.id===id);
     S.suStatus=existing?(existing.status||''):null;
     el('su-min').value=existing?.minUnits||S.settings.defaultMinUnits||5;
+    S.suDispenseFirst = !!existing?.dispenseFirst;
+    el('su-df-switch').classList.toggle('on', S.suDispenseFirst);
     highlightSuStatus(S.suStatus);
     show('su-status-card');
     loadBatches(id);
   });
 }
+function toggleSuDispenseFirst() {
+  S.suDispenseFirst = !S.suDispenseFirst;
+  el('su-df-switch').classList.toggle('on', S.suDispenseFirst);
+}
 function clearSu() {
-  S.suProduct=null;S.suStatus=null;S.suBatches=[];
+  S.suProduct=null;S.suStatus=null;S.suBatches=[];S.suDispenseFirst=false;
   hide('su-chip');hide('su-status-card');hide('su-batch-card');
   el('su-search').value='';clearSuHighlight();
+  el('su-df-switch')?.classList.remove('on');
   hide('add-batch-form');
 }
 function pickSuStatus(s) {
@@ -930,9 +1227,9 @@ async function submitSingle() {
   const btn=el('su-btn'),lbl=el('su-btn-lbl');
   btn.disabled=true;lbl.innerHTML='<span class="spinner-sm"></span>Saving…';
   try {
-    await api({action:'update',id:S.suProduct.id,status:S.suStatus,note:encodeURIComponent(note),expectedDate:date,updatedBy:encodeURIComponent(by),minUnits:minU});
+    await api({action:'update',id:S.suProduct.id,status:S.suStatus,note:encodeURIComponent(note),expectedDate:date,updatedBy:encodeURIComponent(by),minUnits:minU,dispenseFirst:S.suDispenseFirst});
     const p=S.products.find(x=>x.id===S.suProduct.id);
-    if(p){p.status=S.suStatus;p.note=note;p.expectedDate=date;p.minUnits=minU;}
+    if(p){p.status=S.suStatus;p.note=note;p.expectedDate=date;p.minUnits=minU;p.dispenseFirst=S.suDispenseFirst;}
     toast('✅ Status saved','ok');
     clearSu();el('su-by').value='';el('su-note').value='';
     renderProducts();
@@ -1120,6 +1417,13 @@ async function submitBulk() {
   S.bulkIds.clear();S.bulkStatus=null;
   ['bs-available','bs-low','bs-coming','bs-unavailable'].forEach(id=>el(id)?.classList.remove('picked'));
   renderProducts();renderBulkList();
+  if(ok>0) flashBulkBadge();
+}
+function flashBulkBadge() {
+  const badge = el('bulk-count');
+  if (!badge) return;
+  badge.classList.add('flash-ok');
+  setTimeout(()=>badge.classList.remove('flash-ok'), 1000);
 }
 
 // ══ Settings ══════════════════════════════════════════════════
@@ -1137,18 +1441,56 @@ async function saveSettings() {
   finally{btn.disabled=false;lbl.textContent='Save Settings';}
 }
 
+async function loadSettingsEmails() {
+  const box = el('settings-emails');
+  try {
+    const d = await api({action:'getEmails'});
+    const emails = d.emails || [];
+    box.innerHTML = emails.length
+      ? emails.map(e=>`<span class="email-tag">📧 ${e}</span>`).join('')
+      : '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">No supervisor emails configured</p></div>';
+  } catch(e) {
+    box.innerHTML = '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">Failed to load: '+e.message+'</p></div>';
+  }
+}
+
 // ══ Logs ══════════════════════════════════════════════════════
 async function loadLogs() {
   el('log-list').innerHTML='<div class="empty"><div class="spinner"></div></div>';
   try {
     const d=await api({action:'getLogs'});
-    renderLogs(d.logs||[]);
+    S.logs = d.logs||[];
+    renderLogs();
   } catch(e){
     el('log-list').innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><p>'+e.message+'</p></div>';
   }
 }
-function renderLogs(logs) {
-  if(!logs.length){el('log-list').innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>No changes yet</p></div>';return;}
+function onLogFilterInput() {
+  S.logFilter = el('log-filter').value;
+  el('log-filter-clear').classList.toggle('hidden', !S.logFilter);
+  renderLogs();
+}
+function clearLogFilter() {
+  S.logFilter = '';
+  el('log-filter').value = '';
+  el('log-filter-clear').classList.add('hidden');
+  renderLogs();
+}
+function renderLogs() {
+  const q = (S.logFilter||'').trim().toLowerCase();
+  const logs = q ? S.logs.filter(l=>(l.updatedBy||'').toLowerCase().includes(q)) : S.logs;
+  if(!logs.length){
+    el('log-list').innerHTML = q
+      ? '<div class="empty"><div class="empty-icon">🔍</div><p>No changes found for that staff name</p></div>'
+      : '<div class="empty"><div class="empty-icon">📋</div><p>No changes yet</p></div>';
+    return;
+  }
+  const weekAgo = Date.now() - 7*24*60*60*1000;
+  const hasRecent = logs.some(l=> l.timestamp && new Date(l.timestamp).getTime() >= weekAgo );
+  if (!hasRecent && !q) {
+    el('log-list').innerHTML = '<div class="empty"><div class="empty-icon">🕓</div><p>No changes in the last 7 days</p></div>';
+    return;
+  }
   el('log-list').innerHTML=logs.map(l=>{
     const oldC=STATUS_CFG[l.oldStatus||''],newC=STATUS_CFG[l.newStatus||''];
     const d=l.timestamp?new Date(l.timestamp):null;
@@ -1174,8 +1516,12 @@ async function loadSupervisorData() {
   hide('sv-content');
   S.svLoaded = false;
   try {
-    const d = await api({action:'getSupervisorData'});
+    const [d, monthly] = await Promise.all([
+      api({action:'getSupervisorData'}),
+      api({action:'getMonthlyComparison'})
+    ]);
     renderSupervisorDashboard(d);
+    renderMonthlyComparison(monthly);
     hide('sv-loading');
     show('sv-content');
     S.svLoaded = true;
@@ -1184,10 +1530,26 @@ async function loadSupervisorData() {
   }
 }
 
+function shortDate(s) { const parts=(s||'').split(' '); return parts.slice(0,2).join(' '); }
+
+function renderMonthlyComparison(m) {
+  const box = el('sv-monthly-content');
+  if (!m) { box.innerHTML = '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">No data</p></div>'; return; }
+  const arrowCls = m.direction==='up' ? 'mc-arrow-up' : m.direction==='down' ? 'mc-arrow-down' : 'mc-arrow-same';
+  const arrow = m.direction==='up' ? '▲' : m.direction==='down' ? '▼' : '—';
+  const changeTxt = m.direction==='same' ? 'No change' : `${m.change}% ${m.direction==='up'?'increase':'decrease'}`;
+  box.innerHTML = `
+    <div class="mc-grid">
+      <div class="mc-box"><div class="mc-num">${m.thisMonth.total}</div><div class="mc-lbl">${m.thisMonth.month}</div></div>
+      <div class="mc-box"><div class="mc-num">${m.lastMonth.total}</div><div class="mc-lbl">${m.lastMonth.month}</div></div>
+    </div>
+    <div class="mc-compare"><span class="${arrowCls}">${arrow}</span><span>${changeTxt}</span></div>`;
+}
+
 function renderSupervisorDashboard(d) {
   // Week range
   if (d.weekRange) {
-    el('sv-week-range').textContent = `Week: ${d.weekRange.start} — ${d.weekRange.end}`;
+    el('sv-week-range').textContent = `This Week (${shortDate(d.weekRange.start)} – ${shortDate(d.weekRange.end)})`;
   }
 
   // Status stat cards
