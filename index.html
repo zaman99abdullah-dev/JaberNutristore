@@ -218,6 +218,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 .btn-toggle{padding:8px 18px;border-radius:100px;font-size:.8125rem;font-weight:700;background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}
 .btn-add{padding:9px 16px;border-radius:var(--rs);font-size:.8125rem;font-weight:700;background:rgba(59,130,246,.1);color:var(--blue-t);border:1px solid rgba(59,130,246,.2)}
 .btn-add:hover{background:rgba(59,130,246,.15)}
+.btn-add.df-on{background:var(--teal-bg);color:var(--teal-t);border-color:rgba(20,184,166,.3)}
 
 /* Log */
 .log-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
@@ -435,7 +436,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 
   <nav class="nav">
     <button class="ntab on not-sv" onclick="goTab('products')"    id="tab-products">📦 Products</button>
-    <button class="ntab s-only hidden" onclick="goTab('dispense')"    id="tab-dispense">⚠️ Dispense Soon<span class="ntab-dot hidden" id="dispense-dot"></span></button>
+    <button class="ntab s-only hidden" onclick="goTab('dispense')"    id="tab-dispense">🔄 Rotate Now<span class="ntab-dot hidden" id="dispense-dot"></span></button>
     <button class="ntab s-only hidden" onclick="goTab('update')"      id="tab-update">✏️ Update &amp; Batches</button>
     <button class="ntab sv-only hidden" onclick="goTab('supervisor')"  id="tab-supervisor">📊 Supervisor</button>
     <button class="ntab s-only hidden" onclick="goTab('settings')"    id="tab-settings">⚙️ Settings</button>
@@ -459,17 +460,18 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
       </div>
     </div>
 
-    <!-- ═══ DISPENSE SOON ═══ -->
+    <!-- ═══ ROTATE NOW ═══ -->
     <div id="pane-dispense" class="hidden">
       <div class="card" style="padding:14px 18px;margin-bottom:14px">
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div>
-            <div style="font-weight:700;font-size:.9375rem">⚠️ Dispense Soon</div>
+            <div style="font-weight:700;font-size:.9375rem">🔄 Rotate Now</div>
             <div style="font-size:.75rem;color:var(--text2);margin-top:3px" id="dispense-subtitle">Showing batches expiring within <span id="dispense-days">30</span> days — expired batches are excluded</div>
           </div>
           <button onclick="refreshExpiring()" style="font-size:.8125rem;font-weight:700;color:var(--accent);background:none">↻</button>
         </div>
       </div>
+      <div class="card" id="rotation-summary" style="padding:14px 18px;margin-bottom:14px"></div>
       <div id="expiring-list"></div>
     </div>
 
@@ -691,7 +693,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
         <div class="card-title">⚙️ App Settings</div>
         <div class="settings-row">
           <div>
-            <div class="settings-lbl">Dispense Soon Window</div>
+            <div class="settings-lbl">Rotate Now Window</div>
             <div class="settings-desc">Days before expiry to flag products for faster dispensing</div>
           </div>
           <input type="number" class="settings-input" id="set-days" min="1" max="365" value="30">
@@ -702,6 +704,13 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
             <div class="settings-desc">Units below which a product auto-sets to Low Stock</div>
           </div>
           <input type="number" class="settings-input" id="set-min" min="1" value="5">
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-lbl">Outpatient Expiry Guard Window</div>
+            <div class="settings-desc">Warn storage when dispensing a batch expiring within this many days</div>
+          </div>
+          <input type="number" class="settings-input" id="set-outguard" min="1" max="365" value="30">
         </div>
         <button class="btn-submit" id="set-btn" onclick="saveSettings()">
           <span id="set-btn-lbl">Save Settings</span>
@@ -738,7 +747,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 
 <script>
 // ══ Config ════════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCPzWfgXuBgY926uJJS4KsMaVxAYPxZdFN-4B1PKbl_59Jiu3_9X27wNyBFSS4QAKX/exec'; // UPDATE THIS URL
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUCjYLFNwhPt8x1b7upWg7E0P0KQ8oWIwSuvRRTlSOTJ72F_sUdLR2bDQnS9ZnWmah/exec'; // UPDATE THIS URL
 const PINS = { storage: '1234', supervisor: '5678' };
 
 const STATUS_CFG = {
@@ -823,7 +832,7 @@ const S = {
   isSupervisor: false,
   products:  [],
   expiring:  [],
-  settings:  { expiryWarningDays: 30, defaultMinUnits: 5 },
+  settings:  { expiryWarningDays: 30, defaultMinUnits: 5, outpatientGuardDays: 30 },
   activeTab: 'products',
   prodCat:   'All',
   bulkCat:   'All',
@@ -855,12 +864,13 @@ window.onload = async () => {
       api({action:'getExpiring'}),
     ]);
     S.products = pd.products || [];
-    S.settings = { expiryWarningDays: sd.expiryWarningDays||30, defaultMinUnits: sd.defaultMinUnits||5 };
+    S.settings = { expiryWarningDays: sd.expiryWarningDays||30, defaultMinUnits: sd.defaultMinUnits||5, outpatientGuardDays: sd.outpatientGuardDays||30 };
     S.expiring  = ed.expiring || [];
     S.lastSynced = Date.now();
     el('dispense-days').textContent = S.settings.expiryWarningDays;
     el('set-days').value = S.settings.expiryWarningDays;
     el('set-min').value  = S.settings.defaultMinUnits;
+    el('set-outguard').value = S.settings.outpatientGuardDays;
     renderProducts();
     renderBulkList();
     renderExpiring();
@@ -1108,18 +1118,28 @@ function setupPullToRefresh() {
   }, {passive:true});
 }
 
-// ══ Expiring ══════════════════════════════════════════════════
+// ══ Expiring / Rotate Now ═══════════════════════════════════════
 function renderExpiring() {
   const list = el('expiring-list');
   updateDispenseDot();
   const valid = S.expiring.filter(b=>!b.expired);
+  const critical = valid.filter(b=>b.daysLeft<=7).length;
+
+  const summary = el('rotation-summary');
+  if (summary) {
+    summary.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <span style="font-size:.875rem;font-weight:700">📦 ${valid.length} batch${valid.length!==1?'es':''} need${valid.length===1?'s':''} rotation</span>
+      ${critical ? `<span class="urg-badge urg-critical">🔴 ${critical} critical</span>` : `<span class="urg-badge urg-medium">✅ None critical</span>`}
+    </div>`;
+  }
+
   if (!valid.length) {
     list.innerHTML='<div class="card"><div class="empty"><div class="empty-icon">✅</div><p>No products expiring within '+S.settings.expiryWarningDays+' days</p></div></div>';
     return;
   }
   const groups={};
   valid.forEach(b=>{
-    if(!groups[b.productId]) groups[b.productId]={name:b.productName,batches:[]};
+    if(!groups[b.productId]) groups[b.productId]={id:b.productId,name:b.productName,batches:[]};
     groups[b.productId].batches.push(b);
   });
   // sort each product's batches, then sort products by most urgent (lowest daysLeft) batch first
@@ -1139,9 +1159,12 @@ function renderExpiring() {
         <span class="urg-badge ${urg}">${daysLbl}</span>
       </div>`;
     }).join('');
+    const prod = S.products.find(p=>p.id===g.id);
+    const isDF = !!prod?.dispenseFirst;
     return `<div class="card exp-card" style="padding:14px">
       <div class="exp-name">${g.name}</div>
       ${batchRows}
+      <button class="btn-add ${isDF?'df-on':''}" style="margin-top:10px;width:100%;text-align:center" onclick="toggleRotationDispenseFirst('${g.id}')">${isDF ? '✓ Dispense First — tap to unflag' : '🔄 Mark Dispense First'}</button>
     </div>`;
   }).join('');
 }
@@ -1158,6 +1181,31 @@ async function refreshExpiring() {
     S.expiring=d.expiring||[];
     renderExpiring();
   } catch(e) { toast('Failed to refresh: '+e.message,'err'); }
+}
+
+// ══ One-tap Dispense First (Rotate Now) ═════════════════════════
+function getStorageName() {
+  let name = localStorage.getItem('ns_storageName');
+  if (name) return name;
+  name = (prompt('Enter your name (saved on this device for next time):')||'').trim();
+  if (!name) { toast('Enter your name to continue','err'); return null; }
+  localStorage.setItem('ns_storageName', name);
+  return name;
+}
+
+async function toggleRotationDispenseFirst(productId) {
+  const p = S.products.find(x=>x.id===productId);
+  if (!p) return;
+  const name = getStorageName();
+  if (!name) return;
+  const next = !p.dispenseFirst;
+  try {
+    await api({action:'update', id:productId, dispenseFirst:next, updatedBy:encodeURIComponent(name)});
+    p.dispenseFirst = next;
+    toast(next ? '✅ Marked Dispense First' : 'Unflagged Dispense First','ok');
+    renderExpiring();
+    renderProducts();
+  } catch(e) { toast('Failed: '+e.message,'err'); }
 }
 
 // ══ Mode ══════════════════════════════════════════════════════
@@ -1362,6 +1410,14 @@ async function submitUpdateBatch(batchId) {
   const by=el('su-by').value.trim();
   if (!by) {toast('Enter your name in the Update By field above','warn');return;}
   const newQty=parseInt(el('bq-'+batchId).value)||0;
+
+  const b = S.suBatches.find(x=>x.batchId===batchId);
+  const p = S.products.find(x=>x.id===S.suProduct.id);
+  if (b && (b.quantity - newQty) > 0 && !b.expired && b.daysLeft !== null && b.daysLeft <= S.settings.outpatientGuardDays && !p?.inpatientOnly) {
+    const proceed = confirm(`⚠️ This batch expires in ${b.daysLeft} day${b.daysLeft!==1?'s':''}. The patient may not finish it before expiry — consider a longer-dated batch or a smaller quantity. Continue anyway?`);
+    if (!proceed) return;
+  }
+
   try {
     const d=await api({action:'updateBatch',batchId,quantity:newQty,updatedBy:encodeURIComponent(by)});
     toast(`✅ Qty saved${d.dispensed>0?' · '+d.dispensed+' units dispensed':''}`,d.dispensed>0?'ok':'ok');
@@ -1485,11 +1541,12 @@ function flashBulkBadge() {
 async function saveSettings() {
   const days=parseInt(el('set-days').value)||30;
   const minU=parseInt(el('set-min').value)||5;
+  const guardDays=parseInt(el('set-outguard').value)||30;
   const btn=el('set-btn'),lbl=el('set-btn-lbl');
   btn.disabled=true;lbl.innerHTML='<span class="spinner-sm"></span>Saving…';
   try {
-    await api({action:'saveSettings',expiryWarningDays:days,defaultMinUnits:minU});
-    S.settings.expiryWarningDays=days;S.settings.defaultMinUnits=minU;
+    await api({action:'saveSettings',expiryWarningDays:days,defaultMinUnits:minU,outpatientGuardDays:guardDays});
+    S.settings.expiryWarningDays=days;S.settings.defaultMinUnits=minU;S.settings.outpatientGuardDays=guardDays;
     el('dispense-days').textContent=days;
     toast('✅ Settings saved','ok');
   } catch(e){toast('Failed: '+e.message,'err');}
