@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -427,6 +428,31 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 .count-summary-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
 .count-summary-row:last-child{border-bottom:none}
 
+/* V12 P4: professional data visualization */
+.donut-row{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.donut-wrap{flex-shrink:0}
+.donut-legend{flex:1;min-width:140px;display:flex;flex-direction:column;gap:8px}
+.donut-legend-item{display:flex;align-items:center;gap:8px;font-size:.8125rem}
+.donut-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.donut-legend-lbl{color:var(--text2);flex:1}
+.donut-legend-val{font-weight:700}
+
+.mn-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.mn-row:last-child{border-bottom:none}
+.mn-rank{width:22px;height:22px;border-radius:50%;background:var(--surface2);color:var(--text2);font-size:.6875rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mn-info{flex:1;min-width:0}
+.mn-name{font-size:.8125rem;font-weight:600;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mn-stats{text-align:right;flex-shrink:0}
+.mn-val{font-size:.75rem;font-weight:700;color:var(--blue-t)}
+.mn-stockout{font-size:.625rem;color:var(--red-t);margin-top:2px}
+
+.trend-wrap{width:100%;overflow:hidden}
+
+.export-btns{display:flex;flex-direction:column;gap:8px}
+.export-btn{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:var(--rs);background:var(--surface2);color:var(--text);font-size:.8125rem;font-weight:600;border:1px solid var(--border2)}
+.export-btn:active{background:var(--border2)}
+.export-btn span.arr{color:var(--text2)}
+
 @media(max-width:480px){.row2{grid-template-columns:1fr}.add-batch-form .row2{grid-template-columns:1fr}.sv-stat-grid{grid-template-columns:1fr 1fr}.bar-label{width:100px}.mc-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -677,6 +703,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
         <!-- Status summary -->
         <div class="card">
           <div class="card-title">📈 Inventory Status</div>
+          <div class="donut-row" id="sv-donut-row" style="margin-bottom:16px"></div>
           <div class="sv-stat-grid" id="sv-stat-grid"></div>
         </div>
 
@@ -693,6 +720,36 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
         <div class="card" id="sv-monthly-card">
           <div class="card-title">📅 This Month vs Last Month</div>
           <div id="sv-monthly-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
+        </div>
+
+        <!-- Most Needed -->
+        <div class="card" id="sv-mostneeded-card">
+          <div class="card-title">🎯 Most Needed Products</div>
+          <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px">Ranked by average weekly consumption, last 8 weeks</div>
+          <div id="sv-mostneeded-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
+        </div>
+
+        <!-- Waste tracking -->
+        <div class="card" id="sv-waste-card">
+          <div class="card-title">🗑️ Waste This Month</div>
+          <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px">Batches removed as expired or damaged</div>
+          <div id="sv-waste-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
+        </div>
+
+        <!-- 6-month dispensing trend -->
+        <div class="card" id="sv-trend-card">
+          <div class="card-title">📈 6-Month Dispensing Trend</div>
+          <div class="trend-wrap" id="sv-trend-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
+        </div>
+
+        <!-- Export -->
+        <div class="card">
+          <div class="card-title">📤 Export Data</div>
+          <div class="export-btns">
+            <button class="export-btn" onclick="exportInventoryCSV()"><span>📦 Inventory Snapshot (CSV)</span><span class="arr">↓</span></button>
+            <button class="export-btn" onclick="exportDispensingCSV()"><span>💊 Dispensing History — This Month (CSV)</span><span class="arr">↓</span></button>
+            <button class="export-btn" onclick="exportWasteCSV()"><span>🗑️ Waste Log — Recent (CSV)</span><span class="arr">↓</span></button>
+          </div>
         </div>
 
         <!-- Expiry alerts -->
@@ -788,7 +845,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 
 <script>
 // ══ Config ════════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXGFIJDBsakxe_k7yQZdgfPSM0ULWCegtSmpNSyoxYPHDVEXcG4yrnkZasLplr77LF/exec'; // UPDATE THIS URL
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz0FMOdC6pfLZMjhv87fY4N73gUgu2GQMIYLo9OTVcuzzzDzDwB-8rx2sIUbEedAbBw/exec'; // UPDATE THIS URL
 const PINS = { storage: '1234', supervisor: '5678' };
 
 const STATUS_CFG = {
@@ -1569,10 +1626,27 @@ async function submitUpdateBatch(batchId) {
   } catch(e){toast('Failed: '+e.message,'err');}
 }
 
-async function submitRemoveBatch(batchId,expDate) {
-  if (!confirm(`Remove batch expiring ${expDate}? This cannot be undone.`)) return;
+function submitRemoveBatch(batchId,expDate) {
+  el('qa-sheet').innerHTML = `
+    <div class="sheet-backdrop" onclick="if(event.target===this) closeQuickActions()">
+      <div class="sheet-panel">
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">Remove batch expiring ${expDate}?</div>
+        <div class="sheet-sub">Why is this batch being removed? This cannot be undone.</div>
+        <div class="qa-option" onclick="confirmRemoveBatch('${batchId}','expired')">🗓️ Expired</div>
+        <div class="qa-option" onclick="confirmRemoveBatch('${batchId}','damaged')">💔 Damaged</div>
+        <div class="qa-option" onclick="confirmRemoveBatch('${batchId}','other')">❓ Other</div>
+        <button class="btn-submit" style="margin-top:12px" onclick="closeQuickActions()">Cancel</button>
+      </div>
+    </div>`;
+}
+
+async function confirmRemoveBatch(batchId, reason) {
+  const by = el('su-by').value.trim();
+  if (!by) { toast('Enter your name in the Update By field above','warn'); closeQuickActions(); return; }
+  closeQuickActions();
   try {
-    await api({action:'removeBatch',batchId});
+    await api({action:'removeBatch',batchId,reason,updatedBy:encodeURIComponent(by)});
     toast('Batch removed','ok');
     await loadBatches(S.suProduct.id);
     const pd=await api({action:'getAll'});S.products=pd.products||[];renderProducts();
@@ -1888,18 +1962,165 @@ async function loadSupervisorData() {
   hide('sv-content');
   S.svLoaded = false;
   try {
-    const [d, monthly] = await Promise.all([
-      api({action:'getSupervisorData'}),
-      api({action:'getMonthlyComparison'})
-    ]);
+    const d = await api({action:'getSupervisorData'});
     renderSupervisorDashboard(d);
-    renderMonthlyComparison(monthly);
     hide('sv-loading');
     show('sv-content');
     S.svLoaded = true;
+
+    const results = await Promise.allSettled([
+      api({action:'getMonthlyComparison'}),
+      api({action:'getMostNeeded'}),
+      api({action:'getWasteMetric'}),
+      api({action:'getDispensingTrend'})
+    ]);
+    renderMonthlyComparison(results[0].status==='fulfilled' ? results[0].value : null);
+    renderMostNeeded(results[1].status==='fulfilled' ? results[1].value : null);
+    renderWaste(results[2].status==='fulfilled' ? results[2].value : null);
+    renderTrend(results[3].status==='fulfilled' ? results[3].value : null);
   } catch(e) {
     el('sv-loading').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><p style="font-size:.875rem">${e.message}</p><button onclick="loadSupervisorData()" style="margin-top:12px;padding:8px 20px;border-radius:100px;background:var(--grad);color:#fff;font-weight:700;font-size:.8125rem">Retry</button></div>`;
   }
+}
+
+// ══ Charts ════════════════════════════════════════════════════
+function svgDonut(segments) {
+  const size = 120, strokeWidth = 18;
+  const total = segments.reduce((s,x)=>s+x.value,0) || 1;
+  const radius = (size - strokeWidth) / 2;
+  const cx = size/2, cy = size/2;
+  const circumference = 2 * Math.PI * radius;
+  let offset = 0;
+  const arcs = segments.filter(s=>s.value>0).map(seg => {
+    const frac = seg.value / total;
+    const dash = frac * circumference;
+    const gap = circumference - dash;
+    const rotation = (offset / total) * 360 - 90;
+    offset += seg.value;
+    return `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${seg.color}" stroke-width="${strokeWidth}" stroke-dasharray="${dash.toFixed(1)} ${gap.toFixed(1)}" transform="rotate(${rotation.toFixed(1)} ${cx} ${cy})"/>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
+    ${arcs}
+    <text x="${cx}" y="${cy-2}" text-anchor="middle" font-size="22" font-weight="800" fill="#e2e8f0">${total}</text>
+    <text x="${cx}" y="${cy+16}" text-anchor="middle" font-size="9" fill="#7a90aa">products</text>
+  </svg>`;
+}
+
+function svgTrend(data) {
+  const width = 320, height = 100;
+  const max = Math.max.apply(null, data.map(d=>d.total).concat([1]));
+  const stepX = width / (data.length - 1 || 1);
+  const points = data.map((d,i) => ({ x: i*stepX, y: height - (d.total/max)*height*0.85 - 8 }));
+  const linePath = points.map((p,i)=> (i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
+  const areaPath = linePath + ` L${width},${height} L0,${height} Z`;
+  const dots = points.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="3.5" fill="#60a5fa"/>`).join('');
+  const monthNames=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const labels = data.map((d,i)=>{
+    const mm = parseInt(d.month.split('-')[1],10);
+    return `<text x="${points[i].x}" y="${height+14}" text-anchor="middle" font-size="9" fill="#7a90aa">${monthNames[mm]}</text>`;
+  }).join('');
+  const valLabels = data.map((d,i)=>`<text x="${points[i].x}" y="${Math.max(10,points[i].y-8)}" text-anchor="middle" font-size="9" font-weight="700" fill="#60a5fa">${d.total}</text>`).join('');
+  return `<svg viewBox="0 0 ${width} ${height+20}" width="100%" height="${height+20}" preserveAspectRatio="xMidYMid meet">
+    <defs><linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path d="${areaPath}" fill="url(#trendGrad)"/>
+    <path d="${linePath}" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dots}${valLabels}${labels}
+  </svg>`;
+}
+
+function renderMostNeeded(d) {
+  const box = el('sv-mostneeded-content');
+  if (!d || !d.products) { box.innerHTML = '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">Not available yet — redeploy backend</p></div>'; return; }
+  if (!d.products.length) { box.innerHTML = '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">No consumption data yet</p></div>'; return; }
+  const max = d.products[0].avgWeeklyDispensed || 1;
+  box.innerHTML = d.products.map((p,i)=>`
+    <div class="mn-row">
+      <div class="mn-rank">${i+1}</div>
+      <div class="mn-info">
+        <div class="mn-name">${p.name}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.max(4,Math.round(p.avgWeeklyDispensed/max*100))}%"></div></div>
+      </div>
+      <div class="mn-stats">
+        <div class="mn-val">${p.avgWeeklyDispensed}/wk</div>
+        ${p.stockoutCount ? `<div class="mn-stockout">⚠️ ${p.stockoutCount}× out</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function renderWaste(d) {
+  const box = el('sv-waste-content');
+  if (!d) { box.innerHTML = '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">Not available yet — redeploy backend</p></div>'; return; }
+  const arrowCls = d.direction==='up' ? 'mc-arrow-down' : d.direction==='down' ? 'mc-arrow-up' : 'mc-arrow-same';
+  const arrow = d.direction==='up' ? '▲' : d.direction==='down' ? '▼' : '—';
+  const changeTxt = d.direction==='same' ? 'No change' : `${d.change}% ${d.direction==='up'?'increase':'decrease'}`;
+  box.innerHTML = `
+    <div class="mc-grid">
+      <div class="mc-box"><div class="mc-num">${d.thisMonth.total}</div><div class="mc-lbl">${d.thisMonth.month}</div></div>
+      <div class="mc-box"><div class="mc-num">${d.lastMonth.total}</div><div class="mc-lbl">${d.lastMonth.month}</div></div>
+    </div>
+    <div class="mc-compare"><span class="${arrowCls}">${arrow}</span><span>${changeTxt} in waste</span></div>`;
+}
+
+function renderTrend(d) {
+  const box = el('sv-trend-content');
+  if (!d || !d.trend) { box.innerHTML = '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">Not available yet — redeploy backend</p></div>'; return; }
+  box.innerHTML = svgTrend(d.trend);
+}
+
+// ══ CSV Export ═══════════════════════════════════════════════
+function downloadCSV(filename, rows) {
+  const csv = rows.map(row => row.map(cell => {
+    const s = String(cell==null?'':cell);
+    return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  }).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function exportInventoryCSV() {
+  const rows = [['ID','Name','Category','Status','Valid Units','Dispense First','In-Patient Only','Note']];
+  S.products.forEach(p=>{
+    rows.push([p.id, p.name, p.category, STATUS_CFG[p.status||''].label, p.batchSummary?p.batchSummary.totalValid:0, p.dispenseFirst?'Yes':'No', p.inpatientOnly?'Yes':'No', p.note||'']);
+  });
+  downloadCSV(`inventory_${new Date().toISOString().slice(0,10)}.csv`, rows);
+  toast('✅ Inventory CSV downloaded','ok');
+}
+
+async function exportDispensingCSV() {
+  try {
+    const d = await api({action:'getDispensing'});
+    const rows = [['Product','Units Dispensed','Month']];
+    (d.topProducts||[]).forEach(p=> rows.push([p.name, p.total, d.month]));
+    downloadCSV(`dispensing_${d.month}.csv`, rows);
+    toast('✅ Dispensing CSV downloaded','ok');
+  } catch(e) { toast('Failed: '+e.message,'err'); }
+}
+
+async function exportWasteCSV() {
+  try {
+    if (!S.logs.length) {
+      const d = await api({action:'getLogs'});
+      S.logs = d.logs || [];
+    }
+    const rows = [['Date','Product','Reason','Units','Removed By']];
+    const re = /^Batch removed \((expired|damaged|other)\): (\d+) units$/;
+    S.logs.forEach(l=>{
+      const m = (l.note||'').match(re);
+      if (!m) return;
+      const d2 = l.timestamp ? new Date(l.timestamp) : null;
+      rows.push([d2?d2.toISOString().slice(0,10):'', l.productName, m[1], m[2], l.updatedBy||'']);
+    });
+    if (rows.length===1) { toast('No waste entries in loaded logs','warn'); return; }
+    downloadCSV(`waste_log_${new Date().toISOString().slice(0,10)}.csv`, rows);
+    toast('✅ Waste log CSV downloaded','ok');
+  } catch(e) { toast('Failed: '+e.message,'err'); }
 }
 
 function shortDate(s) { const parts=(s||'').split(' '); return parts.slice(0,2).join(' '); }
@@ -1927,6 +2148,22 @@ function renderSupervisorDashboard(d) {
   // Status stat cards
   const sc = d.statusCount || {};
   const total = sc.total || 0;
+
+  const donutSegs = [
+    {label:'Available', value: sc.available||0, color:'#22c55e'},
+    {label:'Low Stock', value: sc.low||0, color:'#f59e0b'},
+    {label:'Coming Soon', value: sc.coming||0, color:'#3b82f6'},
+    {label:'Unavailable', value: sc.unavailable||0, color:'#ef4444'},
+    {label:'Not Set', value: sc.empty||0, color:'#475569'},
+  ];
+  el('sv-donut-row').innerHTML = `
+    <div class="donut-wrap">${svgDonut(donutSegs)}</div>
+    <div class="donut-legend">${donutSegs.map(s=>`
+      <div class="donut-legend-item">
+        <span class="donut-legend-dot" style="background:${s.color}"></span>
+        <span class="donut-legend-lbl">${s.label}</span>
+        <span class="donut-legend-val">${s.value}</span>
+      </div>`).join('')}</div>`;
   el('sv-stat-grid').innerHTML = `
     <div class="sv-stat sv-stat-g">
       <div class="sv-stat-num">${sc.available||0}</div>
