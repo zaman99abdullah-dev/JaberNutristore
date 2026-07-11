@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -397,6 +398,35 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 .alt-row:last-child{border-bottom:none}
 .alt-name{flex:1;min-width:0;font-size:.875rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
+/* V12 P3.5: quick actions (⋮) */
+.qa-btn{width:32px;height:32px;border-radius:50%;background:var(--surface2);color:var(--text2);font-size:1.1rem;font-weight:800;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.qa-btn:active{background:var(--border2)}
+.qa-option{display:flex;align-items:center;gap:12px;padding:14px 4px;border-bottom:1px solid var(--border);font-size:.9375rem;font-weight:600;cursor:pointer}
+.qa-option:last-child{border-bottom:none}
+.qa-option:active{background:rgba(59,130,246,.06)}
+
+/* V12 P3.1: quantity stepper + expiry shorthand */
+.qty-stepper{display:flex;align-items:center;gap:6px}
+.qty-stepper input{text-align:center;flex:1;min-width:0}
+.qty-step-btn{padding:11px 10px;border-radius:var(--rs);background:var(--surface2);color:var(--text);font-weight:700;font-size:.8125rem;border:1px solid var(--border2);flex-shrink:0}
+.qty-step-btn:active{background:var(--border2)}
+
+/* V12 P3.2: weekly count mode */
+.count-overlay{position:fixed;inset:0;background:var(--bg);z-index:600;display:flex;flex-direction:column;padding:20px;overflow-y:auto}
+.count-progress{font-size:.75rem;color:var(--text2);text-align:center;margin-bottom:10px}
+.count-progress-bar{height:4px;background:var(--surface2);border-radius:100px;overflow:hidden;margin-bottom:24px}
+.count-progress-fill{height:100%;background:var(--grad);transition:width .2s}
+.count-card{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px 0}
+.count-cat{font-size:.8125rem;color:var(--text2);margin-bottom:6px}
+.count-name{font-size:1.375rem;font-weight:800;margin-bottom:24px;max-width:340px}
+.count-current-lbl{font-size:.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.count-input{font-size:3rem;font-weight:800;text-align:center;width:160px;background:var(--surface2);border:2px solid var(--border2);border-radius:var(--r);padding:12px;color:var(--text)}
+.count-input:focus{border-color:var(--accent)}
+.count-actions{display:flex;gap:10px;width:100%;max-width:340px;margin-top:28px}
+.count-close{position:absolute;top:20px;right:20px;width:36px;height:36px;border-radius:50%;background:var(--surface2);color:var(--text2);font-size:1.1rem}
+.count-summary-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.count-summary-row:last-child{border-bottom:none}
+
 @media(max-width:480px){.row2{grid-template-columns:1fr}.add-batch-form .row2{grid-template-columns:1fr}.sv-stat-grid{grid-template-columns:1fr 1fr}.bar-label{width:100px}.mc-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -479,9 +509,12 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
     <div id="pane-update" class="hidden">
 
       <div class="card" style="padding:14px 18px">
-        <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
           <span style="font-weight:700;font-size:.9375rem">Update & Batches</span>
-          <button class="btn-toggle" onclick="toggleBulk()" id="bulk-toggle-btn">☑️ Bulk Mode</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn-toggle" onclick="startWeeklyCount()">🔢 Start Count</button>
+            <button class="btn-toggle" onclick="toggleBulk()" id="bulk-toggle-btn">☑️ Bulk Mode</button>
+          </div>
         </div>
       </div>
 
@@ -549,22 +582,28 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
             <div class="add-batch-form row2">
               <div class="field" style="margin-bottom:0">
                 <label>Expiry Date <span style="color:var(--red-t)">*</span></label>
-                <input type="date" id="ab-date">
+                <input type="text" id="ab-date-shorthand" placeholder="MM/YY e.g. 07/26" inputmode="numeric" oninput="onExpiryShorthand()" style="margin-bottom:6px">
+                <input type="date" id="ab-date" onchange="saveDraftBatch()">
               </div>
               <div class="field" style="margin-bottom:0">
                 <label>Quantity <span style="color:var(--red-t)">*</span></label>
-                <input type="number" id="ab-qty" min="1" placeholder="0">
+                <div class="qty-stepper">
+                  <button type="button" class="qty-step-btn" onclick="stepQty(-1)">−1</button>
+                  <input type="number" id="ab-qty" min="0" placeholder="0" inputmode="numeric" oninput="saveDraftBatch()">
+                  <button type="button" class="qty-step-btn" onclick="stepQty(1)">+1</button>
+                </div>
+                <button type="button" class="qty-step-btn" style="width:100%;margin-top:6px" onclick="stepQty(10)">+10 (case)</button>
               </div>
             </div>
             <div class="field" style="margin-top:10px">
               <label>Added By <span style="color:var(--red-t)">*</span></label>
-              <input type="text" id="ab-by" placeholder="Your name">
+              <input type="text" id="ab-by" placeholder="Your name" oninput="saveDraftBatch()">
             </div>
             <div style="display:flex;gap:8px;margin-top:10px">
               <button class="btn-submit" style="margin-top:0;flex:1" id="ab-btn" onclick="submitAddBatch()">
                 <span id="ab-btn-lbl">Add Batch</span>
               </button>
-              <button onclick="toggleAddBatchForm()" style="padding:12px 16px;border-radius:var(--rs);background:var(--surface2);color:var(--text2);font-size:.875rem;font-weight:600">Cancel</button>
+              <button onclick="toggleAddBatchForm()" style="padding:12px 16px;border-radius:var(--rs);background:var(--surface2);color:var(--text2);font-size:.875rem;font-weight:600">Close</button>
             </div>
           </div>
 
@@ -744,10 +783,12 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 
 <div id="toast"></div>
 <div id="alt-sheet"></div>
+<div id="qa-sheet"></div>
+<div id="count-overlay" class="count-overlay hidden"></div>
 
 <script>
 // ══ Config ════════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx1wAm92aNd2kFS4WtnujO4e9LR6RUH507iLaJdRT8UoBcAifM13qaXzJtaQXr5YPK6/exec'; // UPDATE THIS URL
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXGFIJDBsakxe_k7yQZdgfPSM0ULWCegtSmpNSyoxYPHDVEXcG4yrnkZasLplr77LF/exec'; // UPDATE THIS URL
 const PINS = { storage: '1234', supervisor: '5678' };
 
 const STATUS_CFG = {
@@ -851,6 +892,10 @@ const S = {
   lastSynced: null,
   suDispenseFirst: false,
   suInpatientOnly: false,
+  countProducts: [],
+  countIdx: 0,
+  countBatches: {},
+  countChanges: {},
 };
 
 // ══ Boot ══════════════════════════════════════════════════════
@@ -1003,6 +1048,7 @@ function renderStorageRows(list) {
     return `<div class="pitem">
       <div class="pi-info"><div class="pi-name">${p.name}</div><div class="pi-sub">${sub}</div></div>
       <span class="sbadge ${cfg.cls}">${cfg.label}</span>
+      <button class="qa-btn" onclick="openQuickActions('${p.id}')">⋮</button>
     </div>`;
   }).join('');
 }
@@ -1164,7 +1210,7 @@ function renderExpiring() {
     return `<div class="card exp-card" style="padding:14px">
       <div class="exp-name">${g.name}</div>
       ${batchRows}
-      <button class="btn-add ${isDF?'df-on':''}" style="margin-top:10px;width:100%;text-align:center" onclick="toggleRotationDispenseFirst('${g.id}')">${isDF ? '✓ Dispense First — tap to unflag' : '🔄 Mark Dispense First'}</button>
+      <button class="btn-add ${isDF?'df-on':''}" style="margin-top:10px;width:100%;text-align:center" onclick="quickToggleDispenseFirst('${g.id}')">${isDF ? '✓ Dispense First — tap to unflag' : '🔄 Mark Dispense First'}</button>
     </div>`;
   }).join('');
 }
@@ -1193,7 +1239,7 @@ function getStorageName() {
   return name;
 }
 
-async function toggleRotationDispenseFirst(productId) {
+async function quickToggleDispenseFirst(productId) {
   const p = S.products.find(x=>x.id===productId);
   if (!p) return;
   const name = getStorageName();
@@ -1206,6 +1252,48 @@ async function toggleRotationDispenseFirst(productId) {
     renderExpiring();
     renderProducts();
   } catch(e) { toast('Failed: '+e.message,'err'); }
+  closeQuickActions();
+}
+
+// ══ Quick status actions (⋮ menu) ════════════════════════════════
+function openQuickActions(productId) {
+  const p = S.products.find(x=>x.id===productId);
+  if (!p) return;
+  el('qa-sheet').innerHTML = `
+    <div class="sheet-backdrop" onclick="if(event.target===this) closeQuickActions()">
+      <div class="sheet-panel">
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">${p.name}</div>
+        <div class="sheet-sub">Quick actions</div>
+        <div class="qa-option" onclick="quickSetStatus('${p.id}','low')">🟡 Mark Low Stock</div>
+        <div class="qa-option" onclick="quickSetStatus('${p.id}','unavailable')">🔴 Mark Not Available</div>
+        <div class="qa-option" onclick="quickAddBatchFor('${p.id}')">📦 Add Batch</div>
+        <div class="qa-option" onclick="quickToggleDispenseFirst('${p.id}')">${p.dispenseFirst ? '✓ Unflag Dispense First' : '🔄 Flag Dispense First'}</div>
+        <button class="btn-submit" style="margin-top:12px" onclick="closeQuickActions()">Cancel</button>
+      </div>
+    </div>`;
+}
+function closeQuickActions() { el('qa-sheet').innerHTML=''; }
+
+async function quickSetStatus(productId, status) {
+  const name = getStorageName();
+  if (!name) return;
+  closeQuickActions();
+  try {
+    await api({action:'update', id:productId, status, updatedBy:encodeURIComponent(name)});
+    const p = S.products.find(x=>x.id===productId);
+    if (p) p.status = status;
+    toast(`✅ Status updated to ${STATUS_CFG[status].label}`,'ok');
+    renderProducts();
+  } catch(e) { toast('Failed: '+e.message,'err'); }
+}
+
+function quickAddBatchFor(productId) {
+  closeQuickActions();
+  if (S.isBulk) toggleBulk();
+  goTab('update');
+  selectSuProduct(productId);
+  setTimeout(()=>{ show('add-batch-form'); openAddBatchFormFields(); el('ab-date-shorthand')?.focus(); }, 250);
 }
 
 // ══ Mode ══════════════════════════════════════════════════════
@@ -1276,21 +1364,22 @@ function setCat(btn,cid,key) {
 
 // ══ Single update ══════════════════════════════════════════════
 function onSuSearch() {
-  buildDropdown('su-dropdown',el('su-search').value,id=>{
-    S.suProduct=PRODUCTS.find(p=>p.id===id);
-    el('su-chip-name').textContent=S.suProduct.name;
-    show('su-chip'); hide('su-dropdown'); el('su-search').value='';
-    const existing=S.products.find(p=>p.id===id);
-    S.suStatus=existing?(existing.status||''):null;
-    el('su-min').value=existing?.minUnits||S.settings.defaultMinUnits||5;
-    S.suDispenseFirst = !!existing?.dispenseFirst;
-    S.suInpatientOnly = !!existing?.inpatientOnly;
-    el('su-df-switch').classList.toggle('on', S.suDispenseFirst);
-    el('su-io-switch').classList.toggle('on', S.suInpatientOnly);
-    highlightSuStatus(S.suStatus);
-    show('su-status-card');
-    loadBatches(id);
-  });
+  buildDropdown('su-dropdown',el('su-search').value, selectSuProduct);
+}
+function selectSuProduct(id) {
+  S.suProduct=PRODUCTS.find(p=>p.id===id);
+  el('su-chip-name').textContent=S.suProduct.name;
+  show('su-chip'); hide('su-dropdown'); el('su-search').value='';
+  const existing=S.products.find(p=>p.id===id);
+  S.suStatus=existing?(existing.status||''):null;
+  el('su-min').value=existing?.minUnits||S.settings.defaultMinUnits||5;
+  S.suDispenseFirst = !!existing?.dispenseFirst;
+  S.suInpatientOnly = !!existing?.inpatientOnly;
+  el('su-df-switch').classList.toggle('on', S.suDispenseFirst);
+  el('su-io-switch').classList.toggle('on', S.suInpatientOnly);
+  highlightSuStatus(S.suStatus);
+  show('su-status-card');
+  loadBatches(id);
 }
 function toggleSuDispenseFirst() {
   S.suDispenseFirst = !S.suDispenseFirst;
@@ -1380,7 +1469,60 @@ function renderBatches() {
 }
 
 function toggleAddBatchForm() {
+  const wasHidden = el('add-batch-form').classList.contains('hidden');
   el('add-batch-form').classList.toggle('hidden');
+  if (wasHidden) openAddBatchFormFields();
+}
+function openAddBatchFormFields() {
+  el('ab-date').value=''; el('ab-date-shorthand').value=''; el('ab-qty').value=''; el('ab-by').value='';
+  restoreDraftBatch();
+}
+
+function stepQty(delta) {
+  const inp = el('ab-qty');
+  const cur = parseInt(inp.value)||0;
+  inp.value = Math.max(0, cur+delta);
+  saveDraftBatch();
+}
+
+function onExpiryShorthand() {
+  const raw = el('ab-date-shorthand').value.trim();
+  const m = raw.match(/^(\d{1,2})[\/\-]?(\d{2}|\d{4})$/);
+  if (!m) return;
+  const month = parseInt(m[1],10);
+  let year = parseInt(m[2],10);
+  if (String(m[2]).length===2) year += 2000;
+  if (month<1||month>12) return;
+  const lastDay = new Date(year, month, 0).getDate();
+  el('ab-date').value = `${year}-${String(month).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+  saveDraftBatch();
+}
+
+// ══ Quick-capture draft (per product) ════════════════════════════
+function draftKey() { return S.suProduct ? 'ns_draftBatch_'+S.suProduct.id : null; }
+function saveDraftBatch() {
+  const key = draftKey();
+  if (!key) return;
+  const draft = { date: el('ab-date')?.value||'', qty: el('ab-qty')?.value||'', by: el('ab-by')?.value||'' };
+  if (!draft.date && !draft.qty && !draft.by) { localStorage.removeItem(key); return; }
+  localStorage.setItem(key, JSON.stringify(draft));
+}
+function restoreDraftBatch() {
+  const key = draftKey();
+  if (!key) return;
+  const raw = localStorage.getItem(key);
+  if (!raw) return;
+  try {
+    const draft = JSON.parse(raw);
+    if (draft.date) el('ab-date').value = draft.date;
+    if (draft.qty)  el('ab-qty').value = draft.qty;
+    if (draft.by)   el('ab-by').value = draft.by;
+    toast('📝 Draft restored','ok');
+  } catch(e) {}
+}
+function clearDraftBatch() {
+  const key = draftKey();
+  if (key) localStorage.removeItem(key);
 }
 
 async function submitAddBatch() {
@@ -1395,13 +1537,14 @@ async function submitAddBatch() {
   btn.disabled=true;lbl.innerHTML='<span class="spinner-sm"></span>Adding…';
   try {
     await api({action:'addBatch',productId:S.suProduct.id,expiryDate:date,quantity:qty,addedBy:encodeURIComponent(by)});
-    toast('✅ Batch added','ok');
-    el('ab-date').value='';el('ab-qty').value='';
-    hide('add-batch-form');
+    toast('✅ Batch added — form ready for next batch','ok');
+    clearDraftBatch();
+    el('ab-date').value=''; el('ab-date-shorthand').value=''; el('ab-qty').value='';
     await loadBatches(S.suProduct.id);
     const pd=await api({action:'getAll'});
     S.products=pd.products||[];
     renderProducts();
+    setTimeout(()=>el('ab-date-shorthand')?.focus(), 100);
   } catch(e){toast('Failed: '+e.message,'err');}
   finally{btn.disabled=false;lbl.textContent='Add Batch';}
 }
@@ -1434,6 +1577,123 @@ async function submitRemoveBatch(batchId,expDate) {
     await loadBatches(S.suProduct.id);
     const pd=await api({action:'getAll'});S.products=pd.products||[];renderProducts();
   } catch(e){toast('Failed: '+e.message,'err');}
+}
+
+// ══ Weekly Count Mode ════════════════════════════════════════════
+async function startWeeklyCount() {
+  toast('Loading batches…','ok');
+  try {
+    const d = await api({action:'getAllBatches'});
+    const byProduct = {};
+    (d.batches||[]).forEach(b=>{
+      if(!byProduct[b.productId]) byProduct[b.productId]=[];
+      byProduct[b.productId].push(b);
+    });
+    Object.values(byProduct).forEach(arr=>arr.sort((a,b)=>{
+      if(a.daysLeft===null) return 1;
+      if(b.daysLeft===null) return -1;
+      return a.daysLeft-b.daysLeft;
+    }));
+    S.countBatches = byProduct;
+    S.countProducts = PRODUCTS
+      .filter(p=>byProduct[p.id] && byProduct[p.id].some(b=>!b.expired))
+      .map(p=>{
+        const live = S.products.find(x=>x.id===p.id);
+        const total = live?.batchSummary?.totalValid ?? byProduct[p.id].filter(b=>!b.expired).reduce((s,b)=>s+b.quantity,0);
+        return { id:p.id, name:p.name, cat:p.cat, total };
+      });
+    if (!S.countProducts.length) { toast('No products with active batches to count','warn'); return; }
+    S.countIdx = 0;
+    S.countChanges = {};
+    show('count-overlay');
+    renderCountCard();
+  } catch(e) { toast('Failed to load: '+e.message,'err'); }
+}
+
+function renderCountCard() {
+  if (S.countIdx >= S.countProducts.length) { renderCountSummary(); return; }
+  const p = S.countProducts[S.countIdx];
+  el('count-overlay').innerHTML = `
+    <button class="count-close" onclick="closeCount()">✕</button>
+    <div class="count-progress">${S.countIdx+1} / ${S.countProducts.length}</div>
+    <div class="count-progress-bar"><div class="count-progress-fill" style="width:${Math.round((S.countIdx)/S.countProducts.length*100)}%"></div></div>
+    <div class="count-card">
+      <div class="count-cat">${p.cat}</div>
+      <div class="count-name">${p.name}</div>
+      <div class="count-current-lbl">Recorded units</div>
+      <input type="number" class="count-input" id="count-input" min="0" value="${p.total}" inputmode="numeric">
+      <div class="count-actions">
+        <button class="btn-toggle" style="flex:1" onclick="countSkip()">Skip</button>
+        <button class="btn-submit" style="flex:1;margin-top:0" onclick="countNext()">Next →</button>
+      </div>
+    </div>`;
+  setTimeout(()=>el('count-input')?.focus(), 50);
+}
+
+function countNext() {
+  const p = S.countProducts[S.countIdx];
+  const newTotal = parseInt(el('count-input').value);
+  if (!isNaN(newTotal) && newTotal !== p.total) {
+    S.countChanges[p.id] = { name:p.name, oldTotal:p.total, newTotal, delta:p.total-newTotal };
+  } else {
+    delete S.countChanges[p.id];
+  }
+  S.countIdx++;
+  renderCountCard();
+}
+function countSkip() {
+  S.countIdx++;
+  renderCountCard();
+}
+
+function renderCountSummary() {
+  const changes = Object.entries(S.countChanges);
+  const dispensed = changes.reduce((s,[,c])=>s + Math.max(0,c.delta), 0);
+  const rows = changes.length ? changes.map(([id,c])=>`
+    <div class="count-summary-row">
+      <span>${c.name}</span>
+      <span style="font-weight:700;color:${c.delta>0?'var(--red-t)':'var(--green-t)'}">${c.oldTotal} → ${c.newTotal}</span>
+    </div>`).join('') : '<div class="empty" style="padding:20px"><p>No changes recorded</p></div>';
+  el('count-overlay').innerHTML = `
+    <button class="count-close" onclick="closeCount()">✕</button>
+    <div class="count-card" style="justify-content:flex-start;padding-top:40px">
+      <div class="count-name" style="font-size:1.5rem">Count Complete</div>
+      <div style="font-size:.9375rem;color:var(--text2);margin-bottom:20px">${changes.length} changed · ${dispensed} units dispensed this week</div>
+      <div style="width:100%;max-width:400px;text-align:left;max-height:40vh;overflow-y:auto">${rows}</div>
+      <div class="count-actions">
+        <button class="btn-toggle" style="flex:1" onclick="closeCount()">Discard</button>
+        <button class="btn-submit" style="flex:1;margin-top:0" onclick="submitCount()" ${!changes.length?'disabled':''}>Submit Count</button>
+      </div>
+    </div>`;
+}
+
+async function submitCount() {
+  const name = getStorageName();
+  if (!name) return;
+  const entries = Object.entries(S.countChanges);
+  let ok=0, fail=0;
+  for (const [productId, c] of entries) {
+    const batches = S.countBatches[productId]||[];
+    const target = batches.find(b=>!b.expired) || batches[0];
+    if (!target) { fail++; continue; }
+    const newBatchQty = Math.max(0, target.quantity - c.delta);
+    try {
+      await api({action:'updateBatch', batchId:target.batchId, quantity:newBatchQty, updatedBy:encodeURIComponent(name)});
+      ok++;
+    } catch(e) { fail++; }
+  }
+  toast(fail===0 ? `✅ Count submitted — ${ok} product(s) updated` : `⚠️ ${ok} saved, ${fail} failed`, fail===0?'ok':'warn');
+  closeCount();
+  try {
+    const pd = await api({action:'getAll'});
+    S.products = pd.products||[];
+    renderProducts();
+  } catch(e){}
+}
+
+function closeCount() {
+  hide('count-overlay');
+  el('count-overlay').innerHTML='';
 }
 
 // ══ Bulk ═════════════════════════════════════════════════════
