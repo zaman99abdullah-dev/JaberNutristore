@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,6 +24,7 @@
   --purple:#8b5cf6; --purple-bg:rgba(139,92,246,.1); --purple-t:#a78bfa;
   --teal:#14b8a6; --teal-bg:rgba(20,184,166,.12); --teal-t:#2dd4bf;
   --indigo:#6366f1; --indigo-bg:rgba(99,102,241,.12); --indigo-t:#818cf8;
+  --rose:#f43f5e; --rose-bg:rgba(244,63,94,.12); --rose-t:#fb7185;
   --r:12px; --rs:8px;
 }
 html{font-size:16px}
@@ -357,6 +357,18 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 .io-switch.on{background:var(--indigo);border-color:var(--indigo)}
 .io-switch.on::after{left:20px;background:#fff}
 
+/* V12 Reorder: Lifeline badge/toggle (rose) */
+.ll-badge{display:inline-flex;align-items:center;gap:4px;font-size:.6875rem;font-weight:700;padding:3px 9px;border-radius:100px;background:var(--rose-bg);color:var(--rose-t);white-space:nowrap;flex-shrink:0}
+.ll-badge.sm{font-size:.625rem;padding:2px 7px}
+.ll-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--rose-bg);border:1px solid rgba(244,63,94,.25);border-radius:var(--rs);margin-bottom:14px}
+.ll-toggle-lbl{font-size:.8125rem;font-weight:700;color:var(--rose-t)}
+.ll-switch{position:relative;width:42px;height:24px;border-radius:100px;background:var(--surface2);border:1px solid var(--border2);flex-shrink:0}
+.ll-switch::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--text2);transition:all .15s}
+.ll-switch.on{background:var(--rose);border-color:var(--rose)}
+.ll-switch.on::after{left:20px;background:#fff}
+.sbar-ll{background:var(--rose-bg);color:var(--rose-t);border-color:rgba(244,63,94,.2)}
+.sbar-ll.on{background:linear-gradient(135deg,#f43f5e,#e11d48)}
+
 /* V12 P1.1: dietitian-first product row */
 .d-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer}
 .d-row:last-child{border-bottom:none}
@@ -568,6 +580,10 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
             <span class="io-toggle-lbl">🏥 Mark as In-Patient Only</span>
             <span class="io-switch" id="su-io-switch"></span>
           </div>
+          <div class="ll-toggle-row" onclick="toggleSuLifeline()">
+            <span class="ll-toggle-lbl">🆘 Mark as Lifeline (critical product)</span>
+            <span class="ll-switch" id="su-ll-switch"></span>
+          </div>
           <div class="status-grid">
             <button class="sbtn sb-available"   id="su-s-available"   onclick="pickSuStatus('available')">🟢 Available</button>
             <button class="sbtn sb-low"         id="su-s-low"         onclick="pickSuStatus('low')">🟡 Low Stock</button>
@@ -707,6 +723,20 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
           <div class="sv-stat-grid" id="sv-stat-grid"></div>
         </div>
 
+        <!-- Order Now (reorder intelligence) -->
+        <div class="card" id="sv-reorder-card">
+          <div class="card-title">🛒 Order Now</div>
+          <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px" id="sv-reorder-sub">Products projected to run out within the supplier lead time</div>
+          <div id="sv-reorder-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
+        </div>
+
+        <!-- Lifeline at risk -->
+        <div class="card" id="sv-lifeline-card">
+          <div class="card-title">🆘 Lifeline at Risk</div>
+          <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px">Critical products that are out, low, or running down</div>
+          <div id="sv-lifeline-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
+        </div>
+
         <!-- Top dispensed -->
         <div class="card" id="sv-dispensed-card">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
@@ -808,6 +838,13 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
           </div>
           <input type="number" class="settings-input" id="set-outguard" min="1" max="365" value="30">
         </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-lbl">Supplier Lead Time</div>
+            <div class="settings-desc">Days between placing an order and receiving stock — drives the Order Now list</div>
+          </div>
+          <input type="number" class="settings-input" id="set-leadtime" min="1" max="120" value="14">
+        </div>
         <button class="btn-submit" id="set-btn" onclick="saveSettings()">
           <span id="set-btn-lbl">Save Settings</span>
         </button>
@@ -845,7 +882,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 
 <script>
 // ══ Config ════════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz0FMOdC6pfLZMjhv87fY4N73gUgu2GQMIYLo9OTVcuzzzDzDwB-8rx2sIUbEedAbBw/exec'; // UPDATE THIS URL
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUCjYLFNwhPt8x1b7upWg7E0P0KQ8oWIwSuvRRTlSOTJ72F_sUdLR2bDQnS9ZnWmah/exec'; // UPDATE THIS URL
 const PINS = { storage: '1234', supervisor: '5678' };
 
 const STATUS_CFG = {
@@ -930,7 +967,7 @@ const S = {
   isSupervisor: false,
   products:  [],
   expiring:  [],
-  settings:  { expiryWarningDays: 30, defaultMinUnits: 5, outpatientGuardDays: 30 },
+  settings:  { expiryWarningDays: 30, defaultMinUnits: 5, outpatientGuardDays: 30, leadTimeDays: 14 },
   activeTab: 'products',
   prodCat:   'All',
   bulkCat:   'All',
@@ -949,6 +986,8 @@ const S = {
   lastSynced: null,
   suDispenseFirst: false,
   suInpatientOnly: false,
+  suLifeline: false,
+  svReorder: null,
   countProducts: [],
   countIdx: 0,
   countBatches: {},
@@ -966,13 +1005,14 @@ window.onload = async () => {
       api({action:'getExpiring'}),
     ]);
     S.products = pd.products || [];
-    S.settings = { expiryWarningDays: sd.expiryWarningDays||30, defaultMinUnits: sd.defaultMinUnits||5, outpatientGuardDays: sd.outpatientGuardDays||30 };
+    S.settings = { expiryWarningDays: sd.expiryWarningDays||30, defaultMinUnits: sd.defaultMinUnits||5, outpatientGuardDays: sd.outpatientGuardDays||30, leadTimeDays: sd.leadTimeDays||14 };
     S.expiring  = ed.expiring || [];
     S.lastSynced = Date.now();
     el('dispense-days').textContent = S.settings.expiryWarningDays;
     el('set-days').value = S.settings.expiryWarningDays;
     el('set-min').value  = S.settings.defaultMinUnits;
     el('set-outguard').value = S.settings.outpatientGuardDays;
+    el('set-leadtime').value = S.settings.leadTimeDays;
     renderProducts();
     renderBulkList();
     renderExpiring();
@@ -1033,10 +1073,11 @@ function renderProducts() {
   renderLastSynced();
 
   if (S.isStorage) {
-    const c={available:0,low:0,coming:0,unavailable:0,'':0,inpatient:0};
+    const c={available:0,low:0,coming:0,unavailable:0,'':0,inpatient:0,lifeline:0};
     S.products.forEach(p=>{
       c[p.status||'']=(c[p.status||'']||0)+1;
       if(p.inpatientOnly) c.inpatient++;
+      if(p.lifeline) c.lifeline++;
     });
     const schip=(key,cls,label,count)=>
       `<button class="sbar ${cls} ${S.storageFilter===key?'on':''}" onclick="setStorageFilter('${key}')"><div class="sdot"></div>${count} ${label}</button>`;
@@ -1046,7 +1087,8 @@ function renderProducts() {
       schip('coming','sbar-b','Coming',c.coming)+
       schip('unavailable','sbar-r','Unavail.',c.unavailable)+
       schip('notset','sbar-x','Not Set',c[''])+
-      schip('inpatientOnly','sbar-i','🏥 In-Patient',c.inpatient);
+      schip('inpatientOnly','sbar-i','🏥 In-Patient',c.inpatient)+
+      schip('lifeline','sbar-ll','🆘 Lifeline',c.lifeline);
   } else {
     const c={available:0,low:0,unavailable:0,df:0,io:0};
     S.products.forEach(p=>{
@@ -1068,6 +1110,7 @@ function renderProducts() {
 
   if (S.isStorage && S.storageFilter) {
     if (S.storageFilter==='inpatientOnly') list = list.filter(p=>p.inpatientOnly);
+    else if (S.storageFilter==='lifeline') list = list.filter(p=>p.lifeline);
     else if (S.storageFilter==='notset') list = list.filter(p=>!p.status);
     else list = list.filter(p=>p.status===S.storageFilter);
   }
@@ -1092,6 +1135,7 @@ function renderStorageRows(list) {
     let sub=`<span class="pi-cat">${p.category}</span>`;
     if (p.dispenseFirst) sub+=`<span class="df-badge sm">🔄 Dispense First</span>`;
     if (p.inpatientOnly) sub+=`<span class="io-badge sm">🏥 In-Patient Only</span>`;
+    if (p.lifeline) sub+=`<span class="ll-badge sm">🆘 Lifeline</span>`;
     if (p.note) sub+=`<span class="pi-note">${p.note}</span>`;
     if (p.status==='coming'&&p.expectedDate) sub+=`<span class="pi-date">📅 ${p.expectedDate}</span>`;
     if (bs) {
@@ -1134,6 +1178,7 @@ function dietitianRowHTML(p) {
         <span class="pi-cat">${p.category}</span>
         ${p.dispenseFirst?'<span class="df-badge">🔄 Dispense First</span>':''}
         ${p.inpatientOnly?'<span class="io-badge">🏥 In-Patient Only</span>':''}
+        ${p.lifeline?'<span class="ll-badge">🆘 Lifeline</span>':''}
       </div>
     </div>
     <button class="pin-star ${pinned?'pinned':''}" onclick="event.stopPropagation();togglePin('${p.id}')">${pinned?'⭐':'☆'}</button>
@@ -1312,6 +1357,21 @@ async function quickToggleDispenseFirst(productId) {
   closeQuickActions();
 }
 
+async function quickToggleLifeline(productId) {
+  const p = S.products.find(x=>x.id===productId);
+  if (!p) return;
+  const name = getStorageName();
+  if (!name) return;
+  const next = !p.lifeline;
+  try {
+    await api({action:'update', id:productId, lifeline:next, updatedBy:encodeURIComponent(name)});
+    p.lifeline = next;
+    toast(next ? '✅ Marked as Lifeline' : 'Unflagged Lifeline','ok');
+    renderProducts();
+  } catch(e) { toast('Failed: '+e.message,'err'); }
+  closeQuickActions();
+}
+
 // ══ Quick status actions (⋮ menu) ════════════════════════════════
 function openQuickActions(productId) {
   const p = S.products.find(x=>x.id===productId);
@@ -1326,6 +1386,7 @@ function openQuickActions(productId) {
         <div class="qa-option" onclick="quickSetStatus('${p.id}','unavailable')">🔴 Mark Not Available</div>
         <div class="qa-option" onclick="quickAddBatchFor('${p.id}')">📦 Add Batch</div>
         <div class="qa-option" onclick="quickToggleDispenseFirst('${p.id}')">${p.dispenseFirst ? '✓ Unflag Dispense First' : '🔄 Flag Dispense First'}</div>
+        <div class="qa-option" onclick="quickToggleLifeline('${p.id}')">${p.lifeline ? '✓ Unflag Lifeline' : '🆘 Flag Lifeline'}</div>
         <button class="btn-submit" style="margin-top:12px" onclick="closeQuickActions()">Cancel</button>
       </div>
     </div>`;
@@ -1432,8 +1493,10 @@ function selectSuProduct(id) {
   el('su-min').value=existing?.minUnits||S.settings.defaultMinUnits||5;
   S.suDispenseFirst = !!existing?.dispenseFirst;
   S.suInpatientOnly = !!existing?.inpatientOnly;
+  S.suLifeline = !!existing?.lifeline;
   el('su-df-switch').classList.toggle('on', S.suDispenseFirst);
   el('su-io-switch').classList.toggle('on', S.suInpatientOnly);
+  el('su-ll-switch').classList.toggle('on', S.suLifeline);
   highlightSuStatus(S.suStatus);
   show('su-status-card');
   loadBatches(id);
@@ -1446,12 +1509,17 @@ function toggleSuInpatientOnly() {
   S.suInpatientOnly = !S.suInpatientOnly;
   el('su-io-switch').classList.toggle('on', S.suInpatientOnly);
 }
+function toggleSuLifeline() {
+  S.suLifeline = !S.suLifeline;
+  el('su-ll-switch').classList.toggle('on', S.suLifeline);
+}
 function clearSu() {
-  S.suProduct=null;S.suStatus=null;S.suBatches=[];S.suDispenseFirst=false;S.suInpatientOnly=false;
+  S.suProduct=null;S.suStatus=null;S.suBatches=[];S.suDispenseFirst=false;S.suInpatientOnly=false;S.suLifeline=false;
   hide('su-chip');hide('su-status-card');hide('su-batch-card');
   el('su-search').value='';clearSuHighlight();
   el('su-df-switch')?.classList.remove('on');
   el('su-io-switch')?.classList.remove('on');
+  el('su-ll-switch')?.classList.remove('on');
   hide('add-batch-form');
 }
 function pickSuStatus(s) {
@@ -1476,9 +1544,9 @@ async function submitSingle() {
   const btn=el('su-btn'),lbl=el('su-btn-lbl');
   btn.disabled=true;lbl.innerHTML='<span class="spinner-sm"></span>Saving…';
   try {
-    await api({action:'update',id:S.suProduct.id,status:S.suStatus,note:encodeURIComponent(note),expectedDate:date,updatedBy:encodeURIComponent(by),minUnits:minU,dispenseFirst:S.suDispenseFirst,inpatientOnly:S.suInpatientOnly});
+    await api({action:'update',id:S.suProduct.id,status:S.suStatus,note:encodeURIComponent(note),expectedDate:date,updatedBy:encodeURIComponent(by),minUnits:minU,dispenseFirst:S.suDispenseFirst,inpatientOnly:S.suInpatientOnly,lifeline:S.suLifeline});
     const p=S.products.find(x=>x.id===S.suProduct.id);
-    if(p){p.status=S.suStatus;p.note=note;p.expectedDate=date;p.minUnits=minU;p.dispenseFirst=S.suDispenseFirst;p.inpatientOnly=S.suInpatientOnly;}
+    if(p){p.status=S.suStatus;p.note=note;p.expectedDate=date;p.minUnits=minU;p.dispenseFirst=S.suDispenseFirst;p.inpatientOnly=S.suInpatientOnly;p.lifeline=S.suLifeline;}
     toast('✅ Status saved','ok');
     clearSu();el('su-by').value='';el('su-note').value='';
     renderProducts();
@@ -1876,11 +1944,12 @@ async function saveSettings() {
   const days=parseInt(el('set-days').value)||30;
   const minU=parseInt(el('set-min').value)||5;
   const guardDays=parseInt(el('set-outguard').value)||30;
+  const leadDays=parseInt(el('set-leadtime').value)||14;
   const btn=el('set-btn'),lbl=el('set-btn-lbl');
   btn.disabled=true;lbl.innerHTML='<span class="spinner-sm"></span>Saving…';
   try {
-    await api({action:'saveSettings',expiryWarningDays:days,defaultMinUnits:minU,outpatientGuardDays:guardDays});
-    S.settings.expiryWarningDays=days;S.settings.defaultMinUnits=minU;S.settings.outpatientGuardDays=guardDays;
+    await api({action:'saveSettings',expiryWarningDays:days,defaultMinUnits:minU,outpatientGuardDays:guardDays,leadTimeDays:leadDays});
+    S.settings.expiryWarningDays=days;S.settings.defaultMinUnits=minU;S.settings.outpatientGuardDays=guardDays;S.settings.leadTimeDays=leadDays;
     el('dispense-days').textContent=days;
     toast('✅ Settings saved','ok');
   } catch(e){toast('Failed: '+e.message,'err');}
@@ -1972,12 +2041,14 @@ async function loadSupervisorData() {
       api({action:'getMonthlyComparison'}),
       api({action:'getMostNeeded'}),
       api({action:'getWasteMetric'}),
-      api({action:'getDispensingTrend'})
+      api({action:'getDispensingTrend'}),
+      api({action:'getReorderData'})
     ]);
     renderMonthlyComparison(results[0].status==='fulfilled' ? results[0].value : null);
     renderMostNeeded(results[1].status==='fulfilled' ? results[1].value : null);
     renderWaste(results[2].status==='fulfilled' ? results[2].value : null);
     renderTrend(results[3].status==='fulfilled' ? results[3].value : null);
+    renderReorder(results[4].status==='fulfilled' ? results[4].value : null);
   } catch(e) {
     el('sv-loading').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><p style="font-size:.875rem">${e.message}</p><button onclick="loadSupervisorData()" style="margin-top:12px;padding:8px 20px;border-radius:100px;background:var(--grad);color:#fff;font-weight:700;font-size:.8125rem">Retry</button></div>`;
   }
@@ -2048,6 +2119,58 @@ function renderMostNeeded(d) {
         ${p.stockoutCount ? `<div class="mn-stockout">⚠️ ${p.stockoutCount}× out</div>` : ''}
       </div>
     </div>`).join('');
+}
+
+// ══ Reorder intelligence (Order Now / Lifeline at Risk) ═════════
+const REORDER_REASON_LBL = {
+  'out': '🔴 Out of stock, still in demand',
+  'lead': 'Runs out before next delivery',
+  'lifeline-buffer': 'Lifeline — thin safety buffer',
+  'lifeline-out': 'Lifeline — no stock on hand'
+};
+
+function reorderRowHTML(it, leadTimeDays, showReason) {
+  const critical = it.units===0 || (it.daysOfStock!==null && it.daysOfStock<=leadTimeDays);
+  const wosCls = critical ? 'urg-critical' : (it.daysOfStock!==null && it.daysOfStock<=leadTimeDays+7) ? 'urg-high' : 'urg-medium';
+  const wosLbl = it.weeksOfStock===null ? (it.units===0 ? 'no stock' : 'no usage data') : `${it.weeksOfStock} wk left`;
+  const reason = showReason && REORDER_REASON_LBL[it.reason] ? `<div style="font-size:.6875rem;color:var(--text3);width:100%">${REORDER_REASON_LBL[it.reason]}</div>` : '';
+  return `<div class="alert-item">
+    <div class="alert-name" style="flex-basis:100%">${it.lifeline?'<span class="ll-badge sm">🆘</span> ':''}${it.name}</div>
+    <div class="alert-meta" style="flex:1">📦 ${it.units} units · ${it.avgWeekly}/wk</div>
+    <span class="urg-badge ${wosCls}">${wosLbl}</span>
+    ${reason}
+  </div>`;
+}
+
+function renderReorder(d) {
+  S.svReorder = d;
+  const box = el('sv-reorder-content');
+  const lbox = el('sv-lifeline-content');
+  if (!d || !d.orderNow) {
+    const na = '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">Not available yet — redeploy backend</p></div>';
+    box.innerHTML = na; lbox.innerHTML = na;
+    return;
+  }
+  el('sv-reorder-sub').textContent = `Projected to run out within the ${d.leadTimeDays}-day supplier lead time, based on the last 8 weeks of dispensing`;
+  box.innerHTML = d.orderNow.length
+    ? d.orderNow.map(it=>reorderRowHTML(it, d.leadTimeDays, true)).join('')
+      + `<button class="export-btn" style="width:100%;margin-top:10px" onclick="exportOrderCSV()"><span>🛒 Export Order List (CSV)</span><span class="arr">↓</span></button>`
+    : '<div class="empty" style="padding:16px"><div class="empty-icon">✅</div><p style="font-size:.875rem">Nothing needs ordering right now</p></div>';
+  lbox.innerHTML = d.lifelineAtRisk.length
+    ? d.lifelineAtRisk.map(it=>reorderRowHTML(it, d.leadTimeDays, false)).join('')
+    : '<div class="empty" style="padding:16px"><div class="empty-icon">✅</div><p style="font-size:.875rem">All lifeline products are safe</p></div>';
+}
+
+function exportOrderCSV() {
+  const d = S.svReorder;
+  if (!d || !d.orderNow || !d.orderNow.length) { toast('Nothing to export','warn'); return; }
+  const rows = [['ID','Product','Category','Lifeline','Status','Units Left','Avg Weekly Use','Weeks of Stock','Reason']];
+  d.orderNow.forEach(it=>rows.push([
+    it.id, it.name, it.category, it.lifeline?'Yes':'No', STATUS_CFG[it.status||''].label,
+    it.units, it.avgWeekly, it.weeksOfStock==null?'':it.weeksOfStock, REORDER_REASON_LBL[it.reason]||''
+  ]));
+  downloadCSV(`order_list_${new Date().toISOString().slice(0,10)}.csv`, rows);
+  toast('✅ Order list downloaded','ok');
 }
 
 function renderWaste(d) {
