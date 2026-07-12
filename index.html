@@ -76,6 +76,34 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 .pin-err{color:var(--red-t);font-size:.8125rem;margin-top:10px;min-height:18px;font-weight:500}
 .btn-pin-cancel{background:none;color:var(--text2);padding:10px 20px;font-size:.875rem;margin-top:10px;border-radius:var(--rs)}
 
+/* Auth card (sign in / sign up / break-glass) */
+.auth-card{background:var(--surface);border:1px solid var(--border2);border-radius:22px;padding:32px 26px;max-width:340px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.5)}
+.auth-card h2{font-size:1.1875rem;font-weight:800;margin-bottom:6px}
+.auth-sub{color:var(--text2);font-size:.8125rem;margin-bottom:18px;line-height:1.5}
+.auth-field{text-align:left;margin-bottom:12px}
+.auth-field label{display:block;font-size:.6875rem;font-weight:700;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+.auth-field input{width:100%}
+.auth-err{color:var(--red-t);font-size:.8125rem;margin:2px 0 12px;min-height:16px;font-weight:500;line-height:1.4}
+.btn-auth{width:100%;padding:13px;background:var(--grad);color:#fff;font-size:.9375rem;font-weight:700;border-radius:var(--rs);box-shadow:0 4px 20px rgba(63,169,220,.2)}
+.btn-auth:disabled{opacity:.6;cursor:not-allowed}
+.auth-links{display:flex;flex-direction:column;gap:2px;margin-top:14px}
+.auth-link{background:none;color:var(--blue-t);font-size:.8125rem;font-weight:600;padding:7px}
+.auth-link.dim{color:var(--text3);font-weight:500;font-size:.75rem}
+
+/* Staff management rows */
+.staff-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.staff-row:last-child{border-bottom:none}
+.staff-main{flex:1;min-width:160px}
+.staff-nm{font-size:.9375rem;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.staff-em{font-size:.75rem;color:var(--text2);margin-top:3px;word-break:break-all}
+.staff-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.staff-role{font-size:.75rem;font-weight:700;color:var(--text2);margin-right:2px}
+.staff-btn{padding:7px 12px;border-radius:var(--rs);font-size:.75rem;font-weight:700;border:1px solid var(--border2);background:var(--surface2);color:var(--text2)}
+.staff-btn.ok{background:var(--green-bg);color:var(--green-t);border-color:rgba(34,197,94,.3)}
+.staff-btn.sv{background:var(--purple-bg);color:var(--purple-t);border-color:rgba(139,92,246,.3)}
+.staff-btn.no{background:var(--red-bg);color:var(--red-t);border-color:rgba(239,68,68,.3)}
+.staff-btn:active{transform:scale(.97)}
+
 /* App */
 #app{display:none;flex-direction:column;min-height:100vh}
 
@@ -513,15 +541,53 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
   <div class="spinner" style="margin-top:14px"></div>
 </div>
 
-<!-- PIN -->
+<!-- Auth -->
 <div id="pin-overlay" class="hidden">
-  <div class="pin-card">
+  <div class="auth-card">
     <svg class="pin-logo" aria-hidden="true"><use href="#jah-logo"/></svg>
-    <h2>Staff Access — Enter PIN</h2>
-    <p>Storage PIN: for storage team<br>Supervisor PIN: for supervisor dashboard only</p>
-    <input type="password" id="pin-input" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="••••" oninput="onPinInput()">
-    <div class="pin-err" id="pin-err"></div>
-    <button class="btn-pin-cancel" onclick="closePin()">Cancel</button>
+
+    <!-- Sign in -->
+    <div id="auth-login">
+      <h2>Staff Sign In</h2>
+      <p class="auth-sub">Sign in with your hospital email to access storage.</p>
+      <div class="auth-field"><label>Email</label>
+        <input type="email" id="lg-email" autocomplete="username" placeholder="name@example.com" onkeydown="if(event.key==='Enter')el('lg-pw').focus()"></div>
+      <div class="auth-field"><label>Password</label>
+        <input type="password" id="lg-pw" autocomplete="current-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="auth-err" id="auth-err"></div>
+      <button class="btn-auth" id="login-btn" onclick="doLogin()">Sign In</button>
+      <div class="auth-links">
+        <button class="auth-link" onclick="showAuthView('signup')">First time? Create account</button>
+        <button class="auth-link dim" onclick="showAuthView('pin')">Supervisor PIN</button>
+      </div>
+      <button class="btn-pin-cancel" onclick="closePin()">Cancel</button>
+    </div>
+
+    <!-- Create account -->
+    <div id="auth-signup" class="hidden">
+      <h2>Create Account</h2>
+      <p class="auth-sub">A supervisor approves your account before first sign-in.</p>
+      <div class="auth-field"><label>Full Name</label>
+        <input type="text" id="sg-name" autocomplete="name" placeholder="Your name"></div>
+      <div class="auth-field"><label>Email</label>
+        <input type="email" id="sg-email" autocomplete="username" placeholder="name@example.com"></div>
+      <div class="auth-field"><label>Password</label>
+        <input type="password" id="sg-pw" autocomplete="new-password" placeholder="At least 6 characters"></div>
+      <div class="auth-field"><label>Confirm Password</label>
+        <input type="password" id="sg-pw2" autocomplete="new-password" placeholder="Repeat password" onkeydown="if(event.key==='Enter')doSignup()"></div>
+      <div class="auth-err" id="signup-err"></div>
+      <button class="btn-auth" id="signup-btn" onclick="doSignup()">Create Account</button>
+      <button class="btn-pin-cancel" onclick="showAuthView('login')">← Back to sign in</button>
+    </div>
+
+    <!-- Break-glass supervisor PIN -->
+    <div id="auth-pin" class="hidden">
+      <h2>Supervisor PIN</h2>
+      <p class="auth-sub">Emergency supervisor access.</p>
+      <input type="password" id="pin-input" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="••••" oninput="onPinInput()">
+      <div class="pin-err auth-err" id="pin-err"></div>
+      <button class="btn-pin-cancel" onclick="showAuthView('login')">← Back to sign in</button>
+    </div>
   </div>
 </div>
 
@@ -547,6 +613,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
     <button class="ntab s-only hidden" onclick="goTab('dispense')"    id="tab-dispense">🔄 Rotate Now<span class="ntab-dot hidden" id="dispense-dot"></span></button>
     <button class="ntab s-only hidden" onclick="goTab('update')"      id="tab-update">✏️ Update &amp; Batches</button>
     <button class="ntab sv-only hidden" onclick="goTab('supervisor')"  id="tab-supervisor">📊 Supervisor</button>
+    <button class="ntab sv-only hidden" onclick="goTab('staff')"       id="tab-staff">👥 Staff<span class="ntab-dot hidden" id="staff-dot"></span></button>
     <button class="ntab s-only hidden" onclick="goTab('settings')"    id="tab-settings">⚙️ Settings</button>
     <button class="ntab not-sv"    onclick="goTab('changes')"    id="tab-changes">🕓 Changes</button>
   </nav>
@@ -853,6 +920,25 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
       </div>
     </div>
 
+    <!-- ═══ STAFF (supervisor) ═══ -->
+    <div id="pane-staff" class="hidden">
+      <div class="card" style="padding:14px 18px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <div>
+            <div style="font-weight:700;font-size:.9375rem">👥 Staff Accounts</div>
+            <div style="font-size:.75rem;color:var(--text2);margin-top:3px" id="staff-pending-count">—</div>
+          </div>
+          <button onclick="loadStaff()" style="font-size:.8125rem;font-weight:700;color:var(--accent);background:none;padding:4px 8px">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:.75rem;color:var(--text2);margin-bottom:12px;line-height:1.5">
+          Staff sign up with their email, then you approve them here. Choose <strong style="color:var(--text)">Storage</strong> for the storage team or <strong style="color:var(--text)">Supervisor</strong> for people who can also approve accounts.
+        </div>
+        <div id="staff-list"><div class="empty"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
     <!-- ═══ SETTINGS (storage) ═══ -->
     <div id="pane-settings" class="hidden">
       <div class="card">
@@ -881,9 +967,9 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
         <div class="settings-row">
           <div>
             <div class="settings-lbl">Supplier Lead Time</div>
-            <div class="settings-desc">Days between placing an order and receiving stock — drives the Order Now list</div>
+            <div class="settings-desc">Calendar days from placing an order to receiving stock — drives the Order Now list. Sabhan storage is normally ~2 working days (allow for the Fri–Sat weekend).</div>
           </div>
-          <input type="number" class="settings-input" id="set-leadtime" min="1" max="120" value="14">
+          <input type="number" class="settings-input" id="set-leadtime" min="1" max="120" value="3">
         </div>
         <button class="btn-submit" id="set-btn" onclick="saveSettings()">
           <span id="set-btn-lbl">Save Settings</span>
@@ -934,8 +1020,11 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 
 <script>
 // ══ Config ════════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8S1nS-cxv9BY4VmlJv5YxLxGIm8JXXnFGaLl51ND4TY5TDuu314EGvzSFshlcQf6e/exec'; // ← currently the LIVE pre-Reorder backend. After deploying the new APPSCRIPT.js, paste the NEW /exec URL here.
-const PINS = { storage: '1234', supervisor: '5678' };
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOy8VcAuE0jrRCi4oPmvXpbSKTlo5CSErZcf2lR9cIuPaHKSWqqKNp69HOgw_7aHI2/exec'; // ← currently the LIVE pre-Reorder backend. After deploying the new APPSCRIPT.js, paste the NEW /exec URL here.
+// Storage PIN is retired — the storage team now signs in with individual
+// email accounts. The supervisor PIN remains as an emergency break-glass login
+// (must match BREAK_GLASS_SUPERVISOR_PIN in APPSCRIPT.js).
+const PINS = { supervisor: '5678' };
 
 const STATUS_CFG = {
   available:   { label:'Available',     cls:'s-available',   dot:'#22c55e' },
@@ -1017,9 +1106,12 @@ const PRODUCTS = [
 const S = {
   isStorage: false,
   isSupervisor: false,
+  session:   null,   // {token,email,name,role,expiry} once signed in
+  svpin:     null,   // break-glass supervisor PIN, if used
+  staff:     [],
   products:  [],
   expiring:  [],
-  settings:  { expiryWarningDays: 30, defaultMinUnits: 5, outpatientGuardDays: 30, leadTimeDays: 14 },
+  settings:  { expiryWarningDays: 30, defaultMinUnits: 5, outpatientGuardDays: 30, leadTimeDays: 3 },
   activeTab: 'products',
   prodCat:   'All',
   bulkCat:   'All',
@@ -1057,7 +1149,7 @@ window.onload = async () => {
       api({action:'getExpiring'}),
     ]);
     S.products = pd.products || [];
-    S.settings = { expiryWarningDays: sd.expiryWarningDays||30, defaultMinUnits: sd.defaultMinUnits||5, outpatientGuardDays: sd.outpatientGuardDays||30, leadTimeDays: sd.leadTimeDays||14 };
+    S.settings = { expiryWarningDays: sd.expiryWarningDays||30, defaultMinUnits: sd.defaultMinUnits||5, outpatientGuardDays: sd.outpatientGuardDays||30, leadTimeDays: sd.leadTimeDays||3 };
     S.expiring  = ed.expiring || [];
     S.lastSynced = Date.now();
     el('dispense-days').textContent = S.settings.expiryWarningDays;
@@ -1068,6 +1160,7 @@ window.onload = async () => {
     renderProducts();
     renderBulkList();
     renderExpiring();
+    await restoreSession();
     hide('screen-loading');
     el('app').style.display = 'flex';
     setInterval(renderLastSynced, 30000);
@@ -1083,29 +1176,64 @@ window.onload = async () => {
 };
 
 // ══ API ═══════════════════════════════════════════════════════
+// Actions that change data (require a login token) and pure auth actions.
+const WRITE_ACTIONS = new Set(['update','addBatch','updateBatch','removeBatch','saveSettings','sendReport']);
+const AUTH_ACTIONS  = new Set(['signup','login','logout','me','listStaff','approveStaff','setStaffStatus']);
+const AUTH_ERR_CODES = { AUTH_REQUIRED:'Please sign in to make changes.', SUPERVISOR_REQUIRED:'Supervisor access is required for this action.', SESSION_EXPIRED:'Your session has expired — please sign in again.' };
+
 async function api(params) {
+  const p = Object.assign({}, params);
+  // Attach the caller's credentials to authenticated calls.
+  if (WRITE_ACTIONS.has(p.action) || AUTH_ACTIONS.has(p.action)) {
+    if (S.session && S.session.token && p.token===undefined) p.token = S.session.token;
+    if (S.svpin && p.svpin===undefined) p.svpin = S.svpin;
+  }
+  // A request carrying any secret must go DIRECT to Google — never through the
+  // public CORS proxies, which could log credentials.
+  const carriesSecret = !!(p.token || p.svpin || p.cred);
+
   const url = new URL(SCRIPT_URL);
-  Object.entries(params).forEach(([k,v]) => {
+  Object.entries(p).forEach(([k,v]) => {
     if (v!==undefined&&v!==null&&v!=='') url.searchParams.set(k,String(v));
   });
   const target = url.toString();
-  const tries = [
-    () => fetch(target,{redirect:'follow'}),
-    () => fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(target)),
-    () => fetch('https://corsproxy.io/?'+encodeURIComponent(target)),
-  ];
+  const tries = carriesSecret
+    ? [ () => fetch(target,{redirect:'follow'}) ]
+    : [ () => fetch(target,{redirect:'follow'}),
+        () => fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(target)),
+        () => fetch('https://corsproxy.io/?'+encodeURIComponent(target)) ];
   for (const t of tries) {
     try {
       const res  = await t();
       const text = await res.text();
       const data = JSON.parse(text);
-      if (data.error) throw new Error(data.error);
+      if (data.error) {
+        if (AUTH_ERR_CODES[data.error]) { handleAuthError(data.error); throw new Error(AUTH_ERR_CODES[data.error]); }
+        throw new Error(data.error);
+      }
       return data;
     } catch(e) {
       if (e.message && !e.message.includes('fetch') && !e.message.includes('Failed')) throw e;
     }
   }
-  throw new Error('Cannot connect. Check your internet connection.');
+  throw new Error(carriesSecret
+    ? 'Could not reach the server securely. Sign-in needs a direct connection — check your network.'
+    : 'Cannot connect. Check your internet connection.');
+}
+
+// A write came back unauthenticated → drop the stale session and reflect logged-out.
+function handleAuthError(code) {
+  if (code==='AUTH_REQUIRED' || code==='SESSION_EXPIRED') {
+    S.session = null; localStorage.removeItem('ns_session');
+    setTimeout(()=>{ applyUser(); }, 0);
+  }
+}
+
+// Hash the password on-device so plaintext never leaves the browser.
+async function hashCred(email, password) {
+  const bytes = new TextEncoder().encode(String(email).trim().toLowerCase()+':'+password);
+  const buf = await crypto.subtle.digest('SHA-256', bytes);
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 
 // ══ Products ══════════════════════════════════════════════════
@@ -1385,12 +1513,10 @@ async function refreshExpiring() {
 
 // ══ One-tap Dispense First (Rotate Now) ═════════════════════════
 function getStorageName() {
-  let name = localStorage.getItem('ns_storageName');
-  if (name) return name;
-  name = (prompt('Enter your name (saved on this device for next time):')||'').trim();
-  if (!name) { toast('Enter your name to continue','err'); return null; }
-  localStorage.setItem('ns_storageName', name);
-  return name;
+  if (S.session && S.session.name) return S.session.name;
+  if (S.svpin) return 'Supervisor (PIN)';
+  toast('Please sign in first','err'); toggleMode();
+  return null;
 }
 
 async function quickToggleDispenseFirst(productId) {
@@ -1467,43 +1593,146 @@ function quickAddBatchFor(productId) {
 }
 
 // ══ Mode ══════════════════════════════════════════════════════
+// ══ Auth / sessions ═══════════════════════════════════════════
+// Header button: signed in → sign out; signed out → open the sign-in overlay.
 function toggleMode() {
-  if (S.isStorage || S.isSupervisor) { S.isStorage=false; S.isSupervisor=false; applyMode(); }
-  else { el('pin-input').value=''; el('pin-err').textContent=''; show('pin-overlay'); setTimeout(()=>el('pin-input').focus(),80); }
+  if (S.session || S.svpin) { logout(); }
+  else { showAuthView('login'); show('pin-overlay'); setTimeout(()=>el('lg-email')?.focus(),80); }
 }
 function closePin() { hide('pin-overlay'); }
+
+function showAuthView(view) {
+  ['login','signup','pin'].forEach(v => el('auth-'+v).classList.toggle('hidden', v!==view));
+  ['auth-err','signup-err','pin-err'].forEach(id => { if(el(id)) el(id).textContent=''; });
+  if (view==='pin') el('pin-input').value='';
+  const focusId = view==='login' ? 'lg-email' : view==='signup' ? 'sg-name' : 'pin-input';
+  setTimeout(()=>el(focusId)?.focus(), 60);
+}
+function setAuthBusy(btnId, busy, label) {
+  const b = el(btnId); if(!b) return;
+  b.disabled = busy;
+  b.innerHTML = busy ? '<span class="spinner-sm"></span>Please wait…' : label;
+}
+
+async function doLogin() {
+  const email = el('lg-email').value.trim().toLowerCase();
+  const pw = el('lg-pw').value;
+  if (!email || !pw) { el('auth-err').textContent='Enter your email and password.'; return; }
+  setAuthBusy('login-btn', true);
+  try {
+    const cred = await hashCred(email, pw);
+    const r = await api({action:'login', email, cred});
+    S.session = {token:r.token, email:r.email, name:r.name, role:r.role, expiry:r.expiry};
+    S.svpin = null;
+    localStorage.setItem('ns_session', JSON.stringify(S.session));
+    el('lg-pw').value='';
+    hide('pin-overlay');
+    applyUser();
+    goTab(r.role==='supervisor' ? 'supervisor' : 'products');
+    toast('Signed in as '+r.name, 'ok');
+  } catch(e) { el('auth-err').textContent = '❌ '+e.message; }
+  setAuthBusy('login-btn', false, 'Sign In');
+}
+
+async function doSignup() {
+  const name = el('sg-name').value.trim();
+  const email = el('sg-email').value.trim().toLowerCase();
+  const pw = el('sg-pw').value, pw2 = el('sg-pw2').value;
+  const err = el('signup-err');
+  if (!name || !email || !pw) { err.textContent='Please fill in every field.'; return; }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent='Enter a valid email address.'; return; }
+  if (pw.length < 6) { err.textContent='Password must be at least 6 characters.'; return; }
+  if (pw !== pw2) { err.textContent='Passwords do not match.'; return; }
+  setAuthBusy('signup-btn', true);
+  try {
+    const cred = await hashCred(email, pw);
+    const r = await api({action:'signup', email, name, cred});
+    el('sg-pw').value=''; el('sg-pw2').value='';
+    el('lg-email').value = email;
+    showAuthView('login');
+    if (r.autoApproved) toast('Supervisor account created — sign in now', 'ok');
+    else { el('auth-err').textContent='✅ Account created. A supervisor must approve it before you can sign in.'; }
+  } catch(e) { err.textContent = '❌ '+e.message; }
+  setAuthBusy('signup-btn', false, 'Create Account');
+}
+
+// Break-glass supervisor PIN (emergency).
 function onPinInput() {
   if (el('pin-input').value.length===4) {
     const val = el('pin-input').value;
-    if (val===PINS.storage) { hide('pin-overlay'); S.isStorage=true; S.isSupervisor=false; applyMode(); }
-    else if (val===PINS.supervisor) { hide('pin-overlay'); S.isSupervisor=true; S.isStorage=false; applyMode(); }
-    else { el('pin-err').textContent='❌ Wrong PIN. Try again.'; el('pin-input').value=''; }
+    if (val===PINS.supervisor) {
+      S.svpin = val; S.session = null; localStorage.removeItem('ns_session');
+      hide('pin-overlay'); applyUser(); goTab('supervisor');
+      toast('Emergency supervisor access', 'warn');
+    } else { el('pin-err').textContent='❌ Wrong PIN. Try again.'; el('pin-input').value=''; }
   }
 }
-function applyMode() {
-  const pill=el('mode-pill'),btn=el('mode-btn');
-  if (S.isSupervisor) {
-    pill.textContent='Supervisor'; pill.className='mode-pill mode-sv';
-    btn.textContent='🔓 Exit'; btn.classList.remove('on'); btn.classList.add('on-sv');
-    qsa('.s-only').forEach(t=>t.classList.add('hidden'));
-    qsa('.not-sv').forEach(t=>t.classList.add('hidden'));
+
+async function logout() {
+  try { if (S.session && S.session.token) await api({action:'logout'}); } catch(e) {}
+  S.session=null; S.svpin=null; localStorage.removeItem('ns_session');
+  applyUser(); goTab('products');
+  toast('Signed out', 'ok');
+}
+
+// Restore a saved session on boot (server re-validates the token).
+async function restoreSession() {
+  const raw = localStorage.getItem('ns_session');
+  if (!raw) { applyUser(); return; }
+  try {
+    const s = JSON.parse(raw);
+    if (s.expiry && Date.now() > s.expiry) throw new Error('expired');
+    S.session = s;
+    const me = await api({action:'me'});
+    S.session.email=me.email; S.session.name=me.name; S.session.role=me.role;
+    localStorage.setItem('ns_session', JSON.stringify(S.session));
+  } catch(e) { S.session=null; localStorage.removeItem('ns_session'); }
+  applyUser();
+}
+
+// Reflect the current user's role in the header + which tabs are visible.
+function applyUser() {
+  const role = S.svpin ? 'supervisor' : (S.session ? S.session.role : null);
+  const pill=el('mode-pill'), btn=el('mode-btn');
+  S.isSupervisor = role==='supervisor';
+  S.isStorage    = role==='supervisor' || role==='storage';
+  if (role==='supervisor') {
+    pill.textContent = S.svpin ? 'Supervisor · PIN' : 'Supervisor'; pill.className='mode-pill mode-sv';
+    qsa('.s-only').forEach(t=>t.classList.remove('hidden'));
+    qsa('.not-sv').forEach(t=>t.classList.remove('hidden'));
     qsa('.sv-only').forEach(t=>t.classList.remove('hidden'));
-    goTab('supervisor');
-  } else if (S.isStorage) {
+  } else if (role==='storage') {
     pill.textContent='Storage'; pill.className='mode-pill mode-s';
-    btn.textContent='🔓 Exit Storage'; btn.classList.add('on'); btn.classList.remove('on-sv');
     qsa('.s-only').forEach(t=>t.classList.remove('hidden'));
     qsa('.not-sv').forEach(t=>t.classList.remove('hidden'));
     qsa('.sv-only').forEach(t=>t.classList.add('hidden'));
   } else {
     pill.textContent='Dietitian'; pill.className='mode-pill mode-d';
-    btn.textContent='🔒 Storage'; btn.classList.remove('on'); btn.classList.remove('on-sv');
     qsa('.s-only').forEach(t=>t.classList.add('hidden'));
     qsa('.not-sv').forEach(t=>t.classList.remove('hidden'));
     qsa('.sv-only').forEach(t=>t.classList.add('hidden'));
-    if (['update','settings','supervisor'].includes(S.activeTab)) goTab('products');
   }
+  if (role) {
+    btn.textContent='🔓 Sign Out';
+    btn.classList.toggle('on', role==='storage');
+    btn.classList.toggle('on-sv', role==='supervisor');
+  } else {
+    btn.textContent='🔒 Sign In'; btn.classList.remove('on','on-sv');
+  }
+  prefillIdentity();
+  if (!role && ['update','settings','supervisor','staff'].includes(S.activeTab)) goTab('products');
   if (S.products.length) renderProducts();
+}
+
+// Fill the "Updated By / Added By" fields with the signed-in name (the backend
+// stamps the real identity from the token regardless, so these are read-only).
+function prefillIdentity() {
+  const nm = S.session ? S.session.name : (S.svpin ? 'Supervisor (PIN)' : '');
+  ['su-by','ab-by','bs-by'].forEach(id => {
+    const f = el(id); if (!f) return;
+    if (nm) { f.value = nm; f.readOnly = true; f.style.opacity = '.75'; }
+    else { f.readOnly = false; f.style.opacity = ''; }
+  });
 }
 
 // ══ Tabs ══════════════════════════════════════════════════════
@@ -1516,7 +1745,67 @@ function goTab(name) {
   if (name==='changes') loadLogs();
   if (name==='supervisor') loadSupervisorData();
   if (name==='settings') loadSettingsEmails();
+  if (name==='staff') loadStaff();
   if (name==='products') setTimeout(()=>el('prod-search')?.focus(), 150);
+}
+
+// ══ Staff management (supervisor) ═════════════════════════════
+const STAFF_STATUS = {
+  pending:  {lbl:'Pending',  cls:'s-low'},
+  approved: {lbl:'Approved', cls:'s-available'},
+  disabled: {lbl:'Disabled', cls:'s-empty'},
+  rejected: {lbl:'Rejected', cls:'s-unavailable'},
+};
+async function loadStaff() {
+  const box = el('staff-list');
+  box.innerHTML = '<div class="empty"><div class="spinner"></div></div>';
+  try {
+    const d = await api({action:'listStaff'});
+    S.staff = d.staff || [];
+    renderStaff();
+  } catch(e) {
+    box.innerHTML = `<div class="empty"><div class="empty-icon">🔒</div><p>${e.message}</p></div>`;
+  }
+}
+function renderStaff() {
+  const box = el('staff-list');
+  if (!S.staff.length) { box.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><p>No staff accounts yet</p></div>'; return; }
+  const pending = S.staff.filter(s=>s.status==='pending').length;
+  el('staff-pending-count').textContent = pending ? `${pending} awaiting approval` : 'All caught up';
+  box.innerHTML = S.staff.map(s => {
+    const st = STAFF_STATUS[s.status] || STAFF_STATUS.pending;
+    const esc = encodeURIComponent(s.email);
+    let actions = '';
+    if (s.status==='pending') {
+      actions = `<button class="staff-btn ok" onclick="approveStaff('${esc}','storage')">✓ Storage</button>
+                 <button class="staff-btn sv" onclick="approveStaff('${esc}','supervisor')">✓ Supervisor</button>
+                 <button class="staff-btn no" onclick="setStaffStatus('${esc}','rejected')">✕ Reject</button>`;
+    } else if (s.status==='approved') {
+      actions = `<span class="staff-role">${s.role==='supervisor'?'👑 Supervisor':'📦 Storage'}</span>
+                 <button class="staff-btn no" onclick="setStaffStatus('${esc}','disabled')">Disable</button>`;
+    } else {
+      actions = `<button class="staff-btn ok" onclick="approveStaff('${esc}','storage')">Enable · Storage</button>
+                 <button class="staff-btn sv" onclick="approveStaff('${esc}','supervisor')">Enable · Supervisor</button>`;
+    }
+    const last = s.lastLoginAt ? `· last in ${timeAgo(s.lastLoginAt)}` : '';
+    return `<div class="staff-row">
+      <div class="staff-main">
+        <div class="staff-nm">${escapeHtml(s.name)} <span class="sbadge ${st.cls}">${st.lbl}</span></div>
+        <div class="staff-em">${escapeHtml(s.email)} ${last}</div>
+      </div>
+      <div class="staff-actions">${actions}</div>
+    </div>`;
+  }).join('');
+}
+async function approveStaff(emailEnc, role) {
+  try { await api({action:'approveStaff', email:decodeURIComponent(emailEnc), role});
+    toast(`Approved as ${role}`, 'ok'); loadStaff();
+  } catch(e) { toast(e.message, 'err'); }
+}
+async function setStaffStatus(emailEnc, status) {
+  try { await api({action:'setStaffStatus', email:decodeURIComponent(emailEnc), status});
+    toast(status==='rejected'?'Rejected':status==='disabled'?'Disabled':'Updated', 'ok'); loadStaff();
+  } catch(e) { toast(e.message, 'err'); }
 }
 
 // ══ Category pills ════════════════════════════════════════════
@@ -1996,7 +2285,7 @@ async function saveSettings() {
   const days=parseInt(el('set-days').value)||30;
   const minU=parseInt(el('set-min').value)||5;
   const guardDays=parseInt(el('set-outguard').value)||30;
-  const leadDays=parseInt(el('set-leadtime').value)||14;
+  const leadDays=parseInt(el('set-leadtime').value)||3;
   const btn=el('set-btn'),lbl=el('set-btn-lbl');
   btn.disabled=true;lbl.innerHTML='<span class="spinner-sm"></span>Saving…';
   try {
@@ -2510,6 +2799,8 @@ function el(id){return document.getElementById(id);}
 function show(id){el(id)?.classList.remove('hidden');}
 function hide(id){el(id)?.classList.add('hidden');}
 function qsa(sel){return Array.from(document.querySelectorAll(sel));}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function timeAgo(ts){const m=Math.floor((Date.now()-ts)/60000);if(m<1)return'just now';if(m<60)return m+'m ago';const h=Math.floor(m/60);if(h<24)return h+'h ago';const d=Math.floor(h/24);return d+'d ago';}
 let _tt;
 function toast(msg,type=''){
   const t=el('toast');t.textContent=msg;t.className='show '+type;
