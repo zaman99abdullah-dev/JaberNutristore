@@ -754,16 +754,21 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
             <label data-i18n="lbl_note">Note <span style="font-weight:400;opacity:.6">(optional)</span></label>
             <textarea id="su-note" rows="2" placeholder="Add a note…"></textarea>
           </div>
+          <div class="field">
+            <label data-i18n="lbl_recorded_by">Recorded By</label>
+            <div class="identity-line" id="su-by-disp">—</div>
+          </div>
           <div class="row2">
-            <div class="field">
-              <label data-i18n="lbl_recorded_by">Recorded By</label>
-              <div class="identity-line" id="su-by-disp">—</div>
-            </div>
             <div class="field">
               <label data-i18n="lbl_min_units">Min Units for Low Stock</label>
               <input type="number" id="su-min" min="1" placeholder="5">
             </div>
+            <div class="field">
+              <label data-i18n="lbl_pack_units">Units per Package</label>
+              <input type="number" id="su-pack" min="0" placeholder="e.g. 24">
+            </div>
           </div>
+          <div id="su-min-hint" class="settings-desc" style="margin:-6px 0 12px"></div>
           <button class="btn-submit" id="su-btn" onclick="submitSingle()">
             <span id="su-btn-lbl">Save Status</span>
           </button>
@@ -901,6 +906,33 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
           <div class="bar-chart" id="sv-bar-chart"></div>
         </div>
 
+        <!-- Custom-period dispensing report -->
+        <div class="card" id="sv-report-card">
+          <div class="card-title" data-i18n="sv_report">📆 Dispensing Report</div>
+          <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px" data-i18n="sv_report_sub">Pick a period — the report is built from actual dispensing records</div>
+          <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px" id="rp-chips">
+            <button class="cpill" data-rp="3" onclick="runDispenseReport({days:3},this)" data-i18n="rp_3d">Last 3 days</button>
+            <button class="cpill" data-rp="7" onclick="runDispenseReport({days:7},this)" data-i18n="rp_7d">Last 7 days</button>
+            <button class="cpill" data-rp="30" onclick="runDispenseReport({days:30},this)" data-i18n="rp_30d">Last 30 days</button>
+            <button class="cpill" data-rp="month" onclick="runDispenseReportThisMonth(this)" data-i18n="rp_month">This month</button>
+            <button class="cpill" data-rp="custom" onclick="toggleReportCustom(this)" data-i18n="rp_custom">Custom…</button>
+          </div>
+          <div id="rp-custom-wrap" class="hidden" style="margin-bottom:10px">
+            <div class="row2">
+              <div class="field" style="margin-bottom:8px">
+                <label data-i18n="rp_from">From</label>
+                <input type="date" id="rp-from">
+              </div>
+              <div class="field" style="margin-bottom:8px">
+                <label data-i18n="rp_to">To</label>
+                <input type="date" id="rp-to">
+              </div>
+            </div>
+            <button class="btn-add" onclick="runDispenseReportCustom()" data-i18n="rp_run">Run Report</button>
+          </div>
+          <div id="sv-report-content"><div class="empty" style="padding:12px"><p style="font-size:.8rem" data-i18n="rp_idle">Choose a period above to generate a report</p></div></div>
+        </div>
+
         <!-- This Month vs Last Month -->
         <div class="card" id="sv-monthly-card">
           <div class="card-title" data-i18n="sv_month">📅 This Month vs Last Month</div>
@@ -1015,13 +1047,25 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
         <div class="settings-row">
           <div>
             <div class="settings-lbl" data-i18n="set_lead">Supplier Lead Time</div>
-            <div class="settings-desc" data-i18n="set_lead_d">Calendar days from placing an order to receiving stock — drives the Order Now list. Sabhan storage is normally ~2 working days (allow for the Fri–Sat weekend).</div>
+            <div class="settings-desc" data-i18n="set_lead_d">Days of stock remaining at which a product is flagged for ordering — drives the Order Now list and order-by dates.</div>
           </div>
-          <input type="number" class="settings-input" id="set-leadtime" min="1" max="120" value="3">
+          <input type="number" class="settings-input" id="set-leadtime" min="1" max="120" value="30">
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-lbl" data-i18n="set_coverage">Order Coverage Target</div>
+            <div class="settings-desc" data-i18n="set_coverage_d">Days of average use each suggested order quantity should cover (90 ≈ 3 months)</div>
+          </div>
+          <input type="number" class="settings-input" id="set-coverage" min="7" max="365" value="90">
         </div>
         <button class="btn-submit" id="set-btn" onclick="saveSettings()">
           <span id="set-btn-lbl">Save Settings</span>
         </button>
+      </div>
+      <div class="card">
+        <div class="card-title" data-i18n="set_thresholds">📏 Product Thresholds &amp; Pack Sizes</div>
+        <div style="font-size:.75rem;color:var(--text2);margin-bottom:12px;line-height:1.5" data-i18n="set_thresholds_d">Set each product's low-stock threshold and how many units one supplier package contains — used for package-based order suggestions.</div>
+        <button class="btn-submit" style="margin-top:0" onclick="openThresholdEditor()"><span data-i18n="th_open">Open Editor</span></button>
       </div>
       <div class="card">
         <div class="card-title" data-i18n="set_emails">📧 Supervisor Emails</div>
@@ -1051,6 +1095,30 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
         <button class="btn-submit" id="cp-btn" onclick="submitChangePassword()">
           <span id="cp-btn-lbl">Change Password</span>
         </button>
+      </div>
+    </div>
+
+    <!-- ═══ THRESHOLD & PACK-SIZE EDITOR (opened from Settings) ═══ -->
+    <div id="pane-thresholds" class="hidden">
+      <div class="card" style="padding:14px 18px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <button onclick="goTab('settings')" style="font-size:.8125rem;font-weight:700;color:var(--accent);background:none" data-i18n="th_back">← Back to Settings</button>
+          <button class="btn-add" id="th-save-btn" onclick="saveThresholds()" disabled style="opacity:.5"><span id="th-save-lbl" data-i18n="th_save">Save Changes</span></button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" data-i18n="th_title">📏 Thresholds &amp; Pack Sizes</div>
+        <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px;line-height:1.5" data-i18n="th_desc">Min Units: auto-Low below this count. Units/Pkg: bottles or sachets per supplier package (blank = not set).</div>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="th-filter" placeholder="Filter products…" oninput="renderThresholdRows()">
+        </div>
+        <div style="display:flex;gap:8px;padding:6px 2px;font-size:.7rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.04em">
+          <div style="flex:1" data-i18n="th_col_product">Product</div>
+          <div style="width:72px;text-align:center" data-i18n="th_col_min">Min Units</div>
+          <div style="width:72px;text-align:center" data-i18n="th_col_pack">Units/Pkg</div>
+        </div>
+        <div id="th-list"></div>
       </div>
     </div>
 
@@ -1092,7 +1160,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 
 <script>
 // ══ Config ════════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzlpQTivGq1BZ398BlC4zcFnZ0OpgL9ixXZYIGmZCS8ph_7PyIHCzaqGiT3uo4xqNaK/exec'; // ← currently the LIVE pre-Reorder backend. After deploying the new APPSCRIPT.js, paste the NEW /exec URL here.
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweDjJa0mDGB6JZ7hbuuMX3FAKuOtBCjtNxz8HT6slTLLM4cifYAd7F1KGNQZp87HtB/exec'; // LIVE backend deployed 2026-07-12 (staff-accounts/reorder/PWA/Arabic batch). Keep in sync with the deployed page; only change on a new Apps Script deployment.
 // Storage PIN is retired — the storage team now signs in with individual
 // email accounts. The supervisor PIN remains as an emergency break-glass login
 // (must match BREAK_GLASS_SUPERVISOR_PIN in APPSCRIPT.js).
@@ -1182,6 +1250,8 @@ const T = {
   id_from_account:['from your account','من حسابك'],
   id_signin_first:['Sign in to record changes','سجّل الدخول لتسجيل التغييرات'],
   lbl_min_units:['Min Units for Low Stock','الحد الأدنى للمخزون المنخفض'],
+  lbl_pack_units:['Units per Package','عدد الوحدات في العبوة'],
+  min_hint:['{u} units on hand · auto-Low below {m}','{u} وحدة متوفرة · منخفض تلقائياً تحت {m}'],
   save_status:['Save Status','حفظ الحالة'], batches_title:['📦 Batches','📦 الدفعات'],
   btn_add_batch:['+ Add Batch','+ إضافة دفعة'], lbl_expiry:['Expiry Date ','تاريخ الانتهاء '],
   ph_mmyy:['MM/YY e.g. 07/26','شهر/سنة مثل 07/26'], lbl_qty:['Quantity ','الكمية '],
@@ -1196,6 +1266,14 @@ const T = {
   sv_lifeline:['🆘 Lifeline at Risk','🆘 منتجات حيوية في خطر'],
   sv_lifeline_sub:['Critical products that are out, low, or running down','منتجات حيوية نافدة أو منخفضة أو تتناقص'],
   sv_top:['🔝 Top Dispensed This Week','🔝 الأكثر صرفاً هذا الأسبوع'],
+  sv_report:['📆 Dispensing Report','📆 تقرير الصرف'],
+  sv_report_sub:['Pick a period — the report is built from actual dispensing records','اختر فترة — يُبنى التقرير من سجلات الصرف الفعلية'],
+  rp_3d:['Last 3 days','آخر ٣ أيام'], rp_7d:['Last 7 days','آخر ٧ أيام'], rp_30d:['Last 30 days','آخر ٣٠ يوماً'],
+  rp_month:['This month','هذا الشهر'], rp_custom:['Custom…','فترة مخصصة…'],
+  rp_from:['From','من'], rp_to:['To','إلى'], rp_run:['Run Report','إنشاء التقرير'],
+  rp_idle:['Choose a period above to generate a report','اختر فترة أعلاه لإنشاء التقرير'],
+  rp_empty:['No dispensing recorded in this period','لا يوجد صرف مسجل في هذه الفترة'],
+  t_rp_range:['Pick both dates (From ≤ To)','اختر التاريخين (من ≤ إلى)'],
   sv_month:['📅 This Month vs Last Month','📅 هذا الشهر مقابل الماضي'],
   sv_needed:['🎯 Most Needed Products','🎯 المنتجات الأكثر احتياجاً'],
   sv_needed_sub:['Ranked by average weekly consumption, last 8 weeks','مرتبة حسب متوسط الاستهلاك الأسبوعي لآخر ٨ أسابيع'],
@@ -1229,7 +1307,19 @@ const T = {
   set_guard:['Outpatient Expiry Guard Window','نافذة تحذير صلاحية العيادات الخارجية'],
   set_guard_d:['Warn storage when dispensing a batch expiring within this many days','تحذير المخزن عند صرف دفعة تنتهي خلال هذا العدد من الأيام'],
   set_lead:['Supplier Lead Time','مدة التوريد'],
-  set_lead_d:['Calendar days from placing an order to receiving stock — drives the Order Now list. Sabhan storage is normally ~2 working days (allow for the Fri–Sat weekend).','عدد الأيام من الطلب حتى الاستلام — تحدد قائمة «اطلب الآن». مخازن صبحان عادة يومي عمل تقريباً (مع مراعاة عطلة الجمعة والسبت).'],
+  set_lead_d:['Days of stock remaining at which a product is flagged for ordering — drives the Order Now list and order-by dates.','عدد أيام المخزون المتبقية التي يُنبَّه عندها لطلب المنتج — تحدد قائمة «اطلب الآن» وتواريخ الطلب.'],
+  set_coverage:['Order Coverage Target','هدف تغطية الطلب'],
+  set_coverage_d:['Days of average use each suggested order quantity should cover (90 ≈ 3 months)','عدد أيام الاستهلاك المتوسط التي تغطيها كمية الطلب المقترحة (٩٠ ≈ ٣ أشهر)'],
+  set_thresholds:['📏 Product Thresholds & Pack Sizes','📏 حدود المنتجات وأحجام العبوات'],
+  set_thresholds_d:['Set each product\'s low-stock threshold and how many units one supplier package contains — used for package-based order suggestions.','حدّد لكل منتج حد المخزون المنخفض وعدد الوحدات في عبوة المورّد — تُستخدم لاقتراحات الطلب بالعبوات.'],
+  th_open:['Open Editor','فتح المحرر'],
+  th_back:['← Back to Settings','← عودة إلى الإعدادات'],
+  th_save:['Save Changes','حفظ التغييرات'],
+  th_title:['📏 Thresholds & Pack Sizes','📏 الحدود وأحجام العبوات'],
+  th_desc:['Min Units: auto-Low below this count. Units/Pkg: bottles or sachets per supplier package (blank = not set).','الحد الأدنى: منخفض تلقائياً تحت هذا العدد. وحدات/عبوة: عدد القوارير أو الأكياس في عبوة المورّد (فارغ = غير محدد).'],
+  th_col_product:['Product','المنتج'], th_col_min:['Min Units','الحد الأدنى'], th_col_pack:['Units/Pkg','وحدات/عبوة'],
+  t_th_saved:['✅ Saved {n} product(s)','✅ تم حفظ {n} منتج'],
+  t_th_fail:['⚠️ {ok} saved, {fail} failed','⚠️ حُفظ {ok}، فشل {fail}'],
   save_settings:['Save Settings','حفظ الإعدادات'],
   set_emails:['📧 Supervisor Emails','📧 بريد المشرفين'],
   set_emails_d:['Read-only — managed directly in the Settings sheet / Apps Script, not editable from this app.','للقراءة فقط — تُدار مباشرة من جدول الإعدادات / Apps Script.'],
@@ -1320,6 +1410,12 @@ function toggleLang(){
     renderIdentityLines(); applyUser(); renderLastSynced();
     if (S.staff.length) renderStaff();
     if (S.offline) setOfflineBanner(true);
+    // on-hand hint in the Update pane is rendered per-selection — refresh it
+    if (S.suProduct) {
+      const ex = S.products.find(p=>p.id===S.suProduct.id);
+      const oh = ex?.batchSummary ? ex.batchSummary.totalValid : null;
+      el('su-min-hint').textContent = oh!==null ? tf('min_hint',{u:oh, m:ex?.minUnits||S.settings.defaultMinUnits||5}) : '';
+    }
   } catch(e) {}
 }
 // Localised status labels without touching any renderer: STATUS_CFG.label
@@ -1406,7 +1502,7 @@ const S = {
   staff:     [],
   products:  [],
   expiring:  [],
-  settings:  { expiryWarningDays: 30, defaultMinUnits: 5, outpatientGuardDays: 30, leadTimeDays: 3 },
+  settings:  { expiryWarningDays: 30, defaultMinUnits: 5, outpatientGuardDays: 30, leadTimeDays: 30, orderCoverageDays: 90 },
   activeTab: 'products',
   prodCat:   'All',
   bulkCat:   'All',
@@ -1444,7 +1540,7 @@ window.onload = async () => {
       api({action:'getExpiring'}),
     ]);
     S.products = pd.products || [];
-    S.settings = { expiryWarningDays: sd.expiryWarningDays||30, defaultMinUnits: sd.defaultMinUnits||5, outpatientGuardDays: sd.outpatientGuardDays||30, leadTimeDays: sd.leadTimeDays||3 };
+    S.settings = { expiryWarningDays: sd.expiryWarningDays||30, defaultMinUnits: sd.defaultMinUnits||5, outpatientGuardDays: sd.outpatientGuardDays||30, leadTimeDays: sd.leadTimeDays||30, orderCoverageDays: sd.orderCoverageDays||90 };
     S.expiring  = ed.expiring || [];
     S.lastSynced = Date.now();
     saveBootCache();
@@ -1467,6 +1563,7 @@ async function finishBoot(offline) {
   el('set-min').value  = S.settings.defaultMinUnits;
   el('set-outguard').value = S.settings.outpatientGuardDays;
   el('set-leadtime').value = S.settings.leadTimeDays;
+  el('set-coverage').value = S.settings.orderCoverageDays || 90;
   renderProducts();
   renderBulkList();
   renderExpiring();
@@ -2279,6 +2376,10 @@ function selectSuProduct(id) {
   const existing=S.products.find(p=>p.id===id);
   S.suStatus=existing?(existing.status||''):null;
   el('su-min').value=existing?.minUnits||S.settings.defaultMinUnits||5;
+  el('su-pack').value=existing?.unitsPerPackage||'';
+  const onHand=existing?.batchSummary?existing.batchSummary.totalValid:null;
+  el('su-min-hint').textContent = onHand!==null
+    ? tf('min_hint',{u:onHand, m:existing?.minUnits||S.settings.defaultMinUnits||5}) : '';
   S.suDispenseFirst = !!existing?.dispenseFirst;
   S.suInpatientOnly = !!existing?.inpatientOnly;
   S.suLifeline = !!existing?.lifeline;
@@ -2305,6 +2406,8 @@ function clearSu() {
   S.suProduct=null;S.suStatus=null;S.suBatches=[];S.suDispenseFirst=false;S.suInpatientOnly=false;S.suLifeline=false;
   hide('su-chip');hide('su-status-card');hide('su-batch-card');
   el('su-search').value='';clearSuHighlight();
+  if(el('su-pack'))el('su-pack').value='';
+  if(el('su-min-hint'))el('su-min-hint').textContent='';
   el('su-df-switch')?.classList.remove('on');
   el('su-io-switch')?.classList.remove('on');
   el('su-ll-switch')?.classList.remove('on');
@@ -2329,12 +2432,13 @@ async function submitSingle() {
   const note=el('su-note').value.trim();
   const date=S.suStatus==='coming'?el('su-date').value:'';
   const minU=parseInt(el('su-min').value)||S.settings.defaultMinUnits||5;
+  const pack=parseInt(el('su-pack').value)||0; // 0 clears the pack size on the backend
   const btn=el('su-btn'),lbl=el('su-btn-lbl');
   btn.disabled=true;lbl.innerHTML='<span class="spinner-sm"></span>Saving…';
   try {
-    await api({action:'update',id:S.suProduct.id,status:S.suStatus,note:encodeURIComponent(note),expectedDate:date,updatedBy:encodeURIComponent(by),minUnits:minU,dispenseFirst:S.suDispenseFirst,inpatientOnly:S.suInpatientOnly,lifeline:S.suLifeline});
+    await api({action:'update',id:S.suProduct.id,status:S.suStatus,note:encodeURIComponent(note),expectedDate:date,updatedBy:encodeURIComponent(by),minUnits:minU,unitsPerPackage:pack,dispenseFirst:S.suDispenseFirst,inpatientOnly:S.suInpatientOnly,lifeline:S.suLifeline});
     const p=S.products.find(x=>x.id===S.suProduct.id);
-    if(p){p.status=S.suStatus;p.note=note;p.expectedDate=date;p.minUnits=minU;p.dispenseFirst=S.suDispenseFirst;p.inpatientOnly=S.suInpatientOnly;p.lifeline=S.suLifeline;}
+    if(p){p.status=S.suStatus;p.note=note;p.expectedDate=date;p.minUnits=minU;p.unitsPerPackage=pack>0?pack:null;p.dispenseFirst=S.suDispenseFirst;p.inpatientOnly=S.suInpatientOnly;p.lifeline=S.suLifeline;}
     toast(t('t_status_saved'),'ok');
     clearSu();el('su-note').value='';
     renderProducts();
@@ -2732,12 +2836,13 @@ async function saveSettings() {
   const days=parseInt(el('set-days').value)||30;
   const minU=parseInt(el('set-min').value)||5;
   const guardDays=parseInt(el('set-outguard').value)||30;
-  const leadDays=parseInt(el('set-leadtime').value)||3;
+  const leadDays=parseInt(el('set-leadtime').value)||30;
+  const coverage=parseInt(el('set-coverage').value)||90;
   const btn=el('set-btn'),lbl=el('set-btn-lbl');
   btn.disabled=true;lbl.innerHTML='<span class="spinner-sm"></span>Saving…';
   try {
-    await api({action:'saveSettings',expiryWarningDays:days,defaultMinUnits:minU,outpatientGuardDays:guardDays,leadTimeDays:leadDays});
-    S.settings.expiryWarningDays=days;S.settings.defaultMinUnits=minU;S.settings.outpatientGuardDays=guardDays;S.settings.leadTimeDays=leadDays;
+    await api({action:'saveSettings',expiryWarningDays:days,defaultMinUnits:minU,outpatientGuardDays:guardDays,leadTimeDays:leadDays,orderCoverageDays:coverage});
+    S.settings.expiryWarningDays=days;S.settings.defaultMinUnits=minU;S.settings.outpatientGuardDays=guardDays;S.settings.leadTimeDays=leadDays;S.settings.orderCoverageDays=coverage;
     el('dispense-days').textContent=days;
     toast('✅ Settings saved','ok');
   } catch(e){toast(t('t_failed')+e.message,'err');}
@@ -2917,16 +3022,41 @@ const REORDER_REASON_LBL = {
   'lifeline-out': 'Lifeline — no stock on hand'
 };
 
+function fmtShortDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T00:00:00');
+  return isNaN(d) ? iso : d.toLocaleDateString('en-GB', {day:'2-digit', month:'short'});
+}
+
 function reorderRowHTML(it, leadTimeDays, showReason) {
-  const critical = it.units===0 || (it.daysOfStock!==null && it.daysOfStock<=leadTimeDays);
-  const wosCls = critical ? 'urg-critical' : (it.daysOfStock!==null && it.daysOfStock<=leadTimeDays+7) ? 'urg-high' : 'urg-medium';
+  // Urgency from the order-by estimate when the backend provides it;
+  // fall back to the old days-of-stock tiers on an older backend.
+  let wosCls;
+  if (it.orderInDays !== undefined) {
+    wosCls = (it.units===0 || it.orderInDays===0) ? 'urg-critical' : it.orderInDays<=7 ? 'urg-high' : 'urg-medium';
+  } else {
+    const critical = it.units===0 || (it.daysOfStock!==null && it.daysOfStock<=leadTimeDays);
+    wosCls = critical ? 'urg-critical' : (it.daysOfStock!==null && it.daysOfStock<=leadTimeDays+7) ? 'urg-high' : 'urg-medium';
+  }
   const wosLbl = it.weeksOfStock===null ? (it.units===0 ? 'no stock' : 'no usage data') : `${it.weeksOfStock} wk left`;
   const reason = showReason && REORDER_REASON_LBL[it.reason] ? `<div style="font-size:.6875rem;color:var(--text3);width:100%">${REORDER_REASON_LBL[it.reason]}</div>` : '';
+  let orderLine = '';
+  if (it.orderInDays !== undefined && it.orderInDays !== null) {
+    orderLine = it.orderInDays === 0
+      ? `<div style="font-size:.6875rem;color:var(--red-t);font-weight:700;width:100%">🕐 Order now — overdue</div>`
+      : `<div style="font-size:.6875rem;color:var(--text2);width:100%">🕐 Order by ${fmtShortDate(it.orderByDate)} (in ${it.orderInDays}d)</div>`;
+  }
+  let qtyLine = '';
+  if (it.suggestedUnits > 0) {
+    qtyLine = it.suggestedPackages != null
+      ? `<div style="font-size:.6875rem;color:var(--text2);width:100%">📦 Order ~${it.suggestedPackages} pkg${it.suggestedPackages>1?'s':''} (${it.unitsPerPackage} units/pkg)</div>`
+      : `<div style="font-size:.6875rem;color:var(--text3);width:100%">📦 Order ~${it.suggestedUnits} units · pack size not set</div>`;
+  }
   return `<div class="alert-item">
     <div class="alert-name" style="flex-basis:100%">${it.lifeline?'<span class="ll-badge sm">🆘</span> ':''}${it.name}</div>
     <div class="alert-meta" style="flex:1">📦 ${it.units} units · ${it.avgWeekly}/wk</div>
     <span class="urg-badge ${wosCls}">${wosLbl}</span>
-    ${reason}
+    ${orderLine}${qtyLine}${reason}
   </div>`;
 }
 
@@ -2939,11 +3069,20 @@ function renderReorder(d) {
     box.innerHTML = na; lbox.innerHTML = na;
     return;
   }
-  el('sv-reorder-sub').textContent = `Projected to run out within the ${d.leadTimeDays}-day supplier lead time, based on the last 8 weeks of dispensing`;
-  box.innerHTML = d.orderNow.length
+  el('sv-reorder-sub').textContent = d.orderCoverageDays
+    ? `Order when ≤${d.leadTimeDays} days of stock remain · suggested quantities cover ~${d.orderCoverageDays} days of use (last 8 weeks of dispensing)`
+    : `Projected to run out within the ${d.leadTimeDays}-day supplier lead time, based on the last 8 weeks of dispensing`;
+  const comingUp = Array.isArray(d.comingUp) && d.comingUp.length
+    ? `<div style="font-size:.75rem;font-weight:700;color:var(--text2);margin:14px 0 4px">📅 Coming up — order within ${d.upcomingDays} days</div>`
+      + d.comingUp.map(it=>reorderRowHTML(it, d.leadTimeDays, false)).join('')
+    : '';
+  const exportBtn = (d.orderNow.length || comingUp)
+    ? `<button class="export-btn" style="width:100%;margin-top:10px" onclick="exportOrderCSV()"><span>🛒 Export Order List (CSV)</span><span class="arr">↓</span></button>`
+    : '';
+  box.innerHTML = (d.orderNow.length
     ? d.orderNow.map(it=>reorderRowHTML(it, d.leadTimeDays, true)).join('')
-      + `<button class="export-btn" style="width:100%;margin-top:10px" onclick="exportOrderCSV()"><span>🛒 Export Order List (CSV)</span><span class="arr">↓</span></button>`
-    : '<div class="empty" style="padding:16px"><div class="empty-icon">✅</div><p style="font-size:.875rem">Nothing needs ordering right now</p></div>';
+    : '<div class="empty" style="padding:16px"><div class="empty-icon">✅</div><p style="font-size:.875rem">Nothing needs ordering right now</p></div>')
+    + comingUp + exportBtn;
   lbox.innerHTML = d.lifelineAtRisk.length
     ? d.lifelineAtRisk.map(it=>reorderRowHTML(it, d.leadTimeDays, false)).join('')
     : '<div class="empty" style="padding:16px"><div class="empty-icon">✅</div><p style="font-size:.875rem">All lifeline products are safe</p></div>';
@@ -2951,12 +3090,18 @@ function renderReorder(d) {
 
 function exportOrderCSV() {
   const d = S.svReorder;
-  if (!d || !d.orderNow || !d.orderNow.length) { toast('Nothing to export','warn'); return; }
-  const rows = [['ID','Product','Category','Lifeline','Status','Units Left','Avg Weekly Use','Weeks of Stock','Reason']];
-  d.orderNow.forEach(it=>rows.push([
+  const hasComing = d && Array.isArray(d.comingUp) && d.comingUp.length;
+  if (!d || ((!d.orderNow || !d.orderNow.length) && !hasComing)) { toast('Nothing to export','warn'); return; }
+  const rows = [['ID','Product','Category','Lifeline','Status','Units Left','Avg Weekly Use','Weeks of Stock','Order By','Suggested Units','Units/Package','Suggested Packages','Section','Reason']];
+  const push = (it, section) => rows.push([
     it.id, it.name, it.category, it.lifeline?'Yes':'No', STATUS_CFG[it.status||''].label,
-    it.units, it.avgWeekly, it.weeksOfStock==null?'':it.weeksOfStock, REORDER_REASON_LBL[it.reason]||''
-  ]));
+    it.units, it.avgWeekly, it.weeksOfStock==null?'':it.weeksOfStock,
+    it.orderByDate||'', it.suggestedUnits!=null?it.suggestedUnits:'',
+    it.unitsPerPackage!=null?it.unitsPerPackage:'', it.suggestedPackages!=null?it.suggestedPackages:'',
+    section, REORDER_REASON_LBL[it.reason]||''
+  ]);
+  (d.orderNow||[]).forEach(it=>push(it,'Order now'));
+  (d.comingUp||[]).forEach(it=>push(it,'Coming up'));
   downloadCSV(`order_list_${new Date().toISOString().slice(0,10)}.csv`, rows);
   toast('✅ Order list downloaded','ok');
 }
@@ -3032,6 +3177,139 @@ async function exportWasteCSV() {
     downloadCSV(`waste_log_${new Date().toISOString().slice(0,10)}.csv`, rows);
     toast('✅ Waste log CSV downloaded','ok');
   } catch(e) { toast(t('t_failed')+e.message,'err'); }
+}
+
+// ══ Custom-period dispensing report ═══════════════════════════
+function localISODate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function setReportChip(btn) {
+  qsa('#rp-chips .cpill').forEach(b=>b.classList.remove('on'));
+  btn?.classList.add('on');
+}
+function toggleReportCustom(btn) {
+  setReportChip(btn);
+  el('rp-custom-wrap').classList.toggle('hidden');
+}
+async function runDispenseReport(params, btn) {
+  if (btn) { setReportChip(btn); el('rp-custom-wrap').classList.add('hidden'); }
+  const box = el('sv-report-content');
+  box.innerHTML = '<div class="empty" style="padding:12px"><div class="spinner"></div></div>';
+  try {
+    const d = await api({action:'getDispenseReport', ...params});
+    S.svReport = d;
+    renderDispenseReport(d);
+  } catch(e) {
+    S.svReport = null;
+    box.innerHTML = /unknown action/i.test(e.message||'')
+      ? '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">Not available yet — redeploy backend</p></div>'
+      : '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">⚠️ '+e.message+'</p></div>';
+  }
+}
+function runDispenseReportThisMonth(btn) {
+  const now = new Date();
+  const from = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
+  runDispenseReport({from, to: localISODate(now)}, btn);
+}
+function runDispenseReportCustom() {
+  const from = el('rp-from').value, to = el('rp-to').value;
+  if (!from || !to || from > to) { toast(t('t_rp_range'),'err'); return; }
+  runDispenseReport({from, to});
+}
+function renderDispenseReport(d) {
+  const box = el('sv-report-content');
+  if (!d.products || !d.products.length) {
+    box.innerHTML = `<div class="empty" style="padding:12px"><p style="font-size:.8125rem">${t('rp_empty')}</p></div>`;
+    return;
+  }
+  const max = d.products[0].total || 1;
+  box.innerHTML = `
+    <div style="font-size:.8rem;font-weight:700;color:var(--text2);margin-bottom:8px">${d.from} → ${d.to} (${d.days}d) · <span style="color:var(--text)">${d.grandTotal}</span> units total</div>`
+    + d.products.map((p,i)=>`
+    <div class="mn-row">
+      <div class="mn-rank">${i+1}</div>
+      <div class="mn-info">
+        <div class="mn-name">${p.name}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.max(4,Math.round(p.total/max*100))}%"></div></div>
+      </div>
+      <div class="mn-stats"><div class="mn-val">${p.total}</div></div>
+    </div>`).join('')
+    + `<button class="export-btn" style="width:100%;margin-top:10px" onclick="exportDispenseReportCSV()"><span>📆 Export Report (CSV)</span><span class="arr">↓</span></button>`;
+}
+function exportDispenseReportCSV() {
+  const d = S.svReport;
+  if (!d || !d.products || !d.products.length) { toast('Nothing to export','warn'); return; }
+  const rows = [['Product','Units Dispensed','From','To']];
+  d.products.forEach(p=>rows.push([p.name, p.total, d.from, d.to]));
+  rows.push(['TOTAL', d.grandTotal, d.from, d.to]);
+  downloadCSV(`dispensing_report_${d.from}_${d.to}.csv`, rows);
+  toast('✅ Report CSV downloaded','ok');
+}
+
+// ══ Threshold & pack-size editor (opened from Settings) ════════
+const TH = { dirty: new Set(), edits: {} };
+function openThresholdEditor() {
+  const by = currentActorName();
+  if (!by) { toast(t('t_signin_first'),'err'); toggleMode(); return; }
+  TH.dirty.clear(); TH.edits = {};
+  el('th-filter').value = '';
+  goTab('thresholds');
+  renderThresholdRows();
+  updateThSaveBtn();
+}
+function renderThresholdRows() {
+  const q = (el('th-filter').value||'').trim().toLowerCase();
+  const list = S.products.filter(p=>!q || p.name.toLowerCase().includes(q));
+  // Unsaved edits live in TH.edits so filtering (which re-renders) keeps them.
+  el('th-list').innerHTML = list.map(p=>{
+    const ed = TH.edits[p.id];
+    const minV = ed ? ed.min : (p.minUnits ?? '');
+    const packV = ed ? ed.pack : (p.unitsPerPackage ?? '');
+    return `<div style="display:flex;gap:8px;align-items:center;padding:7px 2px;border-bottom:1px solid var(--border)">
+      <div style="flex:1;font-size:.8125rem;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</div>
+      <input type="number" min="0" inputmode="numeric" id="th-min-${p.id}" value="${minV}" oninput="thMarkDirty('${p.id}')" style="width:72px;text-align:center;padding:7px 4px">
+      <input type="number" min="0" inputmode="numeric" id="th-pack-${p.id}" value="${packV}" placeholder="—" oninput="thMarkDirty('${p.id}')" style="width:72px;text-align:center;padding:7px 4px">
+    </div>`;
+  }).join('') || '<div class="empty" style="padding:16px"><p style="font-size:.8125rem">No products match</p></div>';
+}
+function thMarkDirty(id) {
+  TH.dirty.add(id);
+  TH.edits[id] = { min: el('th-min-'+id).value, pack: el('th-pack-'+id).value };
+  updateThSaveBtn();
+}
+function updateThSaveBtn() {
+  const btn = el('th-save-btn');
+  const n = TH.dirty.size;
+  btn.disabled = n===0;
+  btn.style.opacity = n===0 ? .5 : 1;
+  el('th-save-lbl').textContent = n ? `${t('th_save')} (${n})` : t('th_save');
+}
+async function saveThresholds() {
+  const by = currentActorName();
+  if (!by) { toast(t('t_signin_first'),'err'); toggleMode(); return; }
+  const ids = [...TH.dirty];
+  if (!ids.length) return;
+  const btn = el('th-save-btn'), lbl = el('th-save-lbl');
+  btn.disabled = true;
+  let ok = 0, fail = 0;
+  const BATCH = 5;
+  for (let i = 0; i < ids.length; i += BATCH) {
+    const chunk = ids.slice(i, i+BATCH);
+    lbl.innerHTML = `<span class="spinner-sm"></span>${Math.min(i+BATCH, ids.length)}/${ids.length}…`;
+    const res = await Promise.allSettled(chunk.map(id=>{
+      const ed = TH.edits[id];
+      const minU = parseInt(ed.min)||S.settings.defaultMinUnits||5;
+      const pack = parseInt(ed.pack)||0; // 0 clears
+      return api({action:'update', id, minUnits:minU, unitsPerPackage:pack, updatedBy:encodeURIComponent(by)})
+        .then(()=>{ const p=S.products.find(x=>x.id===id); if(p){p.minUnits=minU;p.unitsPerPackage=pack>0?pack:null;} });
+    }));
+    res.forEach(r=>{ r.status==='fulfilled' ? ok++ : fail++; });
+  }
+  TH.dirty.clear(); TH.edits = {};
+  if (fail===0) toast(tf('t_th_saved',{n:ok}),'ok');
+  else toast(tf('t_th_fail',{ok, fail}),'warn');
+  renderThresholdRows();
+  updateThSaveBtn();
 }
 
 function shortDate(s) { const parts=(s||'').split(' '); return parts.slice(0,2).join(' '); }
