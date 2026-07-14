@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -236,6 +235,14 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 .sbtn{padding:13px 8px;border-radius:var(--rs);font-size:.8125rem;font-weight:700;border:1.5px solid;text-align:center;background:none;transition:all .15s;line-height:1.3}
 .sbtn:active{transform:scale(.97)}
 .sbtn.picked{box-shadow:0 0 0 2px currentColor,0 0 0 4px rgba(0,0,0,.3)}
+
+/* Clinical calculators result card */
+.calc-result{margin-top:14px;padding:14px;border-radius:var(--rs);background:var(--surface2);border:1px solid var(--border2)}
+.calc-result-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0}
+.calc-result-row:not(:last-child){border-bottom:1px solid var(--border)}
+.calc-result-lbl{font-size:.8125rem;color:var(--text2)}
+.calc-result-val{font-size:1.0625rem;font-weight:800;color:var(--accent)}
+.calc-result-note{font-size:.75rem;color:var(--amber-t);margin-top:8px;line-height:1.5}
 .sb-available  {border-color:rgba(34,197,94,.35);  color:var(--green-t);background:var(--green-bg)}
 .sb-low        {border-color:rgba(245,158,11,.35); color:var(--amber-t);background:var(--amber-bg)}
 .sb-coming     {border-color:rgba(63,169,220,.35); color:var(--blue-t); background:var(--blue-bg)}
@@ -342,6 +349,9 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 .staff-person{margin-bottom:14px}
 .staff-person:last-child{margin-bottom:0}
 .staff-name-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.staff-chevron{font-size:.75rem;color:var(--text2);transition:transform .15s;flex-shrink:0}
+.staff-chevron.open{transform:rotate(180deg)}
+.staff-changes-wrap{margin-left:38px}
 .staff-avatar{width:30px;height:30px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:.8125rem;font-weight:800;color:#fff;flex-shrink:0}
 .staff-fullname{font-size:.875rem;font-weight:700}
 .staff-count{font-size:.75rem;color:var(--text2)}
@@ -701,6 +711,154 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
         </div>
         <div class="cats" id="prod-cats"></div>
         <div id="prod-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-title" data-i18n="calc_entry_title">🧮 Clinical Calculators</div>
+        <div style="font-size:.75rem;color:var(--text2);margin-bottom:12px;line-height:1.5" data-i18n="calc_entry_desc">Tube-feeding energy requirement, quick per-kg estimate, and feeding rate</div>
+        <button class="btn-submit" style="margin-top:0" onclick="goTab('calculators')"><span data-i18n="calc_open_btn">Open Calculators</span></button>
+      </div>
+    </div>
+
+    <!-- ═══ CLINICAL CALCULATORS (secondary page, reached from Products) ═══ -->
+    <div id="pane-calculators" class="hidden">
+      <div class="card" style="padding:14px 18px;margin-bottom:14px">
+        <button onclick="goTab('products')" style="font-size:.8125rem;font-weight:700;color:var(--accent);background:none" data-i18n="calc_back">← Back to Products</button>
+      </div>
+
+      <!-- 1. Quick Method -->
+      <div class="card">
+        <div class="card-title" data-i18n="calc_quick_title">1. ⚡ Quick Method</div>
+        <div style="font-size:.75rem;color:var(--text2);margin-bottom:12px;line-height:1.5" data-i18n="calc_quick_desc">Bedside per-kg estimate — independent of the detailed calculation below</div>
+        <div class="field">
+          <label data-i18n="calc_lbl_weight">Weight (kg)</label>
+          <input type="number" id="qm-weight" min="0" placeholder="e.g. 70" oninput="calcQuickRun()">
+        </div>
+        <div class="row2">
+          <div class="field" style="margin-bottom:0">
+            <label data-i18n="calc_lbl_energy_range">Energy (kcal/kg)</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="number" id="qm-e-min" value="25" oninput="calcQuickRun()" style="width:100%">
+              <span style="color:var(--text2)">–</span>
+              <input type="number" id="qm-e-max" value="30" oninput="calcQuickRun()" style="width:100%">
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label data-i18n="calc_lbl_protein_range">Protein (g/kg)</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="number" id="qm-p-min" value="1.2" step="0.1" oninput="calcQuickRun()" style="width:100%">
+              <span style="color:var(--text2)">–</span>
+              <input type="number" id="qm-p-max" value="1.5" step="0.1" oninput="calcQuickRun()" style="width:100%">
+            </div>
+          </div>
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label data-i18n="calc_lbl_fluid_range">Fluid (mL/kg)</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="number" id="qm-f-min" value="25" oninput="calcQuickRun()" style="width:100%">
+            <span style="color:var(--text2)">–</span>
+            <input type="number" id="qm-f-max" value="35" oninput="calcQuickRun()" style="width:100%">
+          </div>
+        </div>
+        <div id="qm-result" class="calc-result hidden"></div>
+      </div>
+
+      <!-- 2. Energy Requirement -->
+      <div class="card">
+        <div class="card-title" data-i18n="calc_energy_title">2. 🔥 Energy Requirement</div>
+        <div style="font-size:.75rem;color:var(--text2);margin-bottom:12px;line-height:1.5" data-i18n="calc_energy_desc">Mifflin-St Jeor resting energy, adjusted for obesity and clinical stress</div>
+        <div class="row2">
+          <div class="field" style="margin-bottom:0">
+            <label data-i18n="calc_lbl_gender">Gender</label>
+            <div style="display:flex;gap:8px">
+              <button class="sbtn sb-available picked" id="ce-g-male" onclick="calcSetGender('ce','male')" style="flex:1" data-i18n="calc_male">Male</button>
+              <button class="sbtn sb-unavailable" id="ce-g-female" onclick="calcSetGender('ce','female')" style="flex:1" data-i18n="calc_female">Female</button>
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label data-i18n="lbl_age">Age (years)</label>
+            <input type="number" id="ce-age" min="0" placeholder="e.g. 55" oninput="calcEnergyRun()">
+          </div>
+        </div>
+        <div class="row2" style="margin-top:12px">
+          <div class="field" style="margin-bottom:0">
+            <label data-i18n="calc_lbl_weight">Weight (kg)</label>
+            <input type="number" id="ce-weight" min="0" placeholder="e.g. 70" oninput="calcEnergyRun()">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label data-i18n="calc_lbl_height">Height (cm)</label>
+            <input type="number" id="ce-height" min="0" placeholder="e.g. 170" oninput="calcEnergyRun()">
+          </div>
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label data-i18n="calc_lbl_stress">Clinical / Stress Factor</label>
+          <select id="ce-stress" onchange="calcEnergyRun()">
+            <option value="1.0" data-i18n="calc_stress_none">None / Maintenance (×1.0)</option>
+            <option value="1.1" data-i18n="calc_stress_minorsurg">Minor Surgery (×1.1)</option>
+            <option value="1.2" data-i18n="calc_stress_majorsurg">Major Surgery (×1.2)</option>
+            <option value="1.2" data-i18n="calc_stress_skeletal">Skeletal Trauma (×1.2)</option>
+            <option value="1.35" data-i18n="calc_stress_blunt">Blunt Trauma (×1.35)</option>
+            <option value="1.4" data-i18n="calc_stress_headinjury">Closed Head Injury (×1.4)</option>
+            <option value="1.2" data-i18n="calc_stress_mildinf">Mild Infection (×1.2)</option>
+            <option value="1.4" data-i18n="calc_stress_modinf">Moderate Infection (×1.4)</option>
+            <option value="1.8" data-i18n="calc_stress_severeinf">Severe Infection (×1.8)</option>
+            <option value="0.85" data-i18n="calc_stress_starvation">Starvation (×0.85)</option>
+            <option value="1.5" data-i18n="calc_stress_burn20">Burns &lt;20% TBSA (×1.5)</option>
+            <option value="1.8" data-i18n="calc_stress_burn40">Burns 20–40% TBSA (×1.8)</option>
+            <option value="2.0" data-i18n="calc_stress_burn40p">Burns &gt;40% TBSA (×2.0)</option>
+          </select>
+        </div>
+        <div class="as-toggle-row" style="margin-top:12px" onclick="calcToggleAdjAuto()">
+          <span class="as-toggle-lbl" data-i18n="calc_adjauto_toggle">🤖 Auto-Detect Obesity Adjustment (BMI ≥ 30)</span>
+          <span class="as-switch on" id="ce-adjauto-switch"></span>
+        </div>
+        <div class="io-toggle-row hidden" id="ce-adjmanual-row" onclick="calcToggleAdjManual()">
+          <span class="io-toggle-lbl" data-i18n="calc_adjmanual_toggle">Use Adjusted Body Weight</span>
+          <span class="io-switch" id="ce-adjmanual-switch"></span>
+        </div>
+        <div id="ce-result" class="calc-result hidden"></div>
+      </div>
+
+      <!-- 3. Propofol Calories -->
+      <div class="card">
+        <div class="card-title" data-i18n="calc_propofol_title">3. 💉 Propofol Calories</div>
+        <div style="font-size:.75rem;color:var(--text2);margin-bottom:12px;line-height:1.5" data-i18n="calc_propofol_desc">Propofol's lipid-emulsion vehicle contributes calories that should be subtracted from the nutrition energy target</div>
+        <div class="row2">
+          <div class="field" style="margin-bottom:0">
+            <label data-i18n="calc_lbl_infusion_rate">Infusion Rate (mL/hr)</label>
+            <input type="number" id="pf-rate" min="0" placeholder="e.g. 10" oninput="calcPropofolRun()">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label data-i18n="calc_lbl_hours">Feeding Duration (hours/day)</label>
+            <input type="number" id="pf-hours" min="1" max="24" value="24" oninput="calcPropofolRun()">
+          </div>
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label data-i18n="calc_lbl_propofol_density">Propofol Calorie Density (kcal/mL)</label>
+          <input type="number" id="pf-density" min="0" step="0.01" value="1.1" oninput="calcPropofolRun()">
+        </div>
+        <div id="pf-result" class="calc-result hidden"></div>
+      </div>
+
+      <!-- 4. Tube-Feeding Rate -->
+      <div class="card">
+        <div class="card-title" data-i18n="calc_rate_title">4. 💧 Tube-Feeding Rate</div>
+        <div style="font-size:.75rem;color:var(--text2);margin-bottom:12px;line-height:1.5" data-i18n="calc_rate_desc">Daily volume and hourly infusion rate from an energy target and formula density</div>
+        <div class="field">
+          <label data-i18n="calc_lbl_target">Daily Energy Target (kcal/day)</label>
+          <input type="number" id="fr-kcal" min="0" placeholder="e.g. 1800" oninput="calcFeedingRun(true)">
+          <div id="fr-kcal-hint" class="settings-desc"></div>
+        </div>
+        <div class="row2">
+          <div class="field" style="margin-bottom:0">
+            <label data-i18n="calc_lbl_density">Formula Density (kcal/mL)</label>
+            <input type="number" id="fr-density" min="0" step="0.01" placeholder="e.g. 1.2" oninput="calcFeedingRun(true)">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label data-i18n="calc_lbl_hours">Feeding Duration (hours/day)</label>
+            <input type="number" id="fr-hours" min="1" max="24" value="24" oninput="calcFeedingRun(true)">
+          </div>
+        </div>
+        <div id="fr-result" class="calc-result hidden"></div>
       </div>
     </div>
 
@@ -1183,7 +1341,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 
 <script>
 // ══ Config ════════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbDcMR1YZKW9KsJqHwYSUjNEJnttD9ohRmDrvBQG9u_1c4BQaCMxTzDfnvEPRld3y6/exec'; // LIVE backend deployed 2026-07-14 (reorder-estimation/packages/custom-reports batch). Keep in sync with the deployed page; only change on a new Apps Script deployment.
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7LJI1wT-b3VUeH9etvgas60cAZxTH2idX8M0P8Dckbzl15-eRpRIKW-caYGcCA5f4/exec'; // LIVE backend deployed 2026-07-14 (reorder-estimation/packages/custom-reports batch). Keep in sync with the deployed page; only change on a new Apps Script deployment.
 // Storage PIN is retired — the storage team now signs in with individual
 // email accounts. The supervisor PIN remains as an emergency break-glass login
 // (must match BREAK_GLASS_SUPERVISOR_PIN in APPSCRIPT.js).
@@ -1357,6 +1515,51 @@ const T = {
   acc_title:['👤 My Account','👤 حسابي'], acc_change:['Change Password','تغيير كلمة المرور'],
   lbl_cur_pw:['Current Password','كلمة المرور الحالية'], lbl_new2:['Confirm New','تأكيد الجديدة'],
   cp_btn:['Change Password','تغيير كلمة المرور'],
+  // clinical calculators pane
+  calc_entry_title:['🧮 Clinical Calculators','🧮 الحاسبات السريرية'],
+  calc_entry_desc:['Tube-feeding energy requirement, quick per-kg estimate, and feeding rate','احتياجات الطاقة للتغذية الأنبوبية، تقدير سريع لكل كيلوغرام، ومعدل التغذية'],
+  calc_open_btn:['Open Calculators','فتح الحاسبات'], calc_back:['← Back to Products','← عودة إلى المنتجات'],
+  calc_energy_title:['2. 🔥 Energy Requirement','2. 🔥 احتياج الطاقة'],
+  calc_adjauto_toggle:['🤖 Auto-Detect Obesity Adjustment (BMI ≥ 30)','🤖 اكتشاف تلقائي لتعديل السمنة (مؤشر كتلة الجسم ≥ ٣٠)'],
+  calc_adjmanual_toggle:['Use Adjusted Body Weight','استخدام الوزن المعدّل'],
+  calc_energy_desc:['Mifflin-St Jeor resting energy, adjusted for obesity and clinical stress','معادلة ميفلين-سانت جيور لطاقة الراحة، معدّلة للسمنة والإجهاد السريري'],
+  calc_lbl_gender:['Gender','الجنس'], calc_male:['Male','ذكر'], calc_female:['Female','أنثى'],
+  lbl_age:['Age (years)','العمر (سنوات)'],
+  calc_lbl_weight:['Weight (kg)','الوزن (كغم)'], calc_lbl_height:['Height (cm)','الطول (سم)'],
+  calc_lbl_stress:['Clinical / Stress Factor','العامل السريري / عامل الإجهاد'],
+  calc_stress_none:['None / Maintenance (×1.0)','لا يوجد / محافظة (×1.0)'],
+  calc_stress_minorsurg:['Minor Surgery (×1.1)','جراحة بسيطة (×1.1)'],
+  calc_stress_majorsurg:['Major Surgery (×1.2)','جراحة كبرى (×1.2)'],
+  calc_stress_skeletal:['Skeletal Trauma (×1.2)','إصابة عظمية (×1.2)'],
+  calc_stress_blunt:['Blunt Trauma (×1.35)','إصابة راضّة (×1.35)'],
+  calc_stress_headinjury:['Closed Head Injury (×1.4)','إصابة رأس مغلقة (×1.4)'],
+  calc_stress_mildinf:['Mild Infection (×1.2)','عدوى خفيفة (×1.2)'],
+  calc_stress_modinf:['Moderate Infection (×1.4)','عدوى متوسطة (×1.4)'],
+  calc_stress_severeinf:['Severe Infection (×1.8)','عدوى شديدة (×1.8)'],
+  calc_stress_starvation:['Starvation (×0.85)','مجاعة (×0.85)'],
+  calc_stress_burn20:['Burns <20% TBSA (×1.5)','حروق أقل من ٢٠٪ من سطح الجسم (×1.5)'],
+  calc_stress_burn40:['Burns 20–40% TBSA (×1.8)','حروق ٢٠-٤٠٪ من سطح الجسم (×1.8)'],
+  calc_stress_burn40p:['Burns >40% TBSA (×2.0)','حروق أكثر من ٤٠٪ من سطح الجسم (×2.0)'],
+  calc_quick_title:['1. ⚡ Quick Method','1. ⚡ الطريقة السريعة'],
+  calc_quick_desc:['Bedside per-kg estimate — independent of the detailed calculation below','تقدير سريع عند السرير لكل كيلوغرام — مستقل عن الحساب التفصيلي أدناه'],
+  calc_lbl_energy_range:['Energy (kcal/kg)','الطاقة (سعرة/كغم)'],
+  calc_lbl_protein_range:['Protein (g/kg)','البروتين (غم/كغم)'],
+  calc_lbl_fluid_range:['Fluid (mL/kg)','السوائل (مل/كغم)'],
+  calc_rate_title:['4. 💧 Tube-Feeding Rate','4. 💧 معدل التغذية الأنبوبية'],
+  calc_rate_desc:['Daily volume and hourly infusion rate from an energy target and formula density','الحجم اليومي ومعدل التسريب بالساعة من هدف الطاقة وكثافة التركيبة'],
+  calc_lbl_target:['Daily Energy Target (kcal/day)','هدف الطاقة اليومي (سعرة/يوم)'],
+  calc_lbl_density:['Formula Density (kcal/mL)','كثافة التركيبة (سعرة/مل)'],
+  calc_lbl_hours:['Feeding Duration (hours/day)','مدة التغذية (ساعات/يوم)'],
+  calc_lbl_infusion_rate:['Infusion Rate (mL/hr)','معدل التسريب (مل/ساعة)'],
+  calc_lbl_propofol_density:['Propofol Calorie Density (kcal/mL)','كثافة سعرات البروبوفول (سعرة/مل)'],
+  calc_propofol_title:['3. 💉 Propofol Calories','3. 💉 سعرات البروبوفول'],
+  calc_propofol_desc:['Propofol\'s lipid-emulsion vehicle contributes calories that should be subtracted from the nutrition energy target','يساهم المحلول الدهني الحامل للبروبوفول بسعرات حرارية يجب طرحها من هدف الطاقة الغذائي'],
+  calc_res_energy:['Energy Requirement','احتياج الطاقة'], calc_res_fluid:['Fluid Requirement','احتياج السوائل'],
+  calc_res_adjnote:['⚠️ BMI ≥ 30 — energy calculated using Adjusted Body Weight ({w} kg) instead of actual weight.','⚠️ مؤشر كتلة الجسم ≥ ٣٠ — تم حساب الطاقة باستخدام الوزن المعدّل ({w} كغم) بدلاً من الوزن الفعلي.'],
+  calc_res_protein:['Protein','البروتين'], calc_res_volume:['Daily Volume','الحجم اليومي'], calc_res_rate:['Infusion Rate','معدل التسريب'],
+  calc_res_propofol:['Propofol Calories','سعرات البروبوفول'],
+  calc_fr_hint_net:['Auto-filled: {e} kcal/day energy requirement − {p} kcal/day propofol','تعبئة تلقائية: {e} سعرة/يوم احتياج الطاقة − {p} سعرة/يوم من البروبوفول'],
+  calc_fr_hint_energy:['Auto-filled from Energy Requirement','تعبئة تلقائية من احتياج الطاقة'],
   // changes pane
   chg_title:['Recent Changes','آخر التغييرات'], ph_staff_filter:['Filter by staff name…','تصفية باسم الموظف…'],
   // offline
@@ -1445,6 +1648,8 @@ function toggleLang(){
     if (S.suProduct) applySuCardState(S.products.find(p=>p.id===S.suProduct.id));
     // bulk panel flag-chip legend/labels are rendered per-selection — refresh if open
     if (S.isBulk) renderBulkList();
+    // calculator result boxes build their own label text via t()/tf() — refresh if visible
+    calcEnergyRun(); calcQuickRun(); calcPropofolRun(); calcFeedingRun(false);
   } catch(e) {}
 }
 // Localised status labels without touching any renderer: STATUS_CFG.label
@@ -2298,6 +2503,162 @@ function goTab(name) {
   if (name==='settings') loadSettingsEmails();
   if (name==='staff') loadStaff();
   if (name==='products') setTimeout(()=>el('prod-search')?.focus(), 150);
+}
+
+// ══ Clinical Calculators (secondary page) ═══════════════════════
+// Standard, published clinical equations (Mifflin-St Jeor, Hamwi IBW,
+// Holliday-Segar fluid) sourced from the cited literature (Mueller's
+// Essential Pocket Guide for Clinical Nutrition 2024; Pai & Paloucek 2000,
+// Ann Pharmacother 34(9):1066) — not derived from any competitor's app.
+const CALC = { ceGender: 'male', ceAdjAuto: true, ceAdjManual: false, lastEnergy: null, lastPropofol: null };
+
+function calcSetGender(prefix, g) {
+  CALC[prefix+'Gender'] = g;
+  el(prefix+'-g-male').classList.toggle('picked', g==='male');
+  el(prefix+'-g-female').classList.toggle('picked', g==='female');
+  if (prefix==='ce') calcEnergyRun();
+}
+
+function calcNum(id) {
+  const v = parseFloat(el(id).value);
+  return isFinite(v) && v > 0 ? v : null;
+}
+
+// Gives dietitians full control over the obesity-adjustment call: by default
+// it auto-detects from BMI≥30, but can be switched to a manual override in
+// either direction (e.g. force actual weight for a high-BMI, low-body-fat
+// patient where Adjusted Body Weight wouldn't be clinically appropriate).
+function calcToggleAdjAuto() {
+  CALC.ceAdjAuto = !CALC.ceAdjAuto;
+  el('ce-adjauto-switch').classList.toggle('on', CALC.ceAdjAuto);
+  el('ce-adjmanual-row').classList.toggle('hidden', CALC.ceAdjAuto);
+  calcEnergyRun();
+}
+function calcToggleAdjManual() {
+  CALC.ceAdjManual = !CALC.ceAdjManual;
+  el('ce-adjmanual-switch').classList.toggle('on', CALC.ceAdjManual);
+  calcEnergyRun();
+}
+
+// Pure calculation — no DOM access, easy to hand-verify. forceAdjusted:
+// null/undefined = auto-detect via BMI≥30; true/false = explicit override.
+function calcEnergyRequirement({gender, weight, height, age, stressFactor, forceAdjusted}) {
+  if (!weight || !height || !age) return null;
+  const bmi = weight / Math.pow(height/100, 2);
+  const useAdjusted = forceAdjusted === undefined || forceAdjusted === null ? bmi >= 30 : forceAdjusted;
+  let usedWeight = weight;
+  if (useAdjusted) {
+    const base = gender==='male' ? 48.1 : 45.5;
+    const factor = gender==='male' ? 1.1 : 0.9;
+    const ibw = base + (height - 152) * factor;
+    usedWeight = ibw + 0.4 * (weight - ibw);
+  }
+  const bmr = 10*usedWeight + 6.25*height - 5*age + (gender==='male' ? 5 : -161);
+  const energy = bmr * stressFactor;
+  return { bmi, adjusted: useAdjusted, usedWeight, energy };
+}
+function calcFluidRequirement(weight) {
+  if (!weight) return null;
+  if (weight <= 10) return 100 * weight;
+  if (weight <= 20) return 1000 + 50 * (weight - 10);
+  return 1500 + 20 * (weight - 20);
+}
+function calcEnergyRun() {
+  const weight = calcNum('ce-weight'), height = calcNum('ce-height'), age = calcNum('ce-age');
+  const stressFactor = parseFloat(el('ce-stress').value) || 1.0;
+  const box = el('ce-result');
+  const forceAdjusted = CALC.ceAdjAuto ? null : CALC.ceAdjManual;
+  const r = calcEnergyRequirement({gender: CALC.ceGender, weight, height, age, stressFactor, forceAdjusted});
+  if (!r) { box.classList.add('hidden'); box.innerHTML=''; CALC.lastEnergy = null; calcUpdateNetTarget(); return; }
+  const fluid = calcFluidRequirement(weight);
+  box.classList.remove('hidden');
+  box.innerHTML = `
+    <div class="calc-result-row"><span class="calc-result-lbl">${t('calc_res_energy')}</span><span class="calc-result-val">${Math.round(r.energy)} kcal/day</span></div>
+    <div class="calc-result-row"><span class="calc-result-lbl">${t('calc_res_fluid')}</span><span class="calc-result-val">${Math.round(fluid)} mL/day</span></div>
+    ${r.adjusted ? `<div class="calc-result-note">${tf('calc_res_adjnote',{w:r.usedWeight.toFixed(1)})}</div>` : ''}
+  `;
+  CALC.lastEnergy = r.energy;
+  calcUpdateNetTarget();
+}
+
+// Propofol's 10% lipid-emulsion vehicle provides standard, published calories
+// (1.1 kcal/mL for the usual 1% formulation) — a well-established ICU/critical-
+// care nutrition consideration, not from any competitor's app.
+function calcPropofolCalories(rate, hours, density) {
+  if (!rate || !hours || !density) return null;
+  return rate * hours * density;
+}
+function calcPropofolRun() {
+  const rate = calcNum('pf-rate'), hours = calcNum('pf-hours'), density = calcNum('pf-density');
+  const box = el('pf-result');
+  const kcal = calcPropofolCalories(rate, hours, density);
+  if (kcal === null) { box.classList.add('hidden'); box.innerHTML=''; CALC.lastPropofol = null; calcUpdateNetTarget(); return; }
+  box.classList.remove('hidden');
+  box.innerHTML = `<div class="calc-result-row"><span class="calc-result-lbl">${t('calc_res_propofol')}</span><span class="calc-result-val">${Math.round(kcal)} kcal/day</span></div>`;
+  CALC.lastPropofol = kcal;
+  calcUpdateNetTarget();
+}
+
+// Feeds calculator 4's target from (Energy Requirement − Propofol calories),
+// unless the dietitian has already typed their own value there — full
+// control means this never silently overrides a manual entry.
+function calcUpdateNetTarget() {
+  const hint = el('fr-kcal-hint');
+  if (CALC.frTouched) { hint.textContent = ''; return; }
+  if (CALC.lastEnergy === null && CALC.lastPropofol === null) { hint.textContent = ''; return; }
+  const net = Math.max(0, Math.round((CALC.lastEnergy||0) - (CALC.lastPropofol||0)));
+  el('fr-kcal').value = net;
+  hint.textContent = CALC.lastPropofol
+    ? tf('calc_fr_hint_net',{e:Math.round(CALC.lastEnergy||0), p:Math.round(CALC.lastPropofol)})
+    : t('calc_fr_hint_energy');
+  calcFeedingRun(false);
+}
+
+function calcQuickMethod(weight, ranges) {
+  if (!weight) return null;
+  const r = (min, max, unit) => ({ min: weight*min, max: weight*max, unit });
+  return {
+    energy: r(ranges.eMin, ranges.eMax, 'kcal/day'),
+    protein: r(ranges.pMin, ranges.pMax, 'g/day'),
+    fluid: r(ranges.fMin, ranges.fMax, 'mL/day')
+  };
+}
+function calcQuickRun() {
+  const weight = calcNum('qm-weight');
+  const box = el('qm-result');
+  const ranges = {
+    eMin: parseFloat(el('qm-e-min').value)||0, eMax: parseFloat(el('qm-e-max').value)||0,
+    pMin: parseFloat(el('qm-p-min').value)||0, pMax: parseFloat(el('qm-p-max').value)||0,
+    fMin: parseFloat(el('qm-f-min').value)||0, fMax: parseFloat(el('qm-f-max').value)||0
+  };
+  const r = calcQuickMethod(weight, ranges);
+  if (!r) { box.classList.add('hidden'); box.innerHTML=''; return; }
+  const fmt = x => Math.round(x*10)/10;
+  box.classList.remove('hidden');
+  box.innerHTML = `
+    <div class="calc-result-row"><span class="calc-result-lbl">${t('calc_res_energy')}</span><span class="calc-result-val">${fmt(r.energy.min)}–${fmt(r.energy.max)} kcal/day</span></div>
+    <div class="calc-result-row"><span class="calc-result-lbl">${t('calc_res_protein')}</span><span class="calc-result-val">${fmt(r.protein.min)}–${fmt(r.protein.max)} g/day</span></div>
+    <div class="calc-result-row"><span class="calc-result-lbl">${t('calc_res_fluid')}</span><span class="calc-result-val">${fmt(r.fluid.min)}–${fmt(r.fluid.max)} mL/day</span></div>
+  `;
+}
+
+function calcFeedingRate({kcalTarget, density, hours}) {
+  if (!kcalTarget || !density || !hours) return null;
+  const volume = kcalTarget / density;
+  const rate = volume / hours;
+  return { volume, rate };
+}
+function calcFeedingRun(userTouched) {
+  if (userTouched) { CALC.frTouched = true; el('fr-kcal-hint').textContent = ''; }
+  const kcalTarget = calcNum('fr-kcal'), density = calcNum('fr-density'), hours = calcNum('fr-hours');
+  const box = el('fr-result');
+  const r = calcFeedingRate({kcalTarget, density, hours});
+  if (!r) { box.classList.add('hidden'); box.innerHTML=''; return; }
+  box.classList.remove('hidden');
+  box.innerHTML = `
+    <div class="calc-result-row"><span class="calc-result-lbl">${t('calc_res_volume')}</span><span class="calc-result-val">${Math.round(r.volume)} mL</span></div>
+    <div class="calc-result-row"><span class="calc-result-lbl">${t('calc_res_rate')}</span><span class="calc-result-val">${Math.round(r.rate*10)/10} mL/hr</span></div>
+  `;
 }
 
 // ══ Staff management (supervisor) ═════════════════════════════
@@ -3434,6 +3795,10 @@ function renderMonthlyComparison(m) {
     <div class="mc-compare"><span class="${arrowCls}">${arrow}</span><span>${changeTxt}</span></div>`;
 }
 
+function toggleStaffPerson(i) {
+  el(`staff-changes-${i}`)?.classList.toggle('hidden');
+  el(`staff-chevron-${i}`)?.classList.toggle('open');
+}
 function renderSupervisorDashboard(d) {
   // Week range
   if (d.weekRange) {
@@ -3539,11 +3904,13 @@ function renderSupervisorDashboard(d) {
   }
   el('sv-expiry-alerts').innerHTML = alertHtml;
 
-  // Staff activity
+  // Staff activity — collapsed to a per-person summary row by default; tapping
+  // a row expands its change list, to avoid the page filling with every
+  // individual change for every staff member at once.
   // Apps Script returns: array of {name, count, changes:[{product, from, to, note, time}]}
   const staffArr = Array.isArray(d.staffActivity) ? d.staffActivity : Object.values(d.staffActivity||{});
   if (staffArr.length) {
-    el('sv-staff-activity').innerHTML = staffArr.map(s => {
+    el('sv-staff-activity').innerHTML = staffArr.map((s,i) => {
       const name = s.name || '—';
       const changes = Array.isArray(s.changes) ? s.changes : [];
       const initials = name.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
@@ -3567,14 +3934,15 @@ function renderSupervisorDashboard(d) {
         </div>`;
       }).join('');
       return `<div class="staff-person">
-        <div class="staff-name-row">
+        <div class="staff-name-row" onclick="toggleStaffPerson(${i})" style="cursor:pointer">
           <div class="staff-avatar">${initials}</div>
-          <div>
+          <div style="flex:1">
             <div class="staff-fullname">${name}</div>
             <div class="staff-count">${s.count||changes.length} change${(s.count||changes.length)!==1?'s':''} this week</div>
           </div>
+          <span class="staff-chevron" id="staff-chevron-${i}">▾</span>
         </div>
-        ${rows}
+        <div class="staff-changes-wrap hidden" id="staff-changes-${i}">${rows}</div>
       </div>`;
     }).join('<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">');
   } else {
