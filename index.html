@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -440,6 +441,11 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 .thchip.on-df{background:var(--teal-bg);color:var(--teal-t);border-color:var(--teal)}
 .thchip.on-as{background:var(--amber-bg);color:var(--amber-t);border-color:var(--amber)}
 
+/* Update & Batches: Single/Bulk segmented control */
+.mode-seg{display:inline-flex;background:var(--surface2);border-radius:100px;padding:3px;gap:2px}
+.mode-seg-btn{padding:8px 16px;border-radius:100px;font-size:.8125rem;font-weight:700;background:none;color:var(--text2);border:none;cursor:pointer;transition:all .15s}
+.mode-seg-btn.on{background:var(--grad);color:#fff;box-shadow:0 2px 12px rgba(63,169,220,.25)}
+
 /* V12 P1.1: dietitian-first product row */
 .d-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer}
 .d-row:last-child{border-bottom:none}
@@ -719,9 +725,12 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
       <div class="card" style="padding:14px 18px">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
           <span style="font-weight:700;font-size:.9375rem" data-i18n="upd_title">Update & Batches</span>
-          <div style="display:flex;gap:8px">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <button class="btn-toggle" onclick="startWeeklyCount()" data-i18n="btn_count">🔢 Start Count</button>
-            <button class="btn-toggle" onclick="toggleBulk()" id="bulk-toggle-btn">☑️ Bulk Mode</button>
+            <div class="mode-seg" id="mode-seg">
+              <button class="mode-seg-btn on" id="mode-seg-single" onclick="setUpdateMode(false)" data-i18n="btn_single_short">✏️ Single</button>
+              <button class="mode-seg-btn" id="mode-seg-bulk" onclick="setUpdateMode(true)" data-i18n="btn_bulk_short">☑️ Bulk</button>
+            </div>
           </div>
         </div>
       </div>
@@ -740,12 +749,54 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
           </div>
         </div>
 
+        <div id="su-batch-card" class="card hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div class="card-title" style="margin-bottom:0" data-i18n="batches_title">📦 Batches</div>
+            <button class="btn-add" onclick="toggleAddBatchForm()" data-i18n="btn_add_batch">+ Add Batch</button>
+          </div>
+
+          <div id="add-batch-form" class="add-batch-form hidden">
+            <div class="add-batch-form row2">
+              <div class="field" style="margin-bottom:0">
+                <label data-i18n="lbl_expiry">Expiry Date <span style="color:var(--red-t)">*</span></label>
+                <input type="text" id="ab-date-shorthand" placeholder="MM/YY e.g. 07/26" inputmode="numeric" oninput="onExpiryShorthand()" style="margin-bottom:6px">
+                <input type="date" id="ab-date" onchange="saveDraftBatch()">
+              </div>
+              <div class="field" style="margin-bottom:0">
+                <label data-i18n="lbl_qty">Quantity <span style="color:var(--red-t)">*</span></label>
+                <div class="qty-stepper">
+                  <button type="button" class="qty-step-btn" onclick="stepQty(-1)">−1</button>
+                  <input type="number" id="ab-qty" min="0" placeholder="0" inputmode="numeric" oninput="saveDraftBatch()">
+                  <button type="button" class="qty-step-btn" onclick="stepQty(1)">+1</button>
+                </div>
+                <button type="button" class="qty-step-btn" style="width:100%;margin-top:6px" onclick="stepQty(10)" data-i18n="btn_case">+10 (case)</button>
+              </div>
+            </div>
+            <div class="field" style="margin-top:10px">
+              <label data-i18n="lbl_added_by">Added By</label>
+              <div class="identity-line" id="ab-by-disp">—</div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button class="btn-submit" style="margin-top:0;flex:1" id="ab-btn" onclick="submitAddBatch()">
+                <span id="ab-btn-lbl">Add Batch</span>
+              </button>
+              <button onclick="toggleAddBatchForm()" style="padding:12px 16px;border-radius:var(--rs);background:var(--surface2);color:var(--text2);font-size:.875rem;font-weight:600" data-i18n="btn_close">Close</button>
+            </div>
+          </div>
+
+          <div id="batch-list"></div>
+        </div>
+
         <div id="su-status-card" class="card hidden">
           <div class="card-title" data-i18n="set_status">Set Status</div>
-          <div class="df-toggle-row" onclick="toggleSuDispenseFirst()">
-            <span class="df-toggle-lbl" data-i18n="df_toggle">🔄 Mark as Dispense First</span>
-            <span class="df-switch" id="su-df-switch"></span>
+          <div class="df-toggle-row">
+            <span class="df-toggle-lbl" onclick="toggleSuDispenseFirst()" style="cursor:pointer" data-i18n="df_toggle">🔄 Mark as Dispense First</span>
+            <div style="display:flex;align-items:center;gap:10px">
+              <button class="thchip" id="su-dfa-chip" onclick="toggleSuDfAuto()" data-i18n="df_auto_chip">🤖 Auto</button>
+              <span class="df-switch" id="su-df-switch" onclick="toggleSuDispenseFirst()" style="cursor:pointer"></span>
+            </div>
           </div>
+          <div id="su-df-hint" class="settings-desc" style="margin:-8px 0 12px"></div>
           <div class="io-toggle-row" onclick="toggleSuInpatientOnly()">
             <span class="io-toggle-lbl" data-i18n="io_toggle">🏥 Mark as In-Patient Only</span>
             <span class="io-switch" id="su-io-switch"></span>
@@ -792,44 +843,6 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
             <span id="su-btn-lbl">Save Status</span>
           </button>
         </div>
-
-        <div id="su-batch-card" class="card hidden">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-            <div class="card-title" style="margin-bottom:0" data-i18n="batches_title">📦 Batches</div>
-            <button class="btn-add" onclick="toggleAddBatchForm()" data-i18n="btn_add_batch">+ Add Batch</button>
-          </div>
-
-          <div id="add-batch-form" class="add-batch-form hidden">
-            <div class="add-batch-form row2">
-              <div class="field" style="margin-bottom:0">
-                <label data-i18n="lbl_expiry">Expiry Date <span style="color:var(--red-t)">*</span></label>
-                <input type="text" id="ab-date-shorthand" placeholder="MM/YY e.g. 07/26" inputmode="numeric" oninput="onExpiryShorthand()" style="margin-bottom:6px">
-                <input type="date" id="ab-date" onchange="saveDraftBatch()">
-              </div>
-              <div class="field" style="margin-bottom:0">
-                <label data-i18n="lbl_qty">Quantity <span style="color:var(--red-t)">*</span></label>
-                <div class="qty-stepper">
-                  <button type="button" class="qty-step-btn" onclick="stepQty(-1)">−1</button>
-                  <input type="number" id="ab-qty" min="0" placeholder="0" inputmode="numeric" oninput="saveDraftBatch()">
-                  <button type="button" class="qty-step-btn" onclick="stepQty(1)">+1</button>
-                </div>
-                <button type="button" class="qty-step-btn" style="width:100%;margin-top:6px" onclick="stepQty(10)" data-i18n="btn_case">+10 (case)</button>
-              </div>
-            </div>
-            <div class="field" style="margin-top:10px">
-              <label data-i18n="lbl_added_by">Added By</label>
-              <div class="identity-line" id="ab-by-disp">—</div>
-            </div>
-            <div style="display:flex;gap:8px;margin-top:10px">
-              <button class="btn-submit" style="margin-top:0;flex:1" id="ab-btn" onclick="submitAddBatch()">
-                <span id="ab-btn-lbl">Add Batch</span>
-              </button>
-              <button onclick="toggleAddBatchForm()" style="padding:12px 16px;border-radius:var(--rs);background:var(--surface2);color:var(--text2);font-size:.875rem;font-weight:600" data-i18n="btn_close">Close</button>
-            </div>
-          </div>
-
-          <div id="batch-list"></div>
-        </div>
       </div>
 
       <!-- Bulk mode -->
@@ -861,13 +874,33 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
           </div>
           <div class="field">
             <label data-i18n="lbl_note">Note <span style="font-weight:400;opacity:.6">(optional)</span></label>
-            <textarea id="bs-note" rows="2" placeholder="Optional note…"></textarea>
+            <textarea id="bs-note" rows="2" placeholder="Optional note…" oninput="bulkMarkTouched('note', el('bs-note').value.trim())"></textarea>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label data-i18n="lbl_min_units">Min Units for Low Stock</label>
+              <input type="number" id="bs-min" min="1" placeholder="—" oninput="bulkMarkTouched('minUnits', el('bs-min').value)">
+            </div>
+            <div class="field">
+              <label data-i18n="lbl_pack_units">Units per Package</label>
+              <input type="number" id="bs-pack" min="0" placeholder="—" oninput="bulkMarkTouched('unitsPerPackage', el('bs-pack').value)">
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;margin:4px 0 6px;flex-wrap:wrap">
+            <button class="thchip" id="bs-chip-io" onclick="bulkToggleFlag('inpatientOnly','on-io')">IP</button>
+            <button class="thchip" id="bs-chip-ll" onclick="bulkToggleFlag('lifeline','on-ll')">LL</button>
+            <button class="thchip" id="bs-chip-df" onclick="bulkToggleDf()">DF</button>
+            <button class="thchip" id="bs-chip-dfa" onclick="bulkToggleFlag('dfAuto','on-df')">🤖DF</button>
+            <button class="thchip" id="bs-chip-as" onclick="bulkToggleAutoStatus()">🤖ST</button>
+          </div>
+          <div style="font-size:.6875rem;color:var(--text2);margin:0 0 14px;line-height:1.6" data-i18n="bulk_flags_legend">
+            <strong>IP</strong> = In-Patient Only · <strong>LL</strong> = Lifeline · <strong>DF</strong> = Dispense First · <strong>🤖DF</strong> = DF automation · <strong>🤖ST</strong> = Status automation
           </div>
           <div class="field">
             <label data-i18n="lbl_recorded_by">Recorded By</label>
             <div class="identity-line" id="bs-by-disp">—</div>
           </div>
-          <button class="btn-submit" id="bs-btn" onclick="submitBulk()">
+          <button class="btn-submit" id="bs-btn" onclick="submitBulkUnified()" disabled style="opacity:.5">
             <span id="bs-btn-lbl">Save Changes</span>
           </button>
         </div>
@@ -1082,11 +1115,6 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
         </button>
       </div>
       <div class="card">
-        <div class="card-title" data-i18n="set_thresholds">📏 Product Thresholds &amp; Pack Sizes</div>
-        <div style="font-size:.75rem;color:var(--text2);margin-bottom:12px;line-height:1.5" data-i18n="set_thresholds_d">Set each product's low-stock threshold and how many units one supplier package contains — used for package-based order suggestions.</div>
-        <button class="btn-submit" style="margin-top:0" onclick="openThresholdEditor()"><span data-i18n="th_open">Open Editor</span></button>
-      </div>
-      <div class="card">
         <div class="card-title" data-i18n="set_emails">📧 Supervisor Emails</div>
         <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px;line-height:1.5" data-i18n="set_emails_d">Read-only — managed directly in the Settings sheet / Apps Script, not editable from this app.</div>
         <div id="settings-emails"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
@@ -1114,28 +1142,6 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
         <button class="btn-submit" id="cp-btn" onclick="submitChangePassword()">
           <span id="cp-btn-lbl">Change Password</span>
         </button>
-      </div>
-    </div>
-
-    <!-- ═══ THRESHOLD & PACK-SIZE EDITOR (opened from Settings) ═══ -->
-    <div id="pane-thresholds" class="hidden">
-      <div class="card" style="padding:14px 18px;margin-bottom:14px">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-          <button onclick="goTab('settings')" style="font-size:.8125rem;font-weight:700;color:var(--accent);background:none" data-i18n="th_back">← Back to Settings</button>
-          <button class="btn-add" id="th-save-btn" onclick="saveThresholds()" disabled style="opacity:.5"><span id="th-save-lbl" data-i18n="th_save">Save Changes</span></button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title" data-i18n="th_title">📏 Thresholds &amp; Pack Sizes</div>
-        <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px;line-height:1.5" data-i18n="th_desc">Min Units: auto-Low below this count. Units/Pkg: bottles or sachets per supplier package (blank = not set).</div>
-        <div class="search-wrap">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="th-filter" placeholder="Filter products…" oninput="renderThresholdRows()">
-        </div>
-        <div style="padding:6px 2px 8px;font-size:.6875rem;color:var(--text2);line-height:1.6" data-i18n="th_legend">
-          <strong>IP</strong> = In-Patient Only · <strong>LL</strong> = Lifeline · <strong>DF</strong> = Dispense First · <strong>🤖</strong> = Auto Status (Low/Available set automatically from stock)
-        </div>
-        <div id="th-list"></div>
       </div>
     </div>
 
@@ -1177,7 +1183,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 
 <script>
 // ══ Config ════════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxoimOf9yA5ILDo4yweoCX_WvzL995u6PfqAv81b6wCwYuemgZsquaOpZo6IWcmFPmW/exec'; // LIVE backend deployed 2026-07-14 (reorder-estimation/packages/custom-reports batch). Keep in sync with the deployed page; only change on a new Apps Script deployment.
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbDcMR1YZKW9KsJqHwYSUjNEJnttD9ohRmDrvBQG9u_1c4BQaCMxTzDfnvEPRld3y6/exec'; // LIVE backend deployed 2026-07-14 (reorder-estimation/packages/custom-reports batch). Keep in sync with the deployed page; only change on a new Apps Script deployment.
 // Storage PIN is retired — the storage team now signs in with individual
 // email accounts. The supervisor PIN remains as an emergency break-glass login
 // (must match BREAK_GLASS_SUPERVISOR_PIN in APPSCRIPT.js).
@@ -1252,9 +1258,13 @@ const T = {
   // update pane
   upd_title:['Update & Batches','التحديث والدفعات'],
   btn_count:['🔢 Start Count','🔢 بدء الجرد'], btn_bulk:['☑️ Bulk Mode','☑️ الوضع الجماعي'], btn_single:['✏️ Single Mode','✏️ الوضع الفردي'],
+  btn_bulk_short:['☑️ Bulk','☑️ جماعي'], btn_single_short:['✏️ Single','✏️ فردي'],
   sel_product:['Select Product','اختر المنتج'], ph_type_product:['Type product name…','اكتب اسم المنتج…'],
   btn_change:['✕ Change','✕ تغيير'], set_status:['Set Status','تحديد الحالة'],
   df_toggle:['🔄 Mark as Dispense First','🔄 وضع علامة «يُصرف أولاً»'],
+  df_auto_chip:['🤖 Auto','🤖 تلقائي'],
+  df_auto_hint_on:['Automatic — flags when a batch is within {d} days of expiry','تلقائي — يُفعَّل عندما تكون إحدى الدفعات على بعد {d} يوماً من الانتهاء'],
+  df_auto_hint_off:['Manually pinned — tap 🤖 to re-enable automation','مثبّت يدوياً — اضغط 🤖 لإعادة تفعيل التلقائي'],
   io_toggle:['🏥 Mark as In-Patient Only','🏥 للمرضى الداخليين فقط'],
   ll_toggle:['🆘 Mark as Lifeline (critical product)','🆘 منتج حيوي (بالغ الأهمية)'],
   as_toggle:['🤖 Auto Status (Low/Available from stock)','🤖 الحالة التلقائية (منخفض/متوفر حسب المخزون)'],
@@ -1278,6 +1288,7 @@ const T = {
   no_batches:['No batches yet — add one above','لا توجد دفعات بعد — أضف واحدة أعلاه'],
   select_all:['Select All','تحديد الكل'], deselect_all:['✓ Deselect All','✓ إلغاء تحديد الكل'],
   ph_filter:['Filter…','تصفية…'], set_status_sel:['Set Status for Selected','تحديد الحالة للمحدد'],
+  bulk_flags_legend:['<strong>IP</strong> = In-Patient Only · <strong>LL</strong> = Lifeline · <strong>DF</strong> = Dispense First · <strong>🤖DF</strong> = DF automation · <strong>🤖ST</strong> = Status automation','<strong>IP</strong> = للمرضى الداخليين فقط · <strong>LL</strong> = منتج حيوي · <strong>DF</strong> = يُصرف أولاً · <strong>🤖DF</strong> = تلقائي الصرف الأول · <strong>🤖ST</strong> = تلقائي الحالة'],
   save_changes:['Save Changes','حفظ التغييرات'],
   // supervisor pane (card chrome; chart internals stay EN)
   sv_title:['📊 Supervisor Dashboard','📊 لوحة المشرف'], sv_refresh:['↻ Refresh','↻ تحديث'],
@@ -1430,15 +1441,10 @@ function toggleLang(){
     renderIdentityLines(); applyUser(); renderLastSynced();
     if (S.staff.length) renderStaff();
     if (S.offline) setOfflineBanner(true);
-    // on-hand hint in the Update pane is rendered per-selection — refresh it
-    if (S.suProduct) {
-      const ex = S.products.find(p=>p.id===S.suProduct.id);
-      const oh = ex?.batchSummary ? ex.batchSummary.totalValid : null;
-      el('su-min-hint').textContent = (oh!==null ? tf('min_hint',{u:oh, m:ex?.minUnits||S.settings.defaultMinUnits||5}) : '')
-        + (!S.suAutoStatus ? (oh!==null?' · ':'')+t('min_hint_off') : '');
-    }
-    // threshold editor rows carry rendered-in captions — refresh if open
-    if (!el('pane-thresholds').classList.contains('hidden')) renderThresholdRows();
+    // on-hand hint + DF-auto hint in the Update pane are rendered per-selection — refresh them
+    if (S.suProduct) applySuCardState(S.products.find(p=>p.id===S.suProduct.id));
+    // bulk panel flag-chip legend/labels are rendered per-selection — refresh if open
+    if (S.isBulk) renderBulkList();
   } catch(e) {}
 }
 // Localised status labels without touching any renderer: STATUS_CFG.label
@@ -1546,6 +1552,7 @@ const S = {
   suInpatientOnly: false,
   suLifeline: false,
   suAutoStatus: true,
+  suDfAuto: true,
   svReorder: null,
   countProducts: [],
   countIdx: 0,
@@ -2055,7 +2062,7 @@ async function quickSetStatus(productId, status) {
 
 function quickAddBatchFor(productId) {
   closeQuickActions();
-  if (S.isBulk) toggleBulk();
+  if (S.isBulk) setUpdateMode(false);
   goTab('update');
   selectSuProduct(productId);
   setTimeout(()=>{ show('add-batch-form'); openAddBatchFormFields(); el('ab-date-shorthand')?.focus(); }, 250);
@@ -2398,13 +2405,23 @@ function selectSuProduct(id) {
   el('su-chip-name').textContent=S.suProduct.name;
   show('su-chip'); hide('su-dropdown'); el('su-search').value='';
   const existing=S.products.find(p=>p.id===id);
-  S.suStatus=existing?(existing.status||''):null;
   el('su-min').value=existing?.minUnits||S.settings.defaultMinUnits||5;
   el('su-pack').value=existing?.unitsPerPackage||'';
+  applySuCardState(existing);
+  show('su-status-card');
+  loadBatches(id);
+}
+// Applies server-truth product state to the status card's DOM. Called on
+// initial product select AND after any batch mutation (live-resync) so an
+// auto-computed status/Dispense-First flip is visible without reselecting
+// the product. Never touches su-note/su-date — those aren't server-sourced.
+function applySuCardState(existing) {
+  S.suStatus = existing ? (existing.status||'') : S.suStatus;
   S.suDispenseFirst = !!existing?.dispenseFirst;
   S.suInpatientOnly = !!existing?.inpatientOnly;
   S.suLifeline = !!existing?.lifeline;
   S.suAutoStatus = !existing?.manualStatus; // old backend omits the field → automation on
+  S.suDfAuto = existing?.dfAuto !== false;  // old backend omits the field → automation on
   const onHand=existing?.batchSummary?existing.batchSummary.totalValid:null;
   el('su-min-hint').textContent = (onHand!==null
     ? tf('min_hint',{u:onHand, m:existing?.minUnits||S.settings.defaultMinUnits||5}) : '')
@@ -2413,13 +2430,34 @@ function selectSuProduct(id) {
   el('su-io-switch').classList.toggle('on', S.suInpatientOnly);
   el('su-ll-switch').classList.toggle('on', S.suLifeline);
   el('su-as-switch').classList.toggle('on', S.suAutoStatus);
-  highlightSuStatus(S.suStatus);
-  show('su-status-card');
-  loadBatches(id);
+  el('su-dfa-chip')?.classList.toggle('on-df', S.suDfAuto);
+  updateSuDfHint();
+  updateSuStatusGridVisibility();
+  clearSuHighlight(); highlightSuStatus(S.suStatus);
+}
+async function resyncSuCardFromServer() {
+  if (!S.suProduct) return;
+  const pd = await api({action:'getAll'});
+  S.products = pd.products || [];
+  const existing = S.products.find(p=>p.id===S.suProduct.id);
+  applySuCardState(existing);
+  renderProducts();
 }
 function toggleSuDispenseFirst() {
   S.suDispenseFirst = !S.suDispenseFirst;
+  S.suDfAuto = false; // a manual toggle pins it — automation must not silently revert it
   el('su-df-switch').classList.toggle('on', S.suDispenseFirst);
+  el('su-dfa-chip')?.classList.remove('on-df');
+  updateSuDfHint();
+}
+function toggleSuDfAuto() {
+  S.suDfAuto = !S.suDfAuto;
+  el('su-dfa-chip').classList.toggle('on-df', S.suDfAuto);
+  updateSuDfHint();
+}
+function updateSuDfHint() {
+  const hint = el('su-df-hint'); if (!hint) return;
+  hint.textContent = S.suDfAuto ? tf('df_auto_hint_on',{d:S.settings.expiryWarningDays}) : t('df_auto_hint_off');
 }
 function toggleSuInpatientOnly() {
   S.suInpatientOnly = !S.suInpatientOnly;
@@ -2432,17 +2470,27 @@ function toggleSuLifeline() {
 function toggleSuAutoStatus() {
   S.suAutoStatus = !S.suAutoStatus;
   el('su-as-switch').classList.toggle('on', S.suAutoStatus);
+  updateSuStatusGridVisibility();
+}
+// When Auto Status is ON, Available/Low are computed — not pickable (avoids
+// a manual pick getting silently overwritten by the next batch edit/recompute).
+function updateSuStatusGridVisibility() {
+  el('su-s-available')?.classList.toggle('hidden', S.suAutoStatus);
+  el('su-s-low')?.classList.toggle('hidden', S.suAutoStatus);
 }
 function clearSu() {
-  S.suProduct=null;S.suStatus=null;S.suBatches=[];S.suDispenseFirst=false;S.suInpatientOnly=false;S.suLifeline=false;S.suAutoStatus=true;
+  S.suProduct=null;S.suStatus=null;S.suBatches=[];S.suDispenseFirst=false;S.suInpatientOnly=false;S.suLifeline=false;S.suAutoStatus=true;S.suDfAuto=true;
   hide('su-chip');hide('su-status-card');hide('su-batch-card');
   el('su-search').value='';clearSuHighlight();
   if(el('su-pack'))el('su-pack').value='';
   if(el('su-min-hint'))el('su-min-hint').textContent='';
+  if(el('su-df-hint'))el('su-df-hint').textContent='';
   el('su-df-switch')?.classList.remove('on');
   el('su-io-switch')?.classList.remove('on');
   el('su-ll-switch')?.classList.remove('on');
   el('su-as-switch')?.classList.add('on'); // default: automation on
+  el('su-dfa-chip')?.classList.add('on-df'); // default: automation on
+  updateSuStatusGridVisibility();
   hide('add-batch-form');
 }
 function pickSuStatus(s) {
@@ -2468,9 +2516,9 @@ async function submitSingle() {
   const btn=el('su-btn'),lbl=el('su-btn-lbl');
   btn.disabled=true;lbl.innerHTML='<span class="spinner-sm"></span>Saving…';
   try {
-    await api({action:'update',id:S.suProduct.id,status:S.suStatus,note:encodeURIComponent(note),expectedDate:date,updatedBy:encodeURIComponent(by),minUnits:minU,unitsPerPackage:pack,dispenseFirst:S.suDispenseFirst,inpatientOnly:S.suInpatientOnly,lifeline:S.suLifeline,manualStatus:!S.suAutoStatus});
+    await api({action:'update',id:S.suProduct.id,status:S.suStatus,note:encodeURIComponent(note),expectedDate:date,updatedBy:encodeURIComponent(by),minUnits:minU,unitsPerPackage:pack,dispenseFirst:S.suDispenseFirst,inpatientOnly:S.suInpatientOnly,lifeline:S.suLifeline,manualStatus:!S.suAutoStatus,dfAuto:S.suDfAuto});
     const p=S.products.find(x=>x.id===S.suProduct.id);
-    if(p){p.status=S.suStatus;p.note=note;p.expectedDate=date;p.minUnits=minU;p.unitsPerPackage=pack>0?pack:null;p.dispenseFirst=S.suDispenseFirst;p.inpatientOnly=S.suInpatientOnly;p.lifeline=S.suLifeline;p.manualStatus=!S.suAutoStatus;}
+    if(p){p.status=S.suStatus;p.note=note;p.expectedDate=date;p.minUnits=minU;p.unitsPerPackage=pack>0?pack:null;p.dispenseFirst=S.suDispenseFirst;p.inpatientOnly=S.suInpatientOnly;p.lifeline=S.suLifeline;p.manualStatus=!S.suAutoStatus;p.dfAuto=S.suDfAuto;}
     toast(t('t_status_saved'),'ok');
     clearSu();el('su-note').value='';
     renderProducts();
@@ -2590,9 +2638,7 @@ async function submitAddBatch() {
     clearDraftBatch();
     el('ab-date').value=''; el('ab-date-shorthand').value=''; el('ab-qty').value='';
     await loadBatches(S.suProduct.id);
-    const pd=await api({action:'getAll'});
-    S.products=pd.products||[];
-    renderProducts();
+    await resyncSuCardFromServer();
     setTimeout(()=>el('ab-date-shorthand')?.focus(), 100);
   } catch(e){toast(t('t_failed')+e.message,'err');}
   finally{btn.disabled=false;lbl.textContent=t('add_batch');}
@@ -2614,7 +2660,7 @@ async function submitUpdateBatch(batchId) {
     const d=await api({action:'updateBatch',batchId,quantity:newQty,updatedBy:encodeURIComponent(by)});
     toast(`${t('t_qty_saved')}${d.dispensed>0?' · '+d.dispensed+' '+t('units'):''}`,'ok');
     await loadBatches(S.suProduct.id);
-    const pd=await api({action:'getAll'});S.products=pd.products||[];renderProducts();
+    await resyncSuCardFromServer();
   } catch(e){toast(t('t_failed')+e.message,'err');}
 }
 
@@ -2641,7 +2687,7 @@ async function confirmRemoveBatch(batchId, reason) {
     await api({action:'removeBatch',batchId,reason,updatedBy:encodeURIComponent(by)});
     toast(t('t_batch_removed'),'ok');
     await loadBatches(S.suProduct.id);
-    const pd=await api({action:'getAll'});S.products=pd.products||[];renderProducts();
+    await resyncSuCardFromServer();
   } catch(e){toast(t('t_failed')+e.message,'err');}
 }
 
@@ -2763,11 +2809,13 @@ function closeCount() {
 }
 
 // ══ Bulk ═════════════════════════════════════════════════════
-function toggleBulk() {
-  S.isBulk=!S.isBulk;
-  el('single-mode').classList.toggle('hidden',S.isBulk);
-  el('bulk-mode').classList.toggle('hidden',!S.isBulk);
-  el('bulk-toggle-btn').textContent=S.isBulk?t('btn_single'):t('btn_bulk');
+function setUpdateMode(bulk) {
+  S.isBulk=bulk;
+  el('single-mode').classList.toggle('hidden',bulk);
+  el('bulk-mode').classList.toggle('hidden',!bulk);
+  el('mode-seg-single').classList.toggle('on',!bulk);
+  el('mode-seg-bulk').classList.toggle('on',bulk);
+  if (bulk) { resetBulkEdits(); renderBulkList(); }
 }
 function renderBulkList() {
   const q=(el('bulk-search')?.value||'').toLowerCase();
@@ -2791,12 +2839,14 @@ function renderBulkList() {
       <span style="width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.875rem;font-weight:700;background:${sel?'var(--accent)':'var(--surface2)'};color:${sel?'#fff':'var(--text3)'};border:2px solid ${sel?'var(--accent)':'var(--border2)'};transition:all .15s">${sel?'✓':''}</span>
     </div>`;
   }).join('');
+  updateBulkStatusGridVisibility();
 }
 function toggleBulkItem(id,checked) {
   checked?S.bulkIds.add(id):S.bulkIds.delete(id);
   el('bulk-count').textContent=tf('n_selected',{n:S.bulkIds.size});
   syncBulkAll();
   renderBulkList();
+  updateBulkSaveBtn();
 }
 function bulkToggleAll() {
   const q=(el('bulk-search')?.value||'').toLowerCase();
@@ -2806,6 +2856,7 @@ function bulkToggleAll() {
   const allSel=list.length>0&&list.every(p=>S.bulkIds.has(p.id));
   list.forEach(p=>allSel?S.bulkIds.delete(p.id):S.bulkIds.add(p.id));
   renderBulkList();
+  updateBulkSaveBtn();
 }
 function syncBulkAll() {
   const q=(el('bulk-search')?.value||'').toLowerCase();
@@ -2816,20 +2867,101 @@ function syncBulkAll() {
   const lbl=el('bulk-all-lbl');
   if(lbl) lbl.textContent=allSel?t('deselect_all'):t('select_all');
 }
+
+// ── Unified bulk edit state: a field is only sent on Save if `touched` is
+// true, so e.g. editing just the Note doesn't clobber status/flags. ──
+const BULK = {
+  touched: { status:false, note:false, minUnits:false, unitsPerPackage:false,
+             inpatientOnly:false, lifeline:false, dispenseFirst:false, dfAuto:false, autoStatus:false },
+  values:  { status:'', note:'', expectedDate:'', minUnits:null, unitsPerPackage:null,
+             inpatientOnly:false, lifeline:false, dispenseFirst:false, dfAuto:true, autoStatus:true }
+};
+function resetBulkEdits() {
+  Object.keys(BULK.touched).forEach(k=>BULK.touched[k]=false);
+  BULK.values = { status:'', note:'', expectedDate:'', minUnits:null, unitsPerPackage:null,
+    inpatientOnly:false, lifeline:false, dispenseFirst:false, dfAuto:true, autoStatus:true };
+  ['bs-available','bs-low','bs-coming','bs-unavailable'].forEach(id=>el(id)?.classList.remove('picked'));
+  ['bs-chip-io','bs-chip-ll','bs-chip-df','bs-chip-dfa','bs-chip-as'].forEach(id=>el(id)?.classList.remove('on-io','on-ll','on-df','on-as'));
+  if(el('bs-note')) el('bs-note').value='';
+  if(el('bs-min')) el('bs-min').value='';
+  if(el('bs-pack')) el('bs-pack').value='';
+  el('bs-date-wrap')?.classList.add('hidden');
+  updateBulkStatusGridVisibility();
+  updateBulkSaveBtn();
+}
+function bulkMarkTouched(field, rawVal) {
+  BULK.touched[field]=true;
+  BULK.values[field]=rawVal;
+  updateBulkSaveBtn();
+}
+function bulkToggleFlag(key, cls) {
+  BULK.touched[key]=true;
+  BULK.values[key]=!BULK.values[key];
+  const chipId = key==='inpatientOnly'?'bs-chip-io':key==='lifeline'?'bs-chip-ll':'bs-chip-dfa';
+  el(chipId).classList.toggle(cls, BULK.values[key]);
+  updateBulkSaveBtn();
+}
+function bulkToggleDf() {
+  BULK.touched.dispenseFirst=true;
+  BULK.values.dispenseFirst=!BULK.values.dispenseFirst;
+  BULK.touched.dfAuto=true; BULK.values.dfAuto=false; // manual toggle pins it, mirrors single view
+  el('bs-chip-df').classList.toggle('on-df', BULK.values.dispenseFirst);
+  el('bs-chip-dfa').classList.remove('on-df');
+  updateBulkSaveBtn();
+}
+function bulkToggleAutoStatus() {
+  BULK.touched.autoStatus=true;
+  BULK.values.autoStatus=!BULK.values.autoStatus;
+  el('bs-chip-as').classList.toggle('on-as', BULK.values.autoStatus);
+  updateBulkStatusGridVisibility();
+  updateBulkSaveBtn();
+}
+// When Auto Status is ON for the whole selection, Available/Low are computed
+// — hide them from the bulk grid too. Any ambiguity (mixed selection, or the
+// autoStatus chip not explicitly touched off) defaults to showing all four.
+function updateBulkStatusGridVisibility() {
+  let showAll;
+  if (BULK.touched.autoStatus) showAll = !BULK.values.autoStatus;
+  else showAll = [...S.bulkIds].some(id => { const p=S.products.find(x=>x.id===id); return !!p?.manualStatus; }) || S.bulkIds.size===0;
+  el('bs-available')?.classList.toggle('hidden', !showAll);
+  el('bs-low')?.classList.toggle('hidden', !showAll);
+}
 function pickBulkStatus(s) {
-  S.bulkStatus=s;
+  BULK.touched.status=true; BULK.values.status=s;
   ['bs-available','bs-low','bs-coming','bs-unavailable'].forEach(id=>el(id)?.classList.remove('picked'));
   const m={available:'bs-available',low:'bs-low',coming:'bs-coming',unavailable:'bs-unavailable'};
   if(m[s]) el(m[s])?.classList.add('picked');
   el('bs-date-wrap').classList.toggle('hidden',s!=='coming');
+  updateBulkSaveBtn();
 }
-async function submitBulk() {
+function updateBulkSaveBtn() {
+  const n = Object.values(BULK.touched).filter(Boolean).length;
+  const btn = el('bs-btn');
+  if (!btn) return;
+  btn.disabled = n===0 || S.bulkIds.size===0;
+  btn.style.opacity = btn.disabled ? .5 : 1;
+  el('bs-btn-lbl').textContent = n ? `${t('save_changes')} (${n})` : t('save_changes');
+}
+async function submitBulkUnified() {
   if(S.bulkIds.size===0){toast(t('t_sel_product'),'err');return;}
-  if(S.bulkStatus===null){toast(t('t_sel_status'),'err');return;}
   const by=currentActorName();
   if(!by){toast(t('t_signin_first'),'err');toggleMode();return;}
-  const note=el('bs-note').value.trim();
-  const date=S.bulkStatus==='coming'?el('bs-date').value:'';
+  const params={updatedBy:encodeURIComponent(by)};
+  if (BULK.touched.status) {
+    params.status = BULK.values.status;
+    params.note = encodeURIComponent(el('bs-note').value.trim());
+    params.expectedDate = BULK.values.status==='coming' ? el('bs-date').value : '';
+  } else if (BULK.touched.note) {
+    params.note = encodeURIComponent(el('bs-note').value.trim());
+  }
+  if (BULK.touched.minUnits) params.minUnits = parseInt(BULK.values.minUnits)||S.settings.defaultMinUnits||5;
+  if (BULK.touched.unitsPerPackage) params.unitsPerPackage = parseInt(BULK.values.unitsPerPackage)||0;
+  if (BULK.touched.inpatientOnly) params.inpatientOnly = BULK.values.inpatientOnly;
+  if (BULK.touched.lifeline) params.lifeline = BULK.values.lifeline;
+  if (BULK.touched.dispenseFirst) params.dispenseFirst = BULK.values.dispenseFirst;
+  if (BULK.touched.dfAuto) params.dfAuto = BULK.values.dfAuto;
+  if (BULK.touched.autoStatus) params.manualStatus = !BULK.values.autoStatus;
+
   const btn=el('bs-btn'),lbl=el('bs-btn-lbl');
   btn.disabled=true;
   const ids=[...S.bulkIds];let ok=0,fail=0;
@@ -2837,22 +2969,29 @@ async function submitBulk() {
   for(let i=0;i<ids.length;i+=BATCH){
     const chunk=ids.slice(i,i+BATCH);
     lbl.innerHTML=`<span class="spinner-sm"></span>${Math.min(i+BATCH,ids.length)}/${ids.length}…`;
-    const res=await Promise.allSettled(chunk.map(id=>
-      api({action:'update',id,status:S.bulkStatus,note:encodeURIComponent(note),expectedDate:date,updatedBy:encodeURIComponent(by)})
-    ));
+    const res=await Promise.allSettled(chunk.map(id=>api({action:'update',id,...params})));
     res.forEach((r,j)=>{
       if(r.status==='fulfilled'){
         const p=S.products.find(x=>x.id===chunk[j]);
-        if(p){p.status=S.bulkStatus;p.note=note;p.expectedDate=date;}
+        if(p){
+          if(BULK.touched.status) { p.status=BULK.values.status; p.expectedDate=BULK.values.status==='coming'?el('bs-date').value:''; }
+          if(BULK.touched.status||BULK.touched.note) p.note=el('bs-note').value.trim();
+          if(BULK.touched.minUnits) p.minUnits=params.minUnits;
+          if(BULK.touched.unitsPerPackage) p.unitsPerPackage=params.unitsPerPackage>0?params.unitsPerPackage:null;
+          if(BULK.touched.inpatientOnly) p.inpatientOnly=BULK.values.inpatientOnly;
+          if(BULK.touched.lifeline) p.lifeline=BULK.values.lifeline;
+          if(BULK.touched.dispenseFirst) p.dispenseFirst=BULK.values.dispenseFirst;
+          if(BULK.touched.dfAuto) p.dfAuto=BULK.values.dfAuto;
+          if(BULK.touched.autoStatus) p.manualStatus=!BULK.values.autoStatus;
+        }
         ok++;
       } else fail++;
     });
   }
-  btn.disabled=false;lbl.textContent='Save Changes';
   if(fail===0) toast(`✅ ${ok} product${ok>1?'s':''} updated`,'ok');
   else toast(`⚠️ ${ok} saved, ${fail} failed`,'warn');
-  S.bulkIds.clear();S.bulkStatus=null;
-  ['bs-available','bs-low','bs-coming','bs-unavailable'].forEach(id=>el(id)?.classList.remove('picked'));
+  S.bulkIds.clear();
+  resetBulkEdits();
   renderProducts();renderBulkList();
   if(ok>0) flashBulkBadge();
 }
@@ -3278,117 +3417,6 @@ function exportDispenseReportCSV() {
   toast('✅ Report CSV downloaded','ok');
 }
 
-// ══ Threshold & pack-size editor (opened from Settings) ════════
-const TH = { dirty: new Set(), edits: {} };
-function openThresholdEditor() {
-  const by = currentActorName();
-  if (!by) { toast(t('t_signin_first'),'err'); toggleMode(); return; }
-  TH.dirty.clear(); TH.edits = {};
-  el('th-filter').value = '';
-  goTab('thresholds');
-  renderThresholdRows();
-  updateThSaveBtn();
-}
-function renderThresholdRows() {
-  const q = (el('th-filter').value||'').trim().toLowerCase();
-  const list = S.products.filter(p=>!q || p.name.toLowerCase().includes(q));
-  const cap = k => `<span style="font-size:.625rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.03em">${t(k)}</span>`;
-  const chip = (p,key,cls,lbl) => {
-    const on = thFlagVal(p, key);
-    return `<button class="thchip ${on?'on-'+cls:''}" id="th-${cls}-${p.id}" onclick="thToggleFlag('${p.id}','${key}','${cls}')">${lbl}</button>`;
-  };
-  // Unsaved edits live in TH.edits so filtering (which re-renders) keeps them.
-  el('th-list').innerHTML = list.map(p=>{
-    const ed = TH.edits[p.id];
-    const minV = ed ? ed.min : (p.minUnits ?? '');
-    const packV = ed ? ed.pack : (p.unitsPerPackage ?? '');
-    return `<div style="padding:8px 2px;border-bottom:1px solid var(--border)">
-      <div style="font-size:.8125rem;font-weight:600">${p.name}</div>
-      <div style="display:flex;gap:6px;align-items:flex-end;margin-top:5px">
-        <div style="display:flex;flex-direction:column;gap:2px">${cap('th_col_min')}
-          <input type="number" min="0" inputmode="numeric" id="th-min-${p.id}" value="${minV}" oninput="thMarkDirty('${p.id}')" style="width:60px;text-align:center;padding:6px 4px"></div>
-        <div style="display:flex;flex-direction:column;gap:2px">${cap('th_col_pack')}
-          <input type="number" min="0" inputmode="numeric" id="th-pack-${p.id}" value="${packV}" placeholder="—" oninput="thMarkDirty('${p.id}')" style="width:60px;text-align:center;padding:6px 4px"></div>
-        <div style="display:flex;gap:5px;margin-left:auto">
-          ${chip(p,'inpatientOnly','io','IP')}${chip(p,'lifeline','ll','LL')}${chip(p,'dispenseFirst','df','DF')}${chip(p,'autoStatus','as','🤖')}
-        </div>
-      </div>
-    </div>`;
-  }).join('') || '<div class="empty" style="padding:16px"><p style="font-size:.8125rem">No products match</p></div>';
-}
-// Current value of a flag: unsaved edit wins, else the product's saved value.
-// 'autoStatus' is the user-facing sense (true = automation on = manualStatus false).
-function thFlagVal(p, key) {
-  const ed = TH.edits[p.id];
-  if (ed && ed[key] !== undefined) return ed[key];
-  return key === 'autoStatus' ? !p.manualStatus : !!p[key];
-}
-function thEnsureEdit(id) {
-  const p = S.products.find(x=>x.id===id);
-  if (!TH.edits[id]) {
-    TH.edits[id] = {
-      min: el('th-min-'+id).value, pack: el('th-pack-'+id).value,
-      inpatientOnly: !!p.inpatientOnly, lifeline: !!p.lifeline,
-      dispenseFirst: !!p.dispenseFirst, autoStatus: !p.manualStatus
-    };
-  }
-  return TH.edits[id];
-}
-function thToggleFlag(id, key, cls) {
-  const ed = thEnsureEdit(id);
-  ed[key] = !ed[key];
-  el(`th-${cls}-${id}`).classList.toggle('on-'+cls, ed[key]);
-  TH.dirty.add(id);
-  updateThSaveBtn();
-}
-function thMarkDirty(id) {
-  const ed = thEnsureEdit(id);
-  ed.min = el('th-min-'+id).value;
-  ed.pack = el('th-pack-'+id).value;
-  TH.dirty.add(id);
-  updateThSaveBtn();
-}
-function updateThSaveBtn() {
-  const btn = el('th-save-btn');
-  const n = TH.dirty.size;
-  btn.disabled = n===0;
-  btn.style.opacity = n===0 ? .5 : 1;
-  el('th-save-lbl').textContent = n ? `${t('th_save')} (${n})` : t('th_save');
-}
-async function saveThresholds() {
-  const by = currentActorName();
-  if (!by) { toast(t('t_signin_first'),'err'); toggleMode(); return; }
-  const ids = [...TH.dirty];
-  if (!ids.length) return;
-  const btn = el('th-save-btn'), lbl = el('th-save-lbl');
-  btn.disabled = true;
-  let ok = 0, fail = 0;
-  const BATCH = 5;
-  for (let i = 0; i < ids.length; i += BATCH) {
-    const chunk = ids.slice(i, i+BATCH);
-    lbl.innerHTML = `<span class="spinner-sm"></span>${Math.min(i+BATCH, ids.length)}/${ids.length}…`;
-    const res = await Promise.allSettled(chunk.map(id=>{
-      const ed = TH.edits[id];
-      const minU = parseInt(ed.min)||S.settings.defaultMinUnits||5;
-      const pack = parseInt(ed.pack)||0; // 0 clears
-      return api({action:'update', id, minUnits:minU, unitsPerPackage:pack,
-        inpatientOnly:ed.inpatientOnly, lifeline:ed.lifeline, dispenseFirst:ed.dispenseFirst,
-        manualStatus:!ed.autoStatus, updatedBy:encodeURIComponent(by)})
-        .then(()=>{ const p=S.products.find(x=>x.id===id); if(p){
-          p.minUnits=minU; p.unitsPerPackage=pack>0?pack:null;
-          p.inpatientOnly=ed.inpatientOnly; p.lifeline=ed.lifeline;
-          p.dispenseFirst=ed.dispenseFirst; p.manualStatus=!ed.autoStatus;
-        } });
-    }));
-    res.forEach(r=>{ r.status==='fulfilled' ? ok++ : fail++; });
-  }
-  TH.dirty.clear(); TH.edits = {};
-  if (fail===0) toast(tf('t_th_saved',{n:ok}),'ok');
-  else toast(tf('t_th_fail',{ok, fail}),'warn');
-  renderThresholdRows();
-  updateThSaveBtn();
-  renderProducts(); // flags (IP/LL/DF) show as badges on the product lists
-}
 
 function shortDate(s) { const parts=(s||'').split(' '); return parts.slice(0,2).join(' '); }
 
