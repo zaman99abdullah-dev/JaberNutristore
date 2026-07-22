@@ -132,7 +132,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 
 /* Auto-filled identity (who is recording a change) */
 .identity-line{display:flex;align-items:center;gap:7px;padding:11px 12px;border:1.5px solid var(--border2);border-radius:var(--rs);background:rgba(63,169,220,.06);font-size:.9375rem;font-weight:600;color:var(--blue-t);min-height:44px}
-.identity-line::before{content:'🔏';font-size:.9rem;opacity:.9}
+.identity-line::before{content:'';width:14px;height:14px;flex-shrink:0;opacity:.9;background-repeat:no-repeat;background-size:contain;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237cc7ea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E")}
 .identity-line .id-hint{margin-left:auto;font-size:.6875rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
 
 /* App */
@@ -194,7 +194,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 .sbar-r{background:var(--red-bg);  color:var(--red-t);  border-color:rgba(239,68,68,.2)}
 .sbar-x{background:var(--grey-bg); color:var(--grey-t); border-color:rgba(71,85,105,.2)}
 .sbar-i{background:var(--indigo-bg);color:var(--indigo-t);border-color:rgba(99,102,241,.2)}
-.sdot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+.sdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
 .sbar.on{color:#fff;box-shadow:0 2px 12px rgba(0,0,0,.25)}
 .sbar-g.on{background:linear-gradient(135deg,#22c55e,#16a34a)}
 .sbar-a.on{background:linear-gradient(135deg,#f59e0b,#d97706)}
@@ -278,7 +278,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 
 /* Status buttons */
 .status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.sbtn{padding:13px 8px;border-radius:var(--rs);font-size:.8125rem;font-weight:700;border:1.5px solid;text-align:center;background:none;transition:all .15s;line-height:1.3}
+.sbtn{padding:13px 8px;border-radius:var(--rs);font-size:.8125rem;font-weight:700;border:1.5px solid;text-align:center;background:none;transition:all .15s;line-height:1.3;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .sbtn:active{transform:scale(.97)}
 .sbtn.picked{box-shadow:0 0 0 2px currentColor,0 0 0 4px rgba(0,0,0,.3)}
 
@@ -749,7 +749,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
     </div>
     <div style="display:flex;align-items:center">
       <button class="btn-lang" id="lang-btn" onclick="toggleLang()" aria-label="العربية / English">ع</button>
-      <button class="btn-mode" id="mode-btn" onclick="toggleMode()">🔒 Storage</button>
+      <button class="btn-mode" id="mode-btn" onclick="toggleMode()"><svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Sign In</button>
     </div>
   </header>
   <div class="accent-bar"></div>
@@ -777,7 +777,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
         <div class="last-synced" id="last-synced"></div>
         <div class="stats-bar" id="stats-bar"></div>
         <div class="search-wrap">
-          <span class="search-icon">🔍</span>
+          <span class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
           <input type="text" id="prod-search" placeholder="Search products…" oninput="renderProducts()">
         </div>
         <div class="cats" id="prod-cats"></div>
@@ -1054,7 +1054,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
         </div>
         <div class="calc-body collapsed" id="calc-body-waterdeficit">
         <div style="font-size:.75rem;color:var(--text2);margin-bottom:12px;line-height:1.5" data-i18n="calc_wd_desc">Free-water deficit estimate for hypernatremia</div>
-        <div class="fdi-disclaimer"><span aria-hidden="true">⚠️</span> <span data-i18n="calc_wd_caution">Correction rate is a medical decision — risk of osmotic demyelination with rapid correction. For reference only.</span></div>
+        <div class="fdi-disclaimer"><span aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span> <span data-i18n="calc_wd_caution">Correction rate is a medical decision — risk of osmotic demyelination with rapid correction. For reference only.</span></div>
         <div class="row2" style="margin-top:12px">
           <div class="field" style="margin-bottom:0">
             <label data-i18n="calc_lbl_gender">Gender</label>
@@ -1327,7 +1327,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
             <span class="calc-chevron" id="calc-chevron-peds"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
           </div>
           <div class="calc-body collapsed" id="calc-body-peds">
-          <div class="calc-disclaimer-red" style="background:var(--amber-bg);border-color:rgba(245,158,11,.35);color:var(--amber-t)"><span aria-hidden="true">⚠️</span> <span data-i18n="calc_ped_caution">Pediatric estimates — verify against clinical judgment and current guidelines before use.</span></div>
+          <div class="calc-disclaimer-red" style="background:var(--amber-bg);border-color:rgba(245,158,11,.35);color:var(--amber-t)"><span aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span> <span data-i18n="calc_ped_caution">Pediatric estimates — verify against clinical judgment and current guidelines before use.</span></div>
           <div class="field">
             <label for="ped-mode" data-i18n="calc_ped_lbl_mode">Calculation</label>
             <select id="ped-mode" onchange="calcPedModeChange()">
@@ -1456,7 +1456,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
             <span class="calc-chevron" id="calc-chevron-insulin"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
           </div>
           <div class="calc-body collapsed" id="calc-body-insulin">
-          <div class="calc-disclaimer-red"><span aria-hidden="true">🛑</span> <span data-i18n="calc_ins_disclaimer">Educational tool — insulin dosing must follow the treating team's protocol. Never act on these numbers without medical confirmation.</span></div>
+          <div class="calc-disclaimer-red"><span aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M7.86 2h8.28L22 7.86v8.28L16.14 22H7.86L2 16.14V7.86Z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span> <span data-i18n="calc_ins_disclaimer">Educational tool — insulin dosing must follow the treating team's protocol. Never act on these numbers without medical confirmation.</span></div>
           <div class="field">
             <label for="ins-mode" data-i18n="calc_ins_lbl_mode">Calculation</label>
             <select id="ins-mode" onchange="calcInsModeChange()">
@@ -1530,7 +1530,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
       <div class="card">
         <div class="card-title" data-i18n="fdi_title">💊 Food &amp; Drug Interactions</div>
         <div class="fdi-desc" data-i18n="fdi_desc">Look up known interactions between medications and foods in this reference list.</div>
-        <div class="fdi-disclaimer"><span aria-hidden="true">⚠️</span> <span data-i18n="fdi_disclaimer">Reference starter dataset — not a complete interaction database. Verify with a pharmacist.</span></div>
+        <div class="fdi-disclaimer"><span aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span> <span data-i18n="fdi_disclaimer">Reference starter dataset — not a complete interaction database. Verify with a pharmacist.</span></div>
       </div>
 
       <div class="card" style="padding:14px 18px">
@@ -1542,7 +1542,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 
       <div class="card">
         <div class="search-wrap">
-          <span class="search-icon">🔍</span>
+          <span class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
           <input type="text" id="fdi-search" placeholder="Search drugs…" oninput="fdiRenderPicker()" autocomplete="off">
         </div>
         <div class="fdi-picker" id="fdi-picker"></div>
@@ -1700,7 +1700,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
             <span class="bulk-count" id="bulk-count">0 selected</span>
           </div>
           <div class="search-wrap" style="margin-bottom:10px">
-            <span class="search-icon">🔍</span>
+            <span class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
             <input type="text" id="bulk-search" placeholder="Filter…" oninput="renderBulkList()">
           </div>
           <div class="cats" id="bulk-cats"></div>
@@ -1737,8 +1737,8 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
             <button class="thchip" id="bs-chip-io" onclick="bulkToggleFlag('inpatientOnly','on-io')">IP</button>
             <button class="thchip" id="bs-chip-ll" onclick="bulkToggleFlag('lifeline','on-ll')">LL</button>
             <button class="thchip" id="bs-chip-df" onclick="bulkToggleDf()">DF</button>
-            <button class="thchip" id="bs-chip-dfa" onclick="bulkToggleFlag('dfAuto','on-df')">🤖DF</button>
-            <button class="thchip" id="bs-chip-as" onclick="bulkToggleAutoStatus()">🤖ST</button>
+            <button class="thchip" id="bs-chip-dfa" onclick="bulkToggleFlag('dfAuto','on-df')">DFA</button>
+            <button class="thchip" id="bs-chip-as" onclick="bulkToggleAutoStatus()">ST</button>
           </div>
           <div style="font-size:.6875rem;color:var(--text2);margin:0 0 14px;line-height:1.6" data-i18n="bulk_flags_legend">
             <strong>IP</strong> = In-Patient Only · <strong>LL</strong> = Lifeline · <strong>DF</strong> = Dispense First · <strong>🤖DF</strong> = DF automation · <strong>🤖ST</strong> = Status automation
@@ -2000,11 +2000,11 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
           <button onclick="loadLogs()" style="font-size:.8125rem;font-weight:700;color:var(--accent);background:none" data-i18n="sv_refresh">↻ Refresh</button>
         </div>
         <div class="search-wrap">
-          <span class="search-icon">🔍</span>
+          <span class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
           <input type="text" id="log-filter" placeholder="Filter by staff name…" oninput="onLogFilterInput()" style="padding-right:34px">
           <button class="search-clear-btn hidden" id="log-filter-clear" onclick="clearLogFilter()">✕</button>
         </div>
-        <div id="log-list"><div class="empty"><div class="empty-icon">📋</div><p>Loading…</p></div></div>
+        <div id="log-list"><div class="empty"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6"/><path d="M9 16h6"/></svg></div><p>Loading…</p></div></div>
       </div>
     </div>
 
@@ -2031,7 +2031,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 
 <script>
 // ══ Config ════════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweDjJa0mDGB6JZ7hbuuMX3FAKuOtBCjtNxz8HT6slTLLM4cifYAd7F1KGNQZp87HtB/exec'; // LIVE backend deployed 2026-07-14 (reorder-estimation/packages/custom-reports batch). Keep in sync with the deployed page; only change on a new Apps Script deployment.
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8tjSdju4mvzSXbvk9fzfg4v14hbtcumkTShrEQFJHEd0inmqkv2N9eyGUj5k5Eo4x/exec'; // LIVE backend deployed 2026-07-22. Keep in sync with the deployed page; only change on a new Apps Script deployment.
 // Storage PIN is retired — the storage team now signs in with individual
 // email accounts. The supervisor PIN remains as an emergency break-glass login
 // (must match BREAK_GLASS_SUPERVISOR_PIN in APPSCRIPT.js).
@@ -2060,7 +2060,8 @@ const T = {
   nav_staff:['Staff','الموظفون'], nav_settings:['Settings','الإعدادات'], nav_changes:['Changes','التغييرات'],
   pill_dietitian:['Dietitian','أخصائي تغذية'], pill_storage:['Storage','المخزن'],
   pill_supervisor:['Supervisor','المشرف'], pill_sv_pin:['Supervisor · PIN','المشرف · PIN'],
-  btn_signin:['🔒 Sign In','🔒 دخول'], btn_signout:['🔓 Sign Out','🔓 خروج'],
+  btn_signin:['<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Sign In','<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> دخول'],
+  btn_signout:['<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg> Sign Out','<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg> خروج'],
   // loading
   load_sub:['Clinical Nutrition Inventory','مخزون التغذية العلاجية'],
   load_hosp:['Jaber Al Ahmad Al Sabah Hospital','مستشفى جابر الأحمد الصباح'],
@@ -2097,29 +2098,29 @@ const T = {
   cat_Supplements:['Supplements','المكملات'], 'cat_Gluten Free':['Gluten Free','خالٍ من الغلوتين'],
   empty_products:['No products found','لا توجد منتجات'],
   lbl_pinned:['⭐ Pinned','⭐ المثبّتة'], lbl_all_products:['All Products','جميع المنتجات'],
-  units:['units','وحدة'], all_expired:['⚠️ All batches expired','⚠️ جميع الدفعات منتهية'],
-  some_expired:['⚠️ Some expired','⚠️ بعضها منتهٍ'],
+  units:['units','وحدة'], all_expired:['All batches expired','جميع الدفعات منتهية'],
+  some_expired:['Some expired','بعضها منتهٍ'],
   pull_refresh:['↓ Pull to refresh','↓ اسحب للتحديث'],
   // rotate pane
   rotate_title:['<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Rotate Now','<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> التدوير الآن'],
   rotate_sub:['Showing batches expiring within <span id="dispense-days">30</span> days — expired batches are excluded','عرض الدفعات التي تنتهي خلال <span id="dispense-days">30</span> يوماً — الدفعات المنتهية مستثناة'],
   // update pane
   upd_title:['Update & Batches','التحديث والدفعات'],
-  btn_count:['🔢 Start Count','🔢 بدء الجرد'], btn_bulk:['☑️ Bulk Mode','☑️ الوضع الجماعي'], btn_single:['✏️ Single Mode','✏️ الوضع الفردي'],
+  btn_count:['<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg> Start Count','<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg> بدء الجرد'], btn_bulk:['Bulk Mode','الوضع الجماعي'], btn_single:['Single Mode','الوضع الفردي'],
   btn_bulk_short:['<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg> Bulk','<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg> جماعي'],
   btn_single_short:['<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.986L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497Z"/><path d="m15 5 4 4"/></svg> Single','<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.986L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497Z"/><path d="m15 5 4 4"/></svg> فردي'],
   sel_product:['Select Product','اختر المنتج'], ph_type_product:['Type product name…','اكتب اسم المنتج…'],
   btn_change:['✕ Change','✕ تغيير'], set_status:['Set Status','تحديد الحالة'],
-  df_toggle:['🔄 Mark as Dispense First','🔄 وضع علامة «يُصرف أولاً»'],
-  df_auto_chip:['🤖 Auto','🤖 تلقائي'],
+  df_toggle:['<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Mark as Dispense First','<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> وضع علامة «يُصرف أولاً»'],
+  df_auto_chip:['<svg class="qa-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/><path d="M20 9h2"/><path d="M20 15h2"/><path d="M2 9h2"/><path d="M2 15h2"/></svg> Auto','<svg class="qa-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/><path d="M20 9h2"/><path d="M20 15h2"/><path d="M2 9h2"/><path d="M2 15h2"/></svg> تلقائي'],
   df_auto_hint_on:['Automatic — flags when a batch is within {d} days of expiry','تلقائي — يُفعَّل عندما تكون إحدى الدفعات على بعد {d} يوماً من الانتهاء'],
-  df_auto_hint_off:['Manually pinned — tap 🤖 to re-enable automation','مثبّت يدوياً — اضغط 🤖 لإعادة تفعيل التلقائي'],
-  io_toggle:['🏥 Mark as In-Patient Only','🏥 للمرضى الداخليين فقط'],
-  ll_toggle:['🆘 Mark as Lifeline (critical product)','🆘 منتج حيوي (بالغ الأهمية)'],
-  as_toggle:['🤖 Auto Status (Low/Available from stock)','🤖 الحالة التلقائية (منخفض/متوفر حسب المخزون)'],
-  st_available:['🟢 Available','🟢 متوفر'], st_low:['🟡 Low Stock','🟡 مخزون منخفض'],
-  st_coming:['🔵 Coming Soon','🔵 قريباً'], st_unavailable:['🔴 Not Available','🔴 غير متوفر'],
-  st_clear:['🗑️ Clear / Not Set','🗑️ مسح / غير محدد'],
+  df_auto_hint_off:['Manually pinned — tap Auto to re-enable automation','مثبّت يدوياً — اضغط «تلقائي» لإعادة تفعيل التلقائي'],
+  io_toggle:['<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M12 8v6"/><path d="M9 11h6"/></svg> Mark as In-Patient Only','<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M12 8v6"/><path d="M9 11h6"/></svg> للمرضى الداخليين فقط'],
+  ll_toggle:['<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> Mark as Lifeline (critical product)','<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> منتج حيوي (بالغ الأهمية)'],
+  as_toggle:['<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/><path d="M20 9h2"/><path d="M20 15h2"/><path d="M2 9h2"/><path d="M2 15h2"/></svg> Auto Status (Low/Available from stock)','<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/><path d="M20 9h2"/><path d="M20 15h2"/><path d="M2 9h2"/><path d="M2 15h2"/></svg> الحالة التلقائية (منخفض/متوفر حسب المخزون)'],
+  st_available:['<span class="sdot"></span> Available','<span class="sdot"></span> متوفر'], st_low:['<span class="sdot"></span> Low Stock','<span class="sdot"></span> مخزون منخفض'],
+  st_coming:['<span class="sdot"></span> Coming Soon','<span class="sdot"></span> قريباً'], st_unavailable:['<span class="sdot"></span> Not Available','<span class="sdot"></span> غير متوفر'],
+  st_clear:['<svg class="qa-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg> Clear / Not Set','<svg class="qa-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg> مسح / غير محدد'],
   lbl_expected:['Expected Arrival Date','تاريخ الوصول المتوقع'],
   lbl_note:['Note <span style="font-weight:400;opacity:.6">(optional)</span>','ملاحظة <span style="font-weight:400;opacity:.6">(اختياري)</span>'],
   ph_note:['Add a note…','أضف ملاحظة…'], ph_note2:['Optional note…','ملاحظة اختيارية…'],
@@ -2137,7 +2138,7 @@ const T = {
   no_batches:['No batches yet — add one above','لا توجد دفعات بعد — أضف واحدة أعلاه'],
   select_all:['Select All','تحديد الكل'], deselect_all:['✓ Deselect All','✓ إلغاء تحديد الكل'],
   ph_filter:['Filter…','تصفية…'], set_status_sel:['Set Status for Selected','تحديد الحالة للمحدد'],
-  bulk_flags_legend:['<strong>IP</strong> = In-Patient Only · <strong>LL</strong> = Lifeline · <strong>DF</strong> = Dispense First · <strong>🤖DF</strong> = DF automation · <strong>🤖ST</strong> = Status automation','<strong>IP</strong> = للمرضى الداخليين فقط · <strong>LL</strong> = منتج حيوي · <strong>DF</strong> = يُصرف أولاً · <strong>🤖DF</strong> = تلقائي الصرف الأول · <strong>🤖ST</strong> = تلقائي الحالة'],
+  bulk_flags_legend:['<strong>IP</strong> = In-Patient Only · <strong>LL</strong> = Lifeline · <strong>DF</strong> = Dispense First · <strong>DFA</strong> = DF automation · <strong>ST</strong> = Status automation','<strong>IP</strong> = للمرضى الداخليين فقط · <strong>LL</strong> = منتج حيوي · <strong>DF</strong> = يُصرف أولاً · <strong>DFA</strong> = تلقائي الصرف الأول · <strong>ST</strong> = تلقائي الحالة'],
   save_changes:['Save Changes','حفظ التغييرات'],
   // supervisor pane (card chrome; chart internals stay EN)
   sv_title:['<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg> Supervisor Dashboard','<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg> لوحة المشرف'],
@@ -2215,7 +2216,7 @@ const T = {
   calc_entry_desc:['Tube-feeding energy requirement, quick per-kg estimate, and feeding rate','احتياجات الطاقة للتغذية الأنبوبية، تقدير سريع لكل كيلوغرام، ومعدل التغذية'],
   calc_open_btn:['Open Calculators','فتح الحاسبات'], calc_back:['← Back to Products','← عودة إلى المنتجات'],
   calc_energy_title:['<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> 2. Energy Requirement','<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> 2. احتياج الطاقة'],
-  calc_adjauto_toggle:['🤖 Auto-Detect Obesity Adjustment (BMI ≥ 30)','🤖 اكتشاف تلقائي لتعديل السمنة (مؤشر كتلة الجسم ≥ ٣٠)'],
+  calc_adjauto_toggle:['<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/><path d="M20 9h2"/><path d="M20 15h2"/><path d="M2 9h2"/><path d="M2 15h2"/></svg> Auto-Detect Obesity Adjustment (BMI ≥ 30)','<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/><path d="M20 9h2"/><path d="M20 15h2"/><path d="M2 9h2"/><path d="M2 15h2"/></svg> اكتشاف تلقائي لتعديل السمنة (مؤشر كتلة الجسم ≥ ٣٠)'],
   calc_adjmanual_toggle:['Use Adjusted Body Weight','استخدام الوزن المعدّل'],
   calc_energy_desc:['Mifflin-St Jeor resting energy, adjusted for obesity and clinical stress','معادلة ميفلين-سانت جيور لطاقة الراحة، معدّلة للسمنة والإجهاد السريري'],
   calc_lbl_gender:['Gender','الجنس'], calc_male:['Male','ذكر'], calc_female:['Female','أنثى'],
@@ -2250,7 +2251,7 @@ const T = {
   calc_propofol_title:['<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 3. Propofol Calories','<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 3. سعرات البروبوفول'],
   calc_propofol_desc:['Propofol\'s lipid-emulsion vehicle contributes calories that should be subtracted from the nutrition energy target','يساهم المحلول الدهني الحامل للبروبوفول بسعرات حرارية يجب طرحها من هدف الطاقة الغذائي'],
   calc_res_energy:['Energy Requirement','احتياج الطاقة'], calc_res_fluid:['Fluid Requirement','احتياج السوائل'],
-  calc_res_adjnote:['⚠️ BMI ≥ 30 — energy calculated using Adjusted Body Weight ({w} kg) instead of actual weight.','⚠️ مؤشر كتلة الجسم ≥ ٣٠ — تم حساب الطاقة باستخدام الوزن المعدّل ({w} كغم) بدلاً من الوزن الفعلي.'],
+  calc_res_adjnote:['<svg class="qa-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> BMI ≥ 30 — energy calculated using Adjusted Body Weight ({w} kg) instead of actual weight.','<svg class="qa-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> مؤشر كتلة الجسم ≥ ٣٠ — تم حساب الطاقة باستخدام الوزن المعدّل ({w} كغم) بدلاً من الوزن الفعلي.'],
   calc_res_protein:['Protein','البروتين'], calc_res_volume:['Daily Volume','الحجم اليومي'], calc_res_rate:['Infusion Rate','معدل التسريب'],
   calc_res_propofol:['Propofol Calories','سعرات البروبوفول'],
   calc_fr_hint_net:['Auto-filled: {e} kcal/day energy requirement − {p} kcal/day propofol','تعبئة تلقائية: {e} سعرة/يوم احتياج الطاقة − {p} سعرة/يوم من البروبوفول'],
@@ -2365,7 +2366,7 @@ const T = {
   calc_md_res_pro:['Protein','البروتين'],
   calc_md_res_fat:['Fat','الدهون'],
   calc_md_sum_ok:['Splits total 100%','مجموع النسب ١٠٠٪'],
-  calc_md_sum_warn:['⚠️ Percentages total {sum}% (not 100%)','⚠️ مجموع النسب {sum}٪ (ليس ١٠٠٪)'],
+  calc_md_sum_warn:['<svg class="qa-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> Percentages total {sum}% (not 100%)','<svg class="qa-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> مجموع النسب {sum}٪ (ليس ١٠٠٪)'],
   calc_md_hint_net:['Auto-filled from Energy Requirement net target','تعبئة تلقائية من صافي هدف احتياج الطاقة'],
   calc_omd_title:['<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v10l7.07 7.07"/></svg> 4. Macronutrient Distribution','<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v10l7.07 7.07"/></svg> 4. توزيع المغذيات الكبرى'],
   calc_omd_hint_energy:['Auto-filled from the Energy & Protein result above','تعبئة تلقائية من نتيجة الطاقة والبروتين أعلاه'],
@@ -2473,17 +2474,17 @@ const T = {
   // changes pane
   chg_title:['Recent Changes','آخر التغييرات'], ph_staff_filter:['Filter by staff name…','تصفية باسم الموظف…'],
   // offline
-  off_banner:['📡 Offline — showing data saved {age}. Changes can\'t be recorded until you reconnect.','📡 غير متصل — تُعرض بيانات محفوظة {age}. لا يمكن تسجيل التغييرات حتى عودة الاتصال.'],
-  proxy_banner:['⚠️ Data loaded via a fallback connection — refresh to retry a direct connection.','⚠️ تم تحميل البيانات عبر اتصال احتياطي — حدّث الصفحة لإعادة المحاولة عبر اتصال مباشر.'],
+  off_banner:['Offline — showing data saved {age}. Changes can\'t be recorded until you reconnect.','غير متصل — تُعرض بيانات محفوظة {age}. لا يمكن تسجيل التغييرات حتى عودة الاتصال.'],
+  proxy_banner:['Data loaded via a fallback connection — refresh to retry a direct connection.','تم تحميل البيانات عبر اتصال احتياطي — حدّث الصفحة لإعادة المحاولة عبر اتصال مباشر.'],
   ago_now:['just now','الآن'], ago_m:['{n}m ago','قبل {n} د'], ago_h:['{n}h ago','قبل {n} س'], ago_d:['{n}d ago','قبل {n} يوم'],
   // toasts / messages
   t_signed_in:['Signed in as {n}','تم تسجيل الدخول: {n}'], t_signed_out:['Signed out','تم تسجيل الخروج'],
   t_signin_first:['Please sign in first','يرجى تسجيل الدخول أولاً'],
-  t_status_saved:['✅ Status saved','✅ تم حفظ الحالة'], t_failed:['Failed: ','فشل: '],
-  t_batch_added:['✅ Batch added — form ready for next batch','✅ أُضيفت الدفعة — النموذج جاهز للتالية'],
-  t_batch_removed:['Batch removed','تمت إزالة الدفعة'], t_qty_saved:['✅ Qty saved','✅ تم حفظ الكمية'],
-  t_draft:['📝 Draft restored','📝 استُعيدت المسودة'], t_copied:['Copied','تم النسخ'],
-  t_pw_changed:['✅ Password changed','✅ تم تغيير كلمة المرور'],
+  t_status_saved:['Status saved','تم حفظ الحالة'], t_failed:['Failed: ','فشل: '],
+  t_batch_added:['Batch added — form ready for next batch','أُضيفت الدفعة — النموذج جاهز للتالية'],
+  t_batch_removed:['Batch removed','تمت إزالة الدفعة'], t_qty_saved:['Qty saved','تم حفظ الكمية'],
+  t_draft:['Draft restored','استُعيدت المسودة'], t_copied:['Copied','تم النسخ'],
+  t_pw_changed:['Password changed','تم تغيير كلمة المرور'],
   t_sel_product:['Select a product','اختر منتجاً'], t_sel_status:['Select a status','اختر حالة'],
   t_enter_expiry:['Enter expiry date','أدخل تاريخ الانتهاء'], t_enter_qty:['Enter quantity','أدخل الكمية'],
   v_fill_all:['Enter your email and password.','أدخل بريدك الإلكتروني وكلمة المرور.'],
@@ -2491,7 +2492,7 @@ const T = {
   v_email:['Enter a valid email address.','أدخل بريداً إلكترونياً صحيحاً.'],
   v_pw6:['Password must be at least 6 characters.','كلمة المرور ستة أحرف على الأقل.'],
   v_pw_match:['Passwords do not match.','كلمتا المرور غير متطابقتين.'],
-  v_wrong_pin:['❌ Wrong PIN. Try again.','❌ رمز خاطئ. حاول مجدداً.'],
+  v_wrong_pin:['Wrong PIN. Try again.','رمز خاطئ. حاول مجدداً.'],
   t_wait:['Please wait…','يرجى الانتظار…'],
   c_coming:['Coming','قريباً'],
   updated_now:['● Updated just now','● حُدّث الآن'],
@@ -2502,7 +2503,7 @@ const T = {
   no_expiring:['No products expiring within {n} days','لا توجد منتجات تنتهي خلال {n} يوماً'],
   stf_last_in:['· last in','· آخر دخول'],
   stf_awaiting:['{n} awaiting approval','{n} بانتظار الاعتماد'],
-  guard_confirm:['⚠️ This batch expires in {n} days. The patient may not finish it before expiry — consider a longer-dated batch or a smaller quantity. Continue anyway?','⚠️ تنتهي هذه الدفعة خلال {n} يوماً وقد لا يُنهيها المريض قبل انتهاء صلاحيتها — فكّر في دفعة أبعد صلاحية أو كمية أقل. هل تريد المتابعة؟'],
+  guard_confirm:['This batch expires in {n} days. The patient may not finish it before expiry — consider a longer-dated batch or a smaller quantity. Continue anyway?','تنتهي هذه الدفعة خلال {n} يوماً وقد لا يُنهيها المريض قبل انتهاء صلاحيتها — فكّر في دفعة أبعد صلاحية أو كمية أقل. هل تريد المتابعة؟'],
 };
 function t(key){ const e=T[key]; if(!e) return key; return LANG.current==='ar' ? e[1] : e[0]; }
 function tf(key, vars){ let v=t(key); Object.entries(vars||{}).forEach(([k,x])=>{ v=v.replace('{'+k+'}',x); }); return v; }
@@ -2810,7 +2811,7 @@ function fdiRenderPicker() {
   const selId = FDI.mode === 'drug' ? FDI.drugId : FDI.foodId;
   box.innerHTML = list.length
     ? list.map(x => `<button class="cpill fdi-pick-btn ${x.id===selId?'on':''}" onclick="fdiSelect('${x.id}')">${escapeHtml(x.name)}</button>`).join('')
-    : `<div class="empty" style="padding:20px 0;width:100%"><div class="empty-icon">🔍</div><p style="font-size:.8125rem">${t('fdi_empty_search')}</p></div>`;
+    : `<div class="empty" style="padding:20px 0;width:100%"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div><p style="font-size:.8125rem">${t('fdi_empty_search')}</p></div>`;
 }
 
 function fdiSelect(id) {
@@ -2824,7 +2825,7 @@ function fdiRenderResults() {
   if (!box) return;
   const id = FDI.mode === 'drug' ? FDI.drugId : FDI.foodId;
   if (!id) {
-    box.innerHTML = `<div class="card"><div class="empty" style="padding:22px 0"><div class="empty-icon">💊</div><p style="font-size:.8125rem">${FDI.mode==='drug'?t('fdi_empty_pick_drug'):t('fdi_empty_pick_food')}</p></div></div>`;
+    box.innerHTML = `<div class="card"><div class="empty" style="padding:22px 0"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg></div><p style="font-size:.8125rem">${FDI.mode==='drug'?t('fdi_empty_pick_drug'):t('fdi_empty_pick_food')}</p></div></div>`;
     return;
   }
   const rows = [];
@@ -2844,7 +2845,7 @@ function fdiRenderResults() {
   const countLine = `<div class="fdi-count">${tf('fdi_count', { n: rows.length, name: escapeHtml(selName) })}</div>`;
   const cards = rows.length
     ? rows.map(fdiCardHTML).join('')
-    : `<div class="card"><div class="empty" style="padding:22px 0"><div class="empty-icon">✅</div><p style="font-size:.8125rem">${t('fdi_empty_none')}</p></div></div>`;
+    : `<div class="card"><div class="empty" style="padding:22px 0"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="16 9 10.5 15 8 12.5"/></svg></div><p style="font-size:.8125rem">${t('fdi_empty_none')}</p></div></div>`;
   box.innerHTML = countLine + cards;
 }
 
@@ -3160,7 +3161,7 @@ function renderProducts() {
   }
 
   if (!list.length) {
-    el('prod-list').innerHTML='<div class="empty"><div class="empty-icon">🔍</div><p>'+t('empty_products')+'</p></div>';
+    el('prod-list').innerHTML='<div class="empty"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div><p>'+t('empty_products')+'</p></div>';
     return;
   }
 
@@ -3255,7 +3256,7 @@ function openAlternatives(productId) {
       ${a.dispenseFirst?`<span class="df-badge sm">${REFRESH_ICON}</span>`:''}
       <span class="alt-name">${escapeHtml(a.name)}</span>
       <span class="sbadge s-available" style="font-size:.625rem">Available</span>
-    </div>`).join('') : `<div class="empty" style="padding:24px 0"><div class="empty-icon">🔍</div><p style="font-size:.875rem">No alternatives currently available in this category</p></div>`;
+    </div>`).join('') : `<div class="empty" style="padding:24px 0"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div><p style="font-size:.875rem">No alternatives currently available in this category</p></div>`;
   el('alt-sheet').innerHTML = `
     <div class="sheet-backdrop" onclick="if(event.target===this) closeAltSheet()">
       <div class="sheet-panel">
@@ -3299,7 +3300,7 @@ function setupPullToRefresh() {
         S.products = pd.products || [];
         S.lastSynced = Date.now();
         renderProducts();
-        toast('✅ Refreshed','ok');
+        toast('Refreshed','ok');
       } catch(e) { toast('Failed to refresh: '+e.message,'err'); }
       refreshing = false;
     }
@@ -3325,7 +3326,7 @@ function renderExpiring() {
   }
 
   if (!valid.length) {
-    list.innerHTML='<div class="card"><div class="empty"><div class="empty-icon">✅</div><p>'+tf('no_expiring',{n:S.settings.expiryWarningDays})+'</p></div></div>';
+    list.innerHTML='<div class="card"><div class="empty"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="16 9 10.5 15 8 12.5"/></svg></div><p>'+tf('no_expiring',{n:S.settings.expiryWarningDays})+'</p></div></div>';
     return;
   }
   const groups={};
@@ -3391,7 +3392,7 @@ async function quickToggleDispenseFirst(productId) {
   try {
     await api({action:'update', id:productId, dispenseFirst:next, updatedBy:encodeURIComponent(name)});
     p.dispenseFirst = next;
-    toast(next ? '✅ Marked Dispense First' : 'Unflagged Dispense First','ok');
+    toast(next ? 'Marked Dispense First' : 'Unflagged Dispense First','ok');
     renderExpiring();
     renderProducts();
   } catch(e) { toast(t('t_failed')+e.message,'err'); }
@@ -3407,7 +3408,7 @@ async function quickToggleLifeline(productId) {
   try {
     await api({action:'update', id:productId, lifeline:next, updatedBy:encodeURIComponent(name)});
     p.lifeline = next;
-    toast(next ? '✅ Marked as Lifeline' : 'Unflagged Lifeline','ok');
+    toast(next ? 'Marked as Lifeline' : 'Unflagged Lifeline','ok');
     renderProducts();
   } catch(e) { toast(t('t_failed')+e.message,'err'); }
   closeQuickActions();
@@ -3442,7 +3443,7 @@ async function quickSetStatus(productId, status) {
     await api({action:'update', id:productId, status, updatedBy:encodeURIComponent(name)});
     const p = S.products.find(x=>x.id===productId);
     if (p) p.status = status;
-    toast(`✅ Status updated to ${STATUS_CFG[status].label}`,'ok');
+    toast(`Status updated to ${STATUS_CFG[status].label}`,'ok');
     renderProducts();
   } catch(e) { toast(t('t_failed')+e.message,'err'); }
 }
@@ -3505,7 +3506,7 @@ async function doLogin() {
     applyUser();
     goTab(r.role==='supervisor' ? 'supervisor' : 'products');
     toast(tf('t_signed_in',{n:r.name}), 'ok');
-  } catch(e) { el('auth-err').textContent = '❌ '+e.message; }
+  } catch(e) { el('auth-err').textContent = e.message; }
   setAuthBusy('login-btn', false, t('login_btn'));
 }
 
@@ -3530,7 +3531,7 @@ async function doForcedChange() {
     hide('pin-overlay');
     goTab(S.session.role==='supervisor' ? 'supervisor' : 'products');
     toast('Password updated — welcome back, '+S.session.name, 'ok');
-  } catch(e) { err.textContent = '❌ '+e.message; }
+  } catch(e) { err.textContent = e.message; }
   setAuthBusy('np-btn', false, t('np_btn'));
 }
 
@@ -3551,8 +3552,8 @@ async function doSignup() {
     el('lg-email').value = email;
     showAuthView('login');
     if (r.autoApproved) toast('Supervisor account created — sign in now', 'ok');
-    else { el('auth-err').textContent='✅ Account created. A supervisor must approve it before you can sign in.'; }
-  } catch(e) { err.textContent = '❌ '+e.message; }
+    else { el('auth-err').textContent='Account created. A supervisor must approve it before you can sign in.'; }
+  } catch(e) { err.textContent = e.message; }
   setAuthBusy('signup-btn', false, t('signup_btn'));
 }
 
@@ -3622,11 +3623,11 @@ function applyUser() {
   // Changes tab: signed-in staff only — hidden from the logged-out (dietitian) view.
   el('tab-changes')?.classList.toggle('hidden', !role);
   if (role) {
-    btn.textContent=t('btn_signout');
+    btn.innerHTML=t('btn_signout');
     btn.classList.toggle('on', role==='storage');
     btn.classList.toggle('on-sv', role==='supervisor');
   } else {
-    btn.textContent=t('btn_signin'); btn.classList.remove('on','on-sv');
+    btn.innerHTML=t('btn_signin'); btn.classList.remove('on','on-sv');
   }
   renderIdentityLines();
   if (!role && ['update','settings','supervisor','staff','changes'].includes(S.activeTab)) goTab('products');
@@ -4981,12 +4982,12 @@ async function loadStaff() {
     S.staff = d.staff || [];
     renderStaff();
   } catch(e) {
-    box.innerHTML = `<div class="empty"><div class="empty-icon">🔒</div><p>${e.message}</p></div>`;
+    box.innerHTML = `<div class="empty"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><p>${e.message}</p></div>`;
   }
 }
 function renderStaff() {
   const box = el('staff-list');
-  if (!S.staff.length) { box.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><p>'+t('stf_none')+'</p></div>'; return; }
+  if (!S.staff.length) { box.innerHTML = '<div class="empty"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><p>'+t('stf_none')+'</p></div>'; return; }
   const pending = S.staff.filter(s=>s.status==='pending').length;
   el('staff-pending-count').textContent = pending ? tf('stf_awaiting',{n:pending}) : t('stf_caught_up');
   box.innerHTML = S.staff.map(s => {
@@ -5204,13 +5205,13 @@ async function loadBatches(productId) {
     S.suBatches=d.batches||[];
     renderBatches();
   } catch(e) {
-    el('batch-list').innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><p>'+e.message+'</p></div>';
+    el('batch-list').innerHTML='<div class="empty"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div><p>'+e.message+'</p></div>';
   }
 }
 
 function renderBatches() {
   if (!S.suBatches.length) {
-    el('batch-list').innerHTML='<div class="empty" style="padding:20px"><div class="empty-icon">📦</div><p style="font-size:.875rem">'+t('no_batches')+'</p></div>';
+    el('batch-list').innerHTML='<div class="empty" style="padding:20px"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></div><p style="font-size:.875rem">'+t('no_batches')+'</p></div>';
     return;
   }
   el('batch-list').innerHTML=S.suBatches.map(b=>{
@@ -5227,7 +5228,7 @@ function renderBatches() {
     const expDateEnc = encodeForJsAttr(b.expiryDate||'');
     return `<div class="batch-item ${expClass}">
       <div class="batch-header">
-        <div class="batch-exp">📅 Expires: ${escapeHtml(b.expiryDate||'—')}</div>
+        <div class="batch-exp">${CAL_ICON} Expires: ${escapeHtml(b.expiryDate||'—')}</div>
         <span class="urg-badge ${urg}">${daysLbl}</span>
       </div>
       <div class="batch-qty-row">
@@ -5515,7 +5516,7 @@ async function submitCount() {
       ok++;
     } catch(e) { fail++; }
   }
-  toast(fail===0 ? `✅ Count submitted — ${ok} product(s) updated` : `⚠️ ${ok} saved, ${fail} failed`, fail===0?'ok':'warn');
+  toast(fail===0 ? `Count submitted — ${ok} product(s) updated` : `${ok} saved, ${fail} failed`, fail===0?'ok':'warn');
   clearCountDraft();
   closeCount();
   try {
@@ -5710,8 +5711,8 @@ async function submitBulkUnified() {
       } else fail++;
     });
   }
-  if(fail===0) toast(`✅ ${ok} product${ok>1?'s':''} updated`,'ok');
-  else toast(`⚠️ ${ok} saved, ${fail} failed`,'warn');
+  if(fail===0) toast(`${ok} product${ok>1?'s':''} updated`,'ok');
+  else toast(`${ok} saved, ${fail} failed`,'warn');
   S.bulkIds.clear();
   resetBulkEdits();
   renderProducts();renderBulkList();
@@ -5737,7 +5738,7 @@ async function saveSettings() {
     await api({action:'saveSettings',expiryWarningDays:days,defaultMinUnits:minU,outpatientGuardDays:guardDays,leadTimeDays:leadDays,orderCoverageDays:coverage});
     S.settings.expiryWarningDays=days;S.settings.defaultMinUnits=minU;S.settings.outpatientGuardDays=guardDays;S.settings.leadTimeDays=leadDays;S.settings.orderCoverageDays=coverage;
     el('dispense-days').textContent=days;
-    toast('✅ Settings saved','ok');
+    toast('Settings saved','ok');
   } catch(e){toast(t('t_failed')+e.message,'err');}
   finally{btn.disabled=false;lbl.textContent='Save Settings';}
 }
@@ -5748,7 +5749,7 @@ async function loadSettingsEmails() {
     const d = await api({action:'getEmails'});
     const emails = d.emails || [];
     box.innerHTML = emails.length
-      ? emails.map(e=>`<span class="email-tag">📧 ${e}</span>`).join('')
+      ? emails.map(e=>`<span class="email-tag"><svg class="qa-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> ${e}</span>`).join('')
       : '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">No supervisor emails configured</p></div>';
   } catch(e) {
     box.innerHTML = '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">Failed to load: '+e.message+'</p></div>';
@@ -5763,7 +5764,7 @@ async function loadLogs() {
     S.logs = d.logs||[];
     renderLogs();
   } catch(e){
-    el('log-list').innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><p>'+e.message+'</p></div>';
+    el('log-list').innerHTML='<div class="empty"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div><p>'+e.message+'</p></div>';
   }
 }
 function onLogFilterInput() {
@@ -5782,14 +5783,14 @@ function renderLogs() {
   const logs = q ? S.logs.filter(l=>(l.updatedBy||'').toLowerCase().includes(q)) : S.logs;
   if(!logs.length){
     el('log-list').innerHTML = q
-      ? '<div class="empty"><div class="empty-icon">🔍</div><p>No changes found for that staff name</p></div>'
-      : '<div class="empty"><div class="empty-icon">📋</div><p>No changes yet</p></div>';
+      ? '<div class="empty"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div><p>No changes found for that staff name</p></div>'
+      : '<div class="empty"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6"/><path d="M9 16h6"/></svg></div><p>No changes yet</p></div>';
     return;
   }
   const weekAgo = Date.now() - 7*24*60*60*1000;
   const hasRecent = logs.some(l=> l.timestamp && new Date(l.timestamp).getTime() >= weekAgo );
   if (!hasRecent && !q) {
-    el('log-list').innerHTML = '<div class="empty"><div class="empty-icon">🕓</div><p>No changes in the last 7 days</p></div>';
+    el('log-list').innerHTML = '<div class="empty"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><p>No changes in the last 7 days</p></div>';
     return;
   }
   el('log-list').innerHTML=logs.map(l=>{
@@ -5836,7 +5837,7 @@ async function loadSupervisorData() {
     renderTrend(results[3].status==='fulfilled' ? results[3].value : null);
     renderReorder(results[4].status==='fulfilled' ? results[4].value : null);
   } catch(e) {
-    el('sv-loading').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><p style="font-size:.875rem">${e.message}</p><button onclick="loadSupervisorData()" style="margin-top:12px;padding:8px 20px;border-radius:100px;background:var(--grad);color:#fff;font-weight:700;font-size:.8125rem">Retry</button></div>`;
+    el('sv-loading').innerHTML = `<div class="empty"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div><p style="font-size:.875rem">${e.message}</p><button onclick="loadSupervisorData()" style="margin-top:12px;padding:8px 20px;border-radius:100px;background:var(--grad);color:#fff;font-weight:700;font-size:.8125rem">Retry</button></div>`;
   }
 }
 
@@ -5907,7 +5908,7 @@ function renderMostNeeded(d) {
       </div>
       <div class="mn-stats">
         <div class="mn-val">${p.avgWeeklyDispensed}/wk</div>
-        ${p.stockoutCount ? `<div class="mn-stockout">⚠️ ${p.stockoutCount}× out</div>` : ''}
+        ${p.stockoutCount ? `<div class="mn-stockout">${ALERT_TRI_ICON} ${p.stockoutCount}× out</div>` : ''}
       </div>
     </div>`).join('');
 }
@@ -5979,11 +5980,11 @@ function renderReorder(d) {
     : '';
   box.innerHTML = (d.orderNow.length
     ? d.orderNow.map(it=>reorderRowHTML(it, d.leadTimeDays, true)).join('')
-    : '<div class="empty" style="padding:16px"><div class="empty-icon">✅</div><p style="font-size:.875rem">Nothing needs ordering right now</p></div>')
+    : '<div class="empty" style="padding:16px"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="16 9 10.5 15 8 12.5"/></svg></div><p style="font-size:.875rem">Nothing needs ordering right now</p></div>')
     + comingUp + exportBtn;
   lbox.innerHTML = d.lifelineAtRisk.length
     ? d.lifelineAtRisk.map(it=>reorderRowHTML(it, d.leadTimeDays, false)).join('')
-    : '<div class="empty" style="padding:16px"><div class="empty-icon">✅</div><p style="font-size:.875rem">All lifeline products are safe</p></div>';
+    : '<div class="empty" style="padding:16px"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="16 9 10.5 15 8 12.5"/></svg></div><p style="font-size:.875rem">All lifeline products are safe</p></div>';
 }
 
 function exportOrderCSV() {
@@ -6001,7 +6002,7 @@ function exportOrderCSV() {
   (d.orderNow||[]).forEach(it=>push(it,'Order now'));
   (d.comingUp||[]).forEach(it=>push(it,'Coming up'));
   downloadCSV(`order_list_${new Date().toISOString().slice(0,10)}.csv`, rows);
-  toast('✅ Order list downloaded','ok');
+  toast('Order list downloaded','ok');
 }
 
 function renderWaste(d) {
@@ -6044,7 +6045,7 @@ function exportInventoryCSV() {
     rows.push([p.id, p.name, p.category, STATUS_CFG[p.status||''].label, p.batchSummary?p.batchSummary.totalValid:0, p.dispenseFirst?'Yes':'No', p.inpatientOnly?'Yes':'No', p.note||'']);
   });
   downloadCSV(`inventory_${new Date().toISOString().slice(0,10)}.csv`, rows);
-  toast('✅ Inventory CSV downloaded','ok');
+  toast('Inventory CSV downloaded','ok');
 }
 
 async function exportDispensingCSV() {
@@ -6053,7 +6054,7 @@ async function exportDispensingCSV() {
     const rows = [['Product','Units Dispensed','Month']];
     (d.topProducts||[]).forEach(p=> rows.push([p.name, p.total, d.month]));
     downloadCSV(`dispensing_${d.month}.csv`, rows);
-    toast('✅ Dispensing CSV downloaded','ok');
+    toast('Dispensing CSV downloaded','ok');
   } catch(e) { toast(t('t_failed')+e.message,'err'); }
 }
 
@@ -6073,7 +6074,7 @@ async function exportWasteCSV() {
     });
     if (rows.length===1) { toast('No waste entries in loaded logs','warn'); return; }
     downloadCSV(`waste_log_${new Date().toISOString().slice(0,10)}.csv`, rows);
-    toast('✅ Waste log CSV downloaded','ok');
+    toast('Waste log CSV downloaded','ok');
   } catch(e) { toast(t('t_failed')+e.message,'err'); }
 }
 
@@ -6101,7 +6102,7 @@ async function runDispenseReport(params, btn) {
     S.svReport = null;
     box.innerHTML = /unknown action/i.test(e.message||'')
       ? '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">Not available yet — redeploy backend</p></div>'
-      : '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">⚠️ '+e.message+'</p></div>';
+      : '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">'+ALERT_TRI_ICON+' '+e.message+'</p></div>';
   }
 }
 function runDispenseReportThisMonth(btn) {
@@ -6132,7 +6133,7 @@ function renderDispenseReport(d) {
       </div>
       <div class="mn-stats"><div class="mn-val">${p.total}</div></div>
     </div>`).join('')
-    + `<button class="export-btn" style="width:100%;margin-top:10px" onclick="exportDispenseReportCSV()"><span>📆 Export Report (CSV)</span><span class="arr">↓</span></button>`;
+    + `<button class="export-btn" style="width:100%;margin-top:10px" onclick="exportDispenseReportCSV()"><span>${CAL_ICON} Export Report (CSV)</span><span class="arr">↓</span></button>`;
 }
 function exportDispenseReportCSV() {
   const d = S.svReport;
@@ -6141,7 +6142,7 @@ function exportDispenseReportCSV() {
   d.products.forEach(p=>rows.push([p.name, p.total, d.from, d.to]));
   rows.push(['TOTAL', d.grandTotal, d.from, d.to]);
   downloadCSV(`dispensing_report_${d.from}_${d.to}.csv`, rows);
-  toast('✅ Report CSV downloaded','ok');
+  toast('Report CSV downloaded','ok');
 }
 
 
@@ -6228,7 +6229,7 @@ function renderSupervisorDashboard(d) {
     el('sv-total-dispensed').textContent = `${d.totalUnitsDispensed||0} total units`;
     show('sv-dispensed-card');
   } else {
-    el('sv-bar-chart').innerHTML = '<div class="empty" style="padding:16px"><div class="empty-icon">📊</div><p style="font-size:.875rem">No dispensing data this week</p></div>';
+    el('sv-bar-chart').innerHTML = '<div class="empty" style="padding:16px"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></div><p style="font-size:.875rem">No dispensing data this week</p></div>';
   }
 
   // Expiry alerts
@@ -6239,7 +6240,7 @@ function renderSupervisorDashboard(d) {
   const upcoming = ea.upcoming || [];
   let alertHtml = '';
   if (!critical.length && !high.length && !upcoming.length) {
-    alertHtml = '<div class="empty" style="padding:16px"><div class="empty-icon">✅</div><p style="font-size:.875rem">No expiry alerts</p></div>';
+    alertHtml = '<div class="empty" style="padding:16px"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="16 9 10.5 15 8 12.5"/></svg></div><p style="font-size:.875rem">No expiry alerts</p></div>';
   }
   if (critical.length) {
     alertHtml += `<div class="alert-section">
@@ -6312,17 +6313,17 @@ function renderSupervisorDashboard(d) {
       </div>`;
     }).join('<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">');
   } else {
-    el('sv-staff-activity').innerHTML = '<div class="empty" style="padding:16px"><div class="empty-icon">👥</div><p style="font-size:.875rem">No staff activity this week</p></div>';
+    el('sv-staff-activity').innerHTML = '<div class="empty" style="padding:16px"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><p style="font-size:.875rem">No staff activity this week</p></div>';
   }
 
   // Low stock — Apps Script returns: [{name}]
   const ls = d.lowStockProducts || [];
   if (ls.length) {
     el('sv-lowstock-list').innerHTML = '<div class="tag-list">'+ls.map(p =>
-      `<span class="ls-tag">⚠️ ${escapeHtml(p.name)}</span>`
+      `<span class="ls-tag">${ALERT_TRI_ICON} ${escapeHtml(p.name)}</span>`
     ).join('')+'</div>';
   } else {
-    el('sv-lowstock-list').innerHTML = '<div class="empty" style="padding:16px"><div class="empty-icon">✅</div><p style="font-size:.875rem">No low stock products</p></div>';
+    el('sv-lowstock-list').innerHTML = '<div class="empty" style="padding:16px"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="16 9 10.5 15 8 12.5"/></svg></div><p style="font-size:.875rem">No low stock products</p></div>';
   }
 }
 
@@ -6332,12 +6333,12 @@ async function sendReportNow() {
   lbl.innerHTML = '<span class="spinner-sm"></span>Sending…';
   try {
     await api({action:'sendReport'});
-    toast('✅ Report sent to supervisor email','ok');
+    toast('Report sent to supervisor email','ok');
   } catch(e) {
     toast('Failed to send: '+e.message,'err');
   } finally {
     btn.disabled = false;
-    lbl.textContent = '📧 Send Report Now';
+    lbl.innerHTML = t('sv_send');
   }
 }
 
@@ -6372,6 +6373,10 @@ const PACKAGE_ICON = '<svg class="qa-icon" width="13" height="13" viewBox="0 0 2
 const CART_ICON = '<svg class="qa-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>';
 const REFRESH_ICON = '<svg class="qa-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>';
 const HOSPITAL_ICON = '<svg class="qa-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M12 8v6"/><path d="M9 11h6"/></svg>';
+const LIST_ICON = '<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>';
+const AUTO_ICON = '<svg class="qa-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/><path d="M20 9h2"/><path d="M20 15h2"/><path d="M2 9h2"/><path d="M2 15h2"/></svg>';
+const TRASH_ICON = '<svg class="qa-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>';
+const SEARCH_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
 const STAR_FILLED = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg>';
 const PW_EYE_OFF = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M6.61 6.61A18.5 18.5 0 0 0 1 12s4 8 11 8a9.26 9.26 0 0 0 5.39-1.61"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 function togglePwVisibility(btn){
