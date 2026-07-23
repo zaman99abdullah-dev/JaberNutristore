@@ -184,6 +184,17 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 .calc-chevron.open{transform:rotate(180deg)}
 .calc-body.collapsed{display:none}
 
+/* Supervisor Dashboard: collapsible sections grouping the dashboard's cards.
+   Distinct from .calc-* above — these collapse a GROUP of whole .card
+   elements (not one card's own body) and persist their state across reloads
+   (the calculator cards deliberately do not). */
+.sv-sec{margin-bottom:14px}
+.sv-sec-header{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 2px;margin-bottom:10px}
+.sv-sec-title{flex:1;min-width:0;font-size:.8125rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text2)}
+.sv-sec-chevron{font-size:.75rem;color:var(--text2);transition:transform .15s;flex-shrink:0}
+.sv-sec-chevron.open{transform:rotate(180deg)}
+.sv-sec-body.collapsed{display:none}
+
 /* Stats bar */
 .stats-bar{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px}
 .stats-bar::-webkit-scrollbar{display:none}
@@ -1775,125 +1786,179 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 
       <div id="sv-content" class="hidden">
 
-        <!-- Status summary -->
-        <div class="card">
-          <div class="card-title" data-i18n="sv_inventory">📈 Inventory Status</div>
-          <div class="donut-row" id="sv-donut-row" style="margin-bottom:16px"></div>
-          <div class="sv-stat-grid" id="sv-stat-grid"></div>
-        </div>
-
-        <!-- Order Now (reorder intelligence) -->
-        <div class="card" id="sv-reorder-card">
-          <div class="card-title" data-i18n="sv_order">🛒 Order Now</div>
-          <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px" id="sv-reorder-sub">Products projected to run out within the supplier lead time</div>
-          <div id="sv-reorder-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
-        </div>
-
-        <!-- Lifeline at risk -->
-        <div class="card" id="sv-lifeline-card">
-          <div class="card-title" data-i18n="sv_lifeline">🆘 Lifeline at Risk</div>
-          <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px" data-i18n="sv_lifeline_sub">Critical products that are out, low, or running down</div>
-          <div id="sv-lifeline-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
-        </div>
-
-        <!-- Top dispensed -->
-        <div class="card" id="sv-dispensed-card">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-            <div class="card-title" style="margin-bottom:0" data-i18n="sv_top">🔝 Top Dispensed This Week</div>
-            <span id="sv-total-dispensed" style="font-size:.8rem;font-weight:600;color:var(--text2)"></span>
+        <!-- ═══ Overview ═══ -->
+        <div class="sv-sec" id="sv-sec-overview">
+          <div class="sv-sec-header" id="sv-sec-header-overview" role="button" tabindex="0" aria-expanded="true"
+               onclick="svSecToggle('overview')"
+               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+            <span class="sv-sec-title" data-i18n="svsec_overview">Overview</span>
+            <span class="sv-sec-chevron open" id="sv-sec-chevron-overview">▾</span>
           </div>
-          <div class="bar-chart" id="sv-bar-chart"></div>
+          <div class="sv-sec-body" id="sv-sec-body-overview">
+
+            <!-- Status summary -->
+            <div class="card">
+              <div class="card-title" data-i18n="sv_inventory">📈 Inventory Status</div>
+              <div class="donut-row" id="sv-donut-row" style="margin-bottom:16px"></div>
+              <div class="sv-stat-grid" id="sv-stat-grid"></div>
+            </div>
+
+            <!-- Order Now (reorder intelligence) -->
+            <div class="card" id="sv-reorder-card">
+              <div class="card-title" data-i18n="sv_order">🛒 Order Now</div>
+              <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px" id="sv-reorder-sub">Products projected to run out within the supplier lead time</div>
+              <div id="sv-reorder-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
+            </div>
+
+            <!-- Lifeline at risk -->
+            <div class="card" id="sv-lifeline-card">
+              <div class="card-title" data-i18n="sv_lifeline">🆘 Lifeline at Risk</div>
+              <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px" data-i18n="sv_lifeline_sub">Critical products that are out, low, or running down</div>
+              <div id="sv-lifeline-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
+            </div>
+
+            <!-- Expiry alerts -->
+            <div class="card" id="sv-expiry-card">
+              <div class="card-title" data-i18n="sv_alerts">🚨 Expiry Alerts</div>
+              <div id="sv-expiry-alerts"></div>
+            </div>
+
+            <!-- Low stock -->
+            <div class="card" id="sv-lowstock-card">
+              <div class="card-title" data-i18n="sv_lowstock">⚠️ Low Stock Products</div>
+              <div id="sv-lowstock-list"></div>
+            </div>
+
+          </div>
         </div>
 
-        <!-- Custom-period dispensing report -->
-        <div class="card" id="sv-report-card">
-          <div class="card-title" data-i18n="sv_report">📆 Dispensing Report</div>
-          <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px" data-i18n="sv_report_sub">Pick a period — the report is built from actual dispensing records</div>
-          <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px" id="rp-chips">
-            <button class="cpill" data-rp="3" onclick="runDispenseReport({days:3},this)" data-i18n="rp_3d">Last 3 days</button>
-            <button class="cpill" data-rp="7" onclick="runDispenseReport({days:7},this)" data-i18n="rp_7d">Last 7 days</button>
-            <button class="cpill" data-rp="30" onclick="runDispenseReport({days:30},this)" data-i18n="rp_30d">Last 30 days</button>
-            <button class="cpill" data-rp="month" onclick="runDispenseReportThisMonth(this)" data-i18n="rp_month">This month</button>
-            <button class="cpill" data-rp="custom" onclick="toggleReportCustom(this)" data-i18n="rp_custom">Custom…</button>
+        <!-- ═══ Reports & Trends ═══ -->
+        <div class="sv-sec" id="sv-sec-reports">
+          <div class="sv-sec-header" id="sv-sec-header-reports" role="button" tabindex="0" aria-expanded="false"
+               onclick="svSecToggle('reports')"
+               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+            <span class="sv-sec-title" data-i18n="svsec_reports">Reports &amp; Trends</span>
+            <span class="sv-sec-chevron" id="sv-sec-chevron-reports">▾</span>
           </div>
-          <div id="rp-custom-wrap" class="hidden" style="margin-bottom:10px">
-            <div class="row2">
-              <div class="field" style="margin-bottom:8px">
-                <label for="rp-from" data-i18n="rp_from">From</label>
-                <input type="date" id="rp-from">
+          <div class="sv-sec-body collapsed" id="sv-sec-body-reports">
+
+            <!-- Top dispensed -->
+            <div class="card" id="sv-dispensed-card">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+                <div class="card-title" style="margin-bottom:0" data-i18n="sv_top">🔝 Top Dispensed This Week</div>
+                <span id="sv-total-dispensed" style="font-size:.8rem;font-weight:600;color:var(--text2)"></span>
               </div>
-              <div class="field" style="margin-bottom:8px">
-                <label for="rp-to" data-i18n="rp_to">To</label>
-                <input type="date" id="rp-to">
+              <div class="bar-chart" id="sv-bar-chart"></div>
+            </div>
+
+            <!-- Custom-period dispensing report -->
+            <div class="card" id="sv-report-card">
+              <div class="card-title" data-i18n="sv_report">📆 Dispensing Report</div>
+              <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px" data-i18n="sv_report_sub">Pick a period — the report is built from actual dispensing records</div>
+              <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px" id="rp-chips">
+                <button class="cpill" data-rp="3" onclick="runDispenseReport({days:3},this)" data-i18n="rp_3d">Last 3 days</button>
+                <button class="cpill" data-rp="7" onclick="runDispenseReport({days:7},this)" data-i18n="rp_7d">Last 7 days</button>
+                <button class="cpill" data-rp="30" onclick="runDispenseReport({days:30},this)" data-i18n="rp_30d">Last 30 days</button>
+                <button class="cpill" data-rp="month" onclick="runDispenseReportThisMonth(this)" data-i18n="rp_month">This month</button>
+                <button class="cpill" data-rp="custom" onclick="toggleReportCustom(this)" data-i18n="rp_custom">Custom…</button>
+              </div>
+              <div id="rp-custom-wrap" class="hidden" style="margin-bottom:10px">
+                <div class="row2">
+                  <div class="field" style="margin-bottom:8px">
+                    <label for="rp-from" data-i18n="rp_from">From</label>
+                    <input type="date" id="rp-from">
+                  </div>
+                  <div class="field" style="margin-bottom:8px">
+                    <label for="rp-to" data-i18n="rp_to">To</label>
+                    <input type="date" id="rp-to">
+                  </div>
+                </div>
+                <button class="btn-add" onclick="runDispenseReportCustom()" data-i18n="rp_run">Run Report</button>
+              </div>
+              <div id="sv-report-content"><div class="empty" style="padding:12px"><p style="font-size:.8rem" data-i18n="rp_idle">Choose a period above to generate a report</p></div></div>
+            </div>
+
+            <!-- Dispensing history by product -->
+            <div class="card" id="sv-history-card">
+              <div class="card-title" data-i18n="svh_title">🔍 Dispensing History by Product</div>
+              <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px" data-i18n="svh_sub">Search a product to see its full quantity-change history</div>
+              <div class="field">
+                <input type="text" id="svh-search" placeholder="Type product name…" oninput="onSvhSearch()" autocomplete="off">
+                <div id="svh-dropdown" class="dropdown hidden"></div>
+                <div id="svh-chip" class="sel-chip hidden">
+                  <span class="sel-name" id="svh-chip-name"></span>
+                  <button class="sel-clear" onclick="clearSvhProduct()" data-i18n="btn_change">✕ Change</button>
+                </div>
+              </div>
+              <div id="svh-content"><div class="empty" style="padding:12px"><p style="font-size:.8rem" data-i18n="svh_idle">Search a product above to see its history</p></div></div>
+            </div>
+
+            <!-- This Month vs Last Month -->
+            <div class="card" id="sv-monthly-card">
+              <div class="card-title" data-i18n="sv_month">📅 This Month vs Last Month</div>
+              <div id="sv-monthly-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
+            </div>
+
+            <!-- Most Needed -->
+            <div class="card" id="sv-mostneeded-card">
+              <div class="card-title" data-i18n="sv_needed">🎯 Most Needed Products</div>
+              <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px" data-i18n="sv_needed_sub">Ranked by average weekly consumption, last 8 weeks</div>
+              <div id="sv-mostneeded-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
+            </div>
+
+            <!-- Waste tracking -->
+            <div class="card" id="sv-waste-card">
+              <div class="card-title" data-i18n="sv_waste">🗑️ Waste This Month</div>
+              <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px" data-i18n="sv_waste_sub">Batches removed as expired or damaged</div>
+              <div id="sv-waste-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
+            </div>
+
+            <!-- 6-month dispensing trend -->
+            <div class="card" id="sv-trend-card">
+              <div class="card-title" data-i18n="sv_trend">📈 6-Month Dispensing Trend</div>
+              <div class="trend-wrap" id="sv-trend-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ═══ Staff & Admin ═══ -->
+        <div class="sv-sec" id="sv-sec-admin">
+          <div class="sv-sec-header" id="sv-sec-header-admin" role="button" tabindex="0" aria-expanded="false"
+               onclick="svSecToggle('admin')"
+               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+            <span class="sv-sec-title" data-i18n="svsec_admin">Staff &amp; Admin</span>
+            <span class="sv-sec-chevron" id="sv-sec-chevron-admin">▾</span>
+          </div>
+          <div class="sv-sec-body collapsed" id="sv-sec-body-admin">
+
+            <!-- Export -->
+            <div class="card">
+              <div class="card-title" data-i18n="sv_export">📤 Export Data</div>
+              <div class="export-btns">
+                <button class="export-btn" onclick="exportInventoryCSV()"><span data-i18n="sv_exp_inv">📦 Inventory Snapshot (CSV)</span><span class="arr">↓</span></button>
+                <button class="export-btn" onclick="exportDispensingCSV()"><span data-i18n="sv_exp_disp">💊 Dispensing History — This Month (CSV)</span><span class="arr">↓</span></button>
+                <button class="export-btn" onclick="exportWasteCSV()"><span data-i18n="sv_exp_waste">🗑️ Waste Log — Recent (CSV)</span><span class="arr">↓</span></button>
               </div>
             </div>
-            <button class="btn-add" onclick="runDispenseReportCustom()" data-i18n="rp_run">Run Report</button>
+
+            <!-- Staff activity -->
+            <div class="card" id="sv-staff-card">
+              <div class="card-title" data-i18n="sv_activity">👥 Staff Activity This Week</div>
+              <div id="sv-staff-activity"></div>
+            </div>
+
+            <!-- Send report -->
+            <div class="card" style="padding:16px 18px">
+              <div style="font-size:.8125rem;color:var(--text2);margin-bottom:12px;line-height:1.5">
+                Weekly report is automatically emailed every <strong style="color:var(--text)">Saturday at 6:00 PM</strong>. You can also send it now.
+              </div>
+              <button class="btn-send-report" id="sv-send-btn" onclick="sendReportNow()">
+                <span id="sv-send-lbl">📧 Send Report Now</span>
+              </button>
+            </div>
+
           </div>
-          <div id="sv-report-content"><div class="empty" style="padding:12px"><p style="font-size:.8rem" data-i18n="rp_idle">Choose a period above to generate a report</p></div></div>
-        </div>
-
-        <!-- This Month vs Last Month -->
-        <div class="card" id="sv-monthly-card">
-          <div class="card-title" data-i18n="sv_month">📅 This Month vs Last Month</div>
-          <div id="sv-monthly-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
-        </div>
-
-        <!-- Most Needed -->
-        <div class="card" id="sv-mostneeded-card">
-          <div class="card-title" data-i18n="sv_needed">🎯 Most Needed Products</div>
-          <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px" data-i18n="sv_needed_sub">Ranked by average weekly consumption, last 8 weeks</div>
-          <div id="sv-mostneeded-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
-        </div>
-
-        <!-- Waste tracking -->
-        <div class="card" id="sv-waste-card">
-          <div class="card-title" data-i18n="sv_waste">🗑️ Waste This Month</div>
-          <div style="font-size:.75rem;color:var(--text2);margin-bottom:10px" data-i18n="sv_waste_sub">Batches removed as expired or damaged</div>
-          <div id="sv-waste-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
-        </div>
-
-        <!-- 6-month dispensing trend -->
-        <div class="card" id="sv-trend-card">
-          <div class="card-title" data-i18n="sv_trend">📈 6-Month Dispensing Trend</div>
-          <div class="trend-wrap" id="sv-trend-content"><div class="empty" style="padding:12px"><div class="spinner"></div></div></div>
-        </div>
-
-        <!-- Export -->
-        <div class="card">
-          <div class="card-title" data-i18n="sv_export">📤 Export Data</div>
-          <div class="export-btns">
-            <button class="export-btn" onclick="exportInventoryCSV()"><span data-i18n="sv_exp_inv">📦 Inventory Snapshot (CSV)</span><span class="arr">↓</span></button>
-            <button class="export-btn" onclick="exportDispensingCSV()"><span data-i18n="sv_exp_disp">💊 Dispensing History — This Month (CSV)</span><span class="arr">↓</span></button>
-            <button class="export-btn" onclick="exportWasteCSV()"><span data-i18n="sv_exp_waste">🗑️ Waste Log — Recent (CSV)</span><span class="arr">↓</span></button>
-          </div>
-        </div>
-
-        <!-- Expiry alerts -->
-        <div class="card" id="sv-expiry-card">
-          <div class="card-title" data-i18n="sv_alerts">🚨 Expiry Alerts</div>
-          <div id="sv-expiry-alerts"></div>
-        </div>
-
-        <!-- Staff activity -->
-        <div class="card" id="sv-staff-card">
-          <div class="card-title" data-i18n="sv_activity">👥 Staff Activity This Week</div>
-          <div id="sv-staff-activity"></div>
-        </div>
-
-        <!-- Low stock -->
-        <div class="card" id="sv-lowstock-card">
-          <div class="card-title" data-i18n="sv_lowstock">⚠️ Low Stock Products</div>
-          <div id="sv-lowstock-list"></div>
-        </div>
-
-        <!-- Send report -->
-        <div class="card" style="padding:16px 18px">
-          <div style="font-size:.8125rem;color:var(--text2);margin-bottom:12px;line-height:1.5">
-            Weekly report is automatically emailed every <strong style="color:var(--text)">Saturday at 6:00 PM</strong>. You can also send it now.
-          </div>
-          <button class="btn-send-report" id="sv-send-btn" onclick="sendReportNow()">
-            <span id="sv-send-lbl">📧 Send Report Now</span>
-          </button>
         </div>
 
       </div>
@@ -2031,7 +2096,7 @@ label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-b
 
 <script>
 // ══ Config ════════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8tjSdju4mvzSXbvk9fzfg4v14hbtcumkTShrEQFJHEd0inmqkv2N9eyGUj5k5Eo4x/exec'; // LIVE backend deployed 2026-07-22. Keep in sync with the deployed page; only change on a new Apps Script deployment.
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5TLRPSNG-7Y7CN2mE9l48Ag44r1rquO3KKg_LK9W-WXvFAweglq-yavPZAce0wcvk/exec'; // LIVE backend deployed 2026-07-23 (adds getDispenseHistory). Keep in sync with the deployed page; only change on a new Apps Script deployment.
 // Storage PIN is retired — the storage team now signs in with individual
 // email accounts. The supervisor PIN remains as an emergency break-glass login
 // (must match BREAK_GLASS_SUPERVISOR_PIN in APPSCRIPT.js).
@@ -2143,6 +2208,9 @@ const T = {
   // supervisor pane (card chrome; chart internals stay EN)
   sv_title:['<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg> Supervisor Dashboard','<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg> لوحة المشرف'],
   sv_refresh:['<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Refresh','<svg class="qa-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> تحديث'],
+  svsec_overview:['Overview','نظرة عامة'],
+  svsec_reports:['Reports & Trends','التقارير والاتجاهات'],
+  svsec_admin:['Staff & Admin','الموظفون والإدارة'],
   sv_inventory:['<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> Inventory Status','<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> حالة المخزون'],
   sv_order:['<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg> Order Now','<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg> اطلب الآن'],
   sv_lifeline:['<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> Lifeline at Risk','<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> منتجات حيوية في خطر'],
@@ -2156,6 +2224,12 @@ const T = {
   rp_idle:['Choose a period above to generate a report','اختر فترة أعلاه لإنشاء التقرير'],
   rp_empty:['No dispensing recorded in this period','لا يوجد صرف مسجل في هذه الفترة'],
   t_rp_range:['Pick both dates (From ≤ To)','اختر التاريخين (من ≤ إلى)'],
+  svh_title:['<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg> Dispensing History by Product','<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg> سجل الصرف حسب المنتج'],
+  svh_sub:['Search a product to see its full quantity-change history','ابحث عن منتج لعرض سجل التغييرات الكاملة على كميته'],
+  svh_idle:['Search a product above to see its history','ابحث عن منتج أعلاه لعرض سجله'],
+  svh_empty:['No dispensing events recorded for this product','لا توجد أحداث صرف مسجلة لهذا المنتج'],
+  svh_capped:['Showing most recent {shown} of {total} events','عرض أحدث {shown} من أصل {total} حدثاً'],
+  svh_summary:['{n} events · net {t} units · {from} to {to}','{n} حدثاً · صافي {t} وحدة · من {from} إلى {to}'],
   sv_month:['<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M3 10h18"/></svg> This Month vs Last Month','<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M3 10h18"/></svg> هذا الشهر مقابل الماضي'],
   sv_needed:['<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Most Needed Products','<svg class="calc-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> المنتجات الأكثر احتياجاً'],
   sv_needed_sub:['Ranked by average weekly consumption, last 8 weeks','مرتبة حسب متوسط الاستهلاك الأسبوعي لآخر ٨ أسابيع'],
@@ -2920,6 +2994,7 @@ window.onload = async () => {
   renderAmpSegments();
   calcCeEquationChange(); calcOpEquationChange(); calcPedModeChange(); calcInsModeChange();
   calcInitPins(); // Ledger 6-12 — restore calculator card pin state/order (all cards start collapsed regardless)
+  svSecInit(); // restore Supervisor Dashboard section expand/collapse state
   try {
     const [pd, sd, ed] = await Promise.all([
       api({action:'getAll'}),
@@ -3015,7 +3090,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 // view must keep working with zero login.
 const WRITE_ACTIONS = new Set(['update','addBatch','updateBatch','removeBatch','saveSettings','sendReport']);
 const AUTH_ACTIONS  = new Set(['signup','login','logout','me','listStaff','approveStaff','setStaffStatus','resetStaffPassword','changePassword']);
-const AUTH_READ_ACTIONS = new Set(['getSupervisorData','getEmails','getLogs']);
+const AUTH_READ_ACTIONS = new Set(['getSupervisorData','getEmails','getLogs','getDispenseHistory']);
 const AUTH_ERR_CODES = { AUTH_REQUIRED:'Please sign in to make changes.', SUPERVISOR_REQUIRED:'Supervisor access is required for this action.', SESSION_EXPIRED:'Your session has expired — please sign in again.' };
 
 async function api(params) {
@@ -3807,6 +3882,38 @@ function calcInitPins() {
     pinnedSet.forEach(token => calcSyncPinButton(section, token));
     calcReorderCards(section);
   });
+}
+
+// ══ Supervisor Dashboard — collapsible sections ═════════════════════════
+// Groups the dashboard's cards into 3 labeled sections. Unlike the
+// calculator cards' expand state (in-memory only, see calcToggleExpand
+// above), section state here persists per supervisor via localStorage —
+// a dashboard checked occasionally benefits from remembering what was
+// left open, unlike mid-task calculator chaining.
+const SV_SECTIONS = ['overview','reports','admin'];
+const SV_SECTION_DEFAULTS = {overview:true, reports:false, admin:false}; // true = expanded
+const SVSEC = {expanded:{}};
+function svSecLoadState() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('ns_sv_sections')||'{}'); } catch(e) { saved = {}; }
+  SV_SECTIONS.forEach(id => { SVSEC.expanded[id] = (id in saved) ? !!saved[id] : SV_SECTION_DEFAULTS[id]; });
+}
+function svSecSave() { localStorage.setItem('ns_sv_sections', JSON.stringify(SVSEC.expanded)); }
+function svSecApplyDom(id) {
+  const expanded = SVSEC.expanded[id];
+  el('sv-sec-body-'+id)?.classList.toggle('collapsed', !expanded);
+  el('sv-sec-chevron-'+id)?.classList.toggle('open', expanded);
+  el('sv-sec-header-'+id)?.setAttribute('aria-expanded', String(expanded));
+}
+// Static markup already encodes SV_SECTION_DEFAULTS (Overview open,
+// Reports/Admin collapsed), so a first-ever visitor with no localStorage
+// entry sees the right state with zero JS needed — this only overrides
+// when a stored value differs from the default.
+function svSecInit() { svSecLoadState(); SV_SECTIONS.forEach(svSecApplyDom); }
+function svSecToggle(id) {
+  SVSEC.expanded[id] = !SVSEC.expanded[id];
+  svSecApplyDom(id);
+  svSecSave();
 }
 
 function calcNum(id) {
@@ -6145,6 +6252,70 @@ function exportDispenseReportCSV() {
   toast('Report CSV downloaded','ok');
 }
 
+// ══ Dispensing history by product ══════════════════════════════
+function onSvhSearch() {
+  buildDropdown('svh-dropdown', el('svh-search').value, selectSvhProduct);
+}
+function selectSvhProduct(id) {
+  const p = PRODUCTS.find(p=>p.id===id);
+  if (!p) return;
+  S.svhProductId = id;
+  el('svh-chip-name').textContent = p.name;
+  show('svh-chip'); hide('svh-dropdown'); el('svh-search').value='';
+  loadDispenseHistory(id);
+}
+function clearSvhProduct() {
+  S.svhProductId = null; S.svhData = null;
+  hide('svh-chip'); el('svh-search').value='';
+  el('svh-content').innerHTML = `<div class="empty" style="padding:12px"><p style="font-size:.8rem">${t('svh_idle')}</p></div>`;
+}
+async function loadDispenseHistory(productId) {
+  const box = el('svh-content');
+  box.innerHTML = '<div class="empty" style="padding:12px"><div class="spinner"></div></div>';
+  try {
+    const d = await api({action:'getDispenseHistory', productId});
+    S.svhData = d;
+    renderDispenseHistory(d);
+  } catch(e) {
+    S.svhData = null;
+    box.innerHTML = /unknown action/i.test(e.message||'')
+      ? '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">Not available yet — redeploy backend</p></div>'
+      : '<div class="empty" style="padding:12px"><p style="font-size:.8125rem">'+ALERT_TRI_ICON+' '+e.message+'</p></div>';
+  }
+}
+function renderDispenseHistory(d) {
+  const box = el('svh-content');
+  if (!d.events || !d.events.length) {
+    box.innerHTML = `<div class="empty" style="padding:12px"><p style="font-size:.8125rem">${t('svh_empty')}</p></div>`;
+    return;
+  }
+  const summary = tf('svh_summary', {n:d.eventCount, t:d.totalDispensed, from:d.firstEventDate||'', to:d.lastEventDate||''});
+  const capNote = d.capped
+    ? `<div style="font-size:.75rem;color:var(--amber-t);margin-bottom:8px">${ALERT_TRI_ICON} ${tf('svh_capped',{shown:d.events.length, total:d.eventCount})}</div>`
+    : '';
+  box.innerHTML = `
+    <div style="font-size:.8rem;font-weight:700;color:var(--text2);margin-bottom:8px">${escapeHtml(summary)}</div>`
+    + capNote
+    + d.events.map(ev => {
+        const sign = ev.dispensed > 0 ? '-' : ev.dispensed < 0 ? '+' : '±';
+        const color = ev.dispensed > 0 ? 'var(--red-t)' : ev.dispensed < 0 ? 'var(--green-t)' : 'var(--text2)';
+        const dt = ev.timestamp ? new Date(ev.timestamp) : null;
+        const dateStr = dt && !isNaN(dt.getTime()) ? dt.toLocaleString() : '';
+        return `<div class="alert-item">
+        <div class="alert-name">${CAL_ICON} ${escapeHtml(dateStr)} <span style="color:${color};font-weight:700">${sign}${Math.abs(ev.dispensed)}</span></div>
+        <div class="alert-meta">${escapeHtml(ev.batchId)} · ${escapeHtml(ev.expiryDate)} · ${escapeHtml(ev.updatedBy)}</div>
+      </div>`;
+      }).join('')
+    + `<button class="export-btn" style="width:100%;margin-top:10px" onclick="exportDispenseHistoryCSV()"><span>${CAL_ICON} Export History (CSV)</span><span class="arr">↓</span></button>`;
+}
+function exportDispenseHistoryCSV() {
+  const d = S.svhData;
+  if (!d || !d.events || !d.events.length) { toast('Nothing to export','warn'); return; }
+  const rows = [['Date','Batch','Expiry','Previous Qty','New Qty','Change','Updated By']];
+  d.events.forEach(ev => rows.push([ev.timestamp, ev.batchId, ev.expiryDate, ev.previousQty, ev.newQty, ev.dispensed, ev.updatedBy]));
+  downloadCSV(`dispense_history_${d.productId}_${new Date().toISOString().slice(0,10)}.csv`, rows);
+  toast('History CSV downloaded','ok');
+}
 
 function shortDate(s) { const parts=(s||'').split(' '); return parts.slice(0,2).join(' '); }
 
